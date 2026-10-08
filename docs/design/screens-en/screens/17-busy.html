@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Busy</title>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=M+PLUS+Rounded+1c:wght@700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.jig{animation:jig 0.9s ease-in-out infinite}
+.jig2{animation-delay:0.2s}
+.jig3{animation-delay:0.5s}
+@keyframes jig{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+.bar{animation:bar 10s linear infinite}
+@keyframes bar{0%{width:100%}100%{width:0%}}
+@media (prefers-reduced-motion: reduce){.jig,.bar{animation:none}.bar{width:60%}}
+</style>
+<style>
+body{background:#E6E6E6;display:flex;justify-content:center}
+</style>
+</head>
+<body>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #FFE45E; color: #111111; font-family: 'M PLUS Rounded 1c', sans-serif; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+  <button style="position: absolute; top: 2px; right: 10px; z-index: 100; height: 17px; box-sizing: border-box; padding: 0 9px; border: 2px solid #111111; border-radius: 999px; background: #FFFFFF; color: #111111; font-family: 'M PLUS Rounded 1c', sans-serif; font-size: 10px; line-height: 13px; font-weight: 800; cursor: pointer">日本語</button>
+  <div style="padding: 24px 4px 0 4px">
+    <div style="font-family: 'Dela Gothic One', sans-serif; font-size: 32px; line-height: 40px">It's crowded</div>
+    <div style="font-size: 14px; line-height: 20px; font-weight: 800">Lots of people are playing</div>
+  </div>
+
+  <div style="background: #FFFFFF; border: 4px solid #111111; border-radius: 20px; box-shadow: 6px 6px 0 #111111; padding: 18px 14px; display: flex; flex-direction: column; align-items: center; gap: 14px">
+    <div style="position: relative; width: 300px; height: 120px; box-sizing: border-box; border: 3px solid #111111; border-radius: 14px; background: #FFF8D6; overflow: hidden">
+      <div style="position: absolute; left: 0; right: 0; bottom: 10px; height: 16px; background: #EBDC9A; border-top: 3px solid #111111; box-sizing: border-box"></div>
+      <svg class="jig" viewBox="0 0 22 32" style="position: absolute; left: 8px; bottom: 16px; width: 30px; height: 44px"><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#3A86FF" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#FFD9B8" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M4 11 Q4 4 11 4 Q18 4 18 11 Q15.5 8 11 8.2 Q6.5 8 4 11 Z" fill="#3B2A20" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></path></svg>
+      <svg class="jig jig2" viewBox="0 0 22 32" style="position: absolute; left: 40px; bottom: 24px; width: 30px; height: 44px"><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#FF9F1C" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#E8B58A" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><polygon points="4,11 3.5,4.5 7,6.5 8,1.5 11,5.2 14,1.5 15,6.5 18.5,4.5 18,11 15,8.2 11,9 7,8.2" fill="#111111" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></polygon></svg>
+      <svg class="jig jig3" viewBox="0 0 22 32" style="position: absolute; left: 72px; bottom: 16px; width: 30px; height: 44px"><circle cx="11" cy="10" r="9.5" fill="#111111" stroke="#111111" stroke-width="1.5"></circle><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#9B5DE5" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#C98B5E" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle></svg>
+      <svg class="jig" viewBox="0 0 22 32" style="position: absolute; left: 104px; bottom: 24px; width: 30px; height: 44px"><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#00B8D9" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#E8B58A" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M4 11 Q4 4 11 4 Q18 4 18 11 Q15.5 8 11 8.2 Q6.5 8 4 11 Z" fill="#111111" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></path><circle cx="8.4" cy="12" r="2.3" fill="#FFFFFF" fill-opacity="0.6" stroke="#111111" stroke-width="1.2"></circle><circle cx="13.6" cy="12" r="2.3" fill="#FFFFFF" fill-opacity="0.6" stroke="#111111" stroke-width="1.2"></circle><line x1="10.7" y1="12" x2="11.3" y2="12" stroke="#111111" stroke-width="1.2"></line></svg>
+      <svg class="jig jig2" viewBox="0 0 22 32" style="position: absolute; left: 136px; bottom: 16px; width: 30px; height: 44px"><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#FFC400" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#FFD9B8" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M3.8 10 Q3.8 3.6 11 3.6 Q18.2 3.6 18.2 10 Z" fill="#FF3B5C" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></path><path d="M10 9.6 H20.5 Q21.2 11.4 19.5 11.6 H10 Z" fill="#FF3B5C" stroke="#111111" stroke-width="1.3" stroke-linejoin="round"></path></svg>
+      <svg class="jig" viewBox="0 0 22 32" style="position: absolute; left: 168px; bottom: 24px; width: 30px; height: 44px"><circle cx="18.6" cy="15" r="3" fill="#D94F30" stroke="#111111" stroke-width="1.5"></circle><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#FF5C8A" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#FFD9B8" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M4 11 Q4 4 11 4 Q18 4 18 11 Q15.5 8 11 8.2 Q6.5 8 4 11 Z" fill="#D94F30" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></path></svg>
+      <svg class="jig jig3" viewBox="0 0 22 32" style="position: absolute; left: 200px; bottom: 16px; width: 30px; height: 44px"><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#7CB518" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#FFD9B8" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M3.8 9.5 Q3.8 2.8 11 2.8 Q18.2 2.8 18.2 9.5 Z" fill="#3A86FF" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></path><rect x="3.4" y="8" width="15.2" height="3" rx="1.2" fill="#FFFFFF" stroke="#111111" stroke-width="1.3"></rect><circle cx="11" cy="2" r="2" fill="#FFFFFF" stroke="#111111" stroke-width="1.2"></circle></svg>
+      <svg class="jig" viewBox="0 0 22 32" style="position: absolute; left: 232px; bottom: 24px; width: 30px; height: 44px"><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#3A86FF" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#E8B58A" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M8.5 5.5 L8 1 L9.8 3 L11 0.8 L12.2 3 L14 1 L13.5 5.5 Z" fill="#FF5C8A" stroke="#111111" stroke-width="1.2" stroke-linejoin="round"></path></svg>
+      <svg class="jig jig2" viewBox="0 0 22 32" style="position: absolute; left: 264px; bottom: 16px; width: 30px; height: 44px"><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#9B5DE5" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#FFD9B8" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M4 11 Q4 4 11 4 Q18 4 18 11 Q15.5 8 11 8.2 Q6.5 8 4 11 Z" fill="#E5B800" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></path></svg>
+    </div>
+    <div style="font-size: 16px; line-height: 22px; font-weight: 800; text-align: center">Please wait a bit and try again</div>
+    <div style="width: 100%; display: flex; flex-direction: column; gap: 6px">
+      <div style="display: flex; align-items: baseline; justify-content: space-between">
+        <div style="font-size: 12px; line-height: 16px; font-weight: 800; color: #5B6577">Retrying automatically</div>
+        <div style="font-family: 'Dela Gothic One', sans-serif; font-size: 16px; line-height: 20px">10s</div>
+      </div>
+      <div style="height: 14px; box-sizing: border-box; border: 3px solid #111111; border-radius: 999px; background: #FFF8D6; overflow: hidden">
+        <div class="bar" style="height: 100%; background: #FF5C8A"></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex-grow: 1"></div>
+  <button style="flex-shrink: 0; height: 64px; border: 4px solid #111111; background: #FF5C8A; color: #111111; border-radius: 20px; box-shadow: 5px 5px 0 #111111; font-family: 'Dela Gothic One', sans-serif; font-size: 22px; cursor: pointer">Try now</button>
+</div>
+</body>
+</html>

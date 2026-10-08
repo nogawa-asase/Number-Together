@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>自分の画面</title>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=M+PLUS+Rounded+1c:wght@700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.bob{animation:bob 1.6s ease-in-out infinite;transform-origin:50% 100%}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@media (prefers-reduced-motion: reduce){.bob{animation:none}}
+</style>
+<style>
+body{background:#E6E6E6;display:flex;justify-content:center}
+</style>
+</head>
+<body>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #FFE45E; color: #111111; font-family: 'M PLUS Rounded 1c', sans-serif; padding: 20px; display: flex; flex-direction: column; gap: 12px">
+  <button style="position: absolute; top: 2px; right: 10px; z-index: 100; height: 17px; box-sizing: border-box; padding: 0 9px; border: 2px solid #111111; border-radius: 999px; background: #FFFFFF; color: #111111; font-family: 'M PLUS Rounded 1c', sans-serif; font-size: 10px; line-height: 13px; font-weight: 800; cursor: pointer">English</button>
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 4px 0 4px">
+    <div style="font-family: 'Dela Gothic One', sans-serif; font-size: 28px; line-height: 36px">じぶんの画面</div>
+    <div style="width: 40px; height: 40px; box-sizing: border-box; border: 3px solid #111111; border-radius: 50%; background: #FFFFFF; display: flex; align-items: center; justify-content: center">
+      <svg viewBox="0 0 24 24" style="display: block; width: 18px; height: 18px" fill="none" stroke="#111111" stroke-width="3.5" stroke-linecap="round" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19"></path></svg>
+    </div>
+  </div>
+
+  <div style="background: #FFFFFF; border: 4px solid #111111; border-radius: 20px; box-shadow: 6px 6px 0 #111111; padding: 14px; display: flex; align-items: center; gap: 16px">
+    <div style="position: relative; width: 84px; height: 118px; flex-shrink: 0; box-sizing: border-box; background: #FFF8D6; border: 3px solid #111111; border-radius: 14px; overflow: hidden">
+      <div style="position: absolute; left: 0; right: 0; bottom: 10px; height: 14px; background: #EBDC9A; border-top: 3px solid #111111; box-sizing: border-box"></div>
+      <svg class="bob" viewBox="0 0 22 32" style="position: absolute; left: 14px; bottom: 14px; width: 52px; height: 76px"><circle cx="18.6" cy="15" r="3" fill="#D94F30" stroke="#111111" stroke-width="1.5"></circle><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#FF5C8A" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#FFD9B8" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M4 11 Q4 4 11 4 Q18 4 18 11 Q15.5 8 11 8.2 Q6.5 8 4 11 Z" fill="#D94F30" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></path></svg>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 8px; min-width: 0">
+      <div style="font-family: 'Dela Gothic One', sans-serif; font-size: 28px; line-height: 32px">たろう</div>
+      <div>
+        <span style="display: inline-block; background: #D5DCE4; border: 3px solid #111111; border-radius: 999px; padding: 0 10px; font-size: 14px; line-height: 20px; font-weight: 800">常連</span>
+      </div>
+      <button style="align-self: flex-start; height: 36px; padding: 0 14px; border: 3px solid #111111; background: #FFFFFF; color: #111111; border-radius: 12px; box-shadow: 3px 3px 0 #111111; font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 800; font-size: 13px; cursor: pointer">名前・キャラをかえる</button>
+    </div>
+  </div>
+
+  <div style="background: #FFFFFF; border: 4px solid #111111; border-radius: 20px; box-shadow: 6px 6px 0 #111111; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px">
+    <div style="font-size: 14px; line-height: 20px; font-weight: 800">じぶんの実績</div>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px 10px">
+      <div style="width: calc(50% - 5px); box-sizing: border-box; background: #FFF8D6; border: 3px solid #111111; border-radius: 12px; padding: 6px 10px">
+        <div style="font-size: 11px; line-height: 14px; font-weight: 800; color: #5B6577">参加</div>
+        <div style="font-family: 'Dela Gothic One', sans-serif; font-size: 24px; line-height: 30px">128<span style="font-family: 'M PLUS Rounded 1c', sans-serif; font-size: 12px; font-weight: 800"> 回</span></div>
+      </div>
+      <div style="width: calc(50% - 5px); box-sizing: border-box; background: #FFF8D6; border: 3px solid #111111; border-radius: 12px; padding: 6px 10px">
+        <div style="font-size: 11px; line-height: 14px; font-weight: 800; color: #5B6577">成功</div>
+        <div style="font-family: 'Dela Gothic One', sans-serif; font-size: 24px; line-height: 30px">74<span style="font-family: 'M PLUS Rounded 1c', sans-serif; font-size: 12px; font-weight: 800"> 回</span></div>
+      </div>
+      <div style="width: calc(50% - 5px); box-sizing: border-box; background: #FFF8D6; border: 3px solid #111111; border-radius: 12px; padding: 6px 10px">
+        <div style="font-size: 11px; line-height: 14px; font-weight: 800; color: #5B6577">ぴったり成功</div>
+        <div style="font-family: 'Dela Gothic One', sans-serif; font-size: 24px; line-height: 30px">9<span style="font-family: 'M PLUS Rounded 1c', sans-serif; font-size: 12px; font-weight: 800"> 回</span></div>
+      </div>
+      <div style="width: calc(50% - 5px); box-sizing: border-box; background: #FFF8D6; border: 3px solid #111111; border-radius: 12px; padding: 6px 10px">
+        <div style="font-size: 11px; line-height: 14px; font-weight: 800; color: #5B6577">累計ポイント</div>
+        <div style="font-family: 'Dela Gothic One', sans-serif; font-size: 24px; line-height: 30px">3,420<span style="font-family: 'M PLUS Rounded 1c', sans-serif; font-size: 12px; font-weight: 800"> p</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background: #FFFFFF; border: 4px solid #111111; border-radius: 20px; box-shadow: 6px 6px 0 #111111; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px">
+    <div style="font-size: 14px; line-height: 20px; font-weight: 800">せってい</div>
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px">
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <div style="font-size: 14px; line-height: 20px; font-weight: 800">動きをへらす</div>
+        <div style="font-size: 11px; line-height: 15px; font-weight: 800; color: #5B6577">跳ねたり、光ったりが、おとなしくなるよ</div>
+      </div>
+      <div style="width: 56px; height: 32px; box-sizing: border-box; border: 3px solid #111111; border-radius: 999px; background: #D5DCE4; position: relative; flex-shrink: 0">
+        <div style="position: absolute; left: 3px; top: 3px; width: 20px; height: 20px; box-sizing: border-box; border: 3px solid #111111; border-radius: 50%; background: #FFFFFF"></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex-grow: 1"></div>
+  <div style="font-size: 11px; line-height: 15px; font-weight: 800; color: #5B6577; padding: 0 4px 6px 4px">ブラウザのデータを消したり、ほかの端末で開いたりすると、べつの人として扱われて、実績は引き継がれません。</div>
+</div>
+</body>
+</html>

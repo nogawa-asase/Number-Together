@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>名前とキャラクター選び</title>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=M+PLUS+Rounded+1c:wght@700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.bob{animation:bob 1.6s ease-in-out infinite;transform-origin:50% 100%}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.blink{animation:blink 1s steps(1) infinite}
+@keyframes blink{0%,50%{opacity:1}50.1%,100%{opacity:0}}
+@media (prefers-reduced-motion: reduce){.bob,.blink{animation:none}}
+</style>
+<style>
+body{background:#E6E6E6;display:flex;justify-content:center}
+</style>
+</head>
+<body>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #FFE45E; color: #111111; font-family: 'M PLUS Rounded 1c', sans-serif; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+  <button style="position: absolute; top: 2px; right: 10px; z-index: 100; height: 17px; box-sizing: border-box; padding: 0 9px; border: 2px solid #111111; border-radius: 999px; background: #FFFFFF; color: #111111; font-family: 'M PLUS Rounded 1c', sans-serif; font-size: 10px; line-height: 13px; font-weight: 800; cursor: pointer">English</button>
+  <div style="padding: 4px 4px 0 4px">
+    <div style="font-family: 'Dela Gothic One', sans-serif; font-size: 30px; line-height: 38px">はじめまして!</div>
+    <div style="font-size: 14px; line-height: 20px; font-weight: 800">名前とキャラクターを、えらんでね</div>
+  </div>
+
+  <div style="position: relative; height: 150px; flex-shrink: 0; box-sizing: border-box; border: 4px solid #111111; border-radius: 20px; box-shadow: 6px 6px 0 #111111; background: #FFF8D6; overflow: hidden">
+    <div style="position: absolute; left: 0; right: 0; bottom: 30px; height: 20px; background: #EBDC9A; border-top: 3px solid #111111; box-sizing: border-box"></div>
+    <svg viewBox="0 0 22 32" class="bob" style="position: absolute; left: 50%; bottom: 36px; margin-left: -27px; width: 54px; height: 78px"><circle cx="18.6" cy="15" r="3" fill="#D94F30" stroke="#111111" stroke-width="1.5"></circle><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#FF5C8A" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#FFD9B8" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M4 11 Q4 4 11 4 Q18 4 18 11 Q15.5 8 11 8.2 Q6.5 8 4 11 Z" fill="#D94F30" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></path></svg>
+    <svg viewBox="0 0 12 12" style="position: absolute; left: 96px; top: 24px; width: 14px; height: 14px"><path d="M6 0 L7.4 4.6 L12 6 L7.4 7.4 L6 12 L4.6 7.4 L0 6 L4.6 4.6 Z" fill="#FFFFFF" stroke="#111111" stroke-width="1.2" stroke-linejoin="round"></path></svg>
+    <svg viewBox="0 0 12 12" style="position: absolute; right: 100px; top: 40px; width: 12px; height: 12px"><path d="M6 0 L7.4 4.6 L12 6 L7.4 7.4 L6 12 L4.6 7.4 L0 6 L4.6 4.6 Z" fill="#FF5C8A" stroke="#111111" stroke-width="1.2" stroke-linejoin="round"></path></svg>
+    <div style="position: absolute; left: 0; right: 0; bottom: 4px; text-align: center; font-size: 13px; line-height: 20px; font-weight: 800">たろう</div>
+  </div>
+
+  <div style="background: #FFFFFF; border: 4px solid #111111; border-radius: 20px; box-shadow: 6px 6px 0 #111111; padding: 10px 14px; display: flex; flex-direction: column; gap: 6px">
+    <div style="display: flex; align-items: baseline; justify-content: space-between">
+      <div style="font-size: 13px; line-height: 18px; font-weight: 800">なまえ(全角6文字・半角12文字まで)</div>
+      <div style="font-size: 12px; line-height: 16px; font-weight: 800; color: #5B6577">ほかの人にも見えるよ</div>
+    </div>
+    <div style="display: flex; align-items: center; justify-content: space-between; box-sizing: border-box; height: 44px; border: 3px solid #111111; border-radius: 12px; background: #FFF8D6; padding: 0 12px">
+      <div style="display: flex; align-items: center; font-size: 22px; line-height: 28px; font-weight: 800">たろう<span class="blink" style="display: inline-block; width: 2px; height: 24px; background: #111111; margin-left: 2px"></span></div>
+      <div style="font-family: 'Dela Gothic One', sans-serif; font-size: 14px; line-height: 18px; color: #5B6577">6 / 12</div>
+    </div>
+  </div>
+
+  <div style="background: #FFFFFF; border: 4px solid #111111; border-radius: 20px; box-shadow: 6px 6px 0 #111111; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px">
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <div style="font-size: 13px; line-height: 18px; font-weight: 800">かみがた</div>
+      <div style="display: flex; gap: 8px">
+        <div style="flex: 1; height: 56px; box-sizing: border-box; border: 3px solid #111111; border-radius: 12px; background: #FFF8D6; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 3px">
+          <svg viewBox="0 0 22 32" style="display: block; width: 28px; height: 40px"><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#D5DCE4" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#FFD9B8" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M4 11 Q4 4 11 4 Q18 4 18 11 Q15.5 8 11 8.2 Q6.5 8 4 11 Z" fill="#3B2A20" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></path></svg>
+        </div>
+        <div style="flex: 1; height: 56px; box-sizing: border-box; border: 3px solid #111111; border-radius: 12px; background: #FFF8D6; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 3px">
+          <svg viewBox="0 0 22 32" style="display: block; width: 28px; height: 40px"><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#D5DCE4" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#FFD9B8" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><polygon points="4,11 3.5,4.5 7,6.5 8,1.5 11,5.2 14,1.5 15,6.5 18.5,4.5 18,11 15,8.2 11,9 7,8.2" fill="#3B2A20" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></polygon></svg>
+        </div>
+        <div style="flex: 1; height: 56px; box-sizing: border-box; border: 3px solid #111111; border-radius: 12px; background: #FFF8D6; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 3px">
+          <svg viewBox="0 0 22 32" style="display: block; width: 28px; height: 40px"><path d="M3.2 11 Q3.2 3.2 11 3.2 Q18.8 3.2 18.8 11 V18.5 H15 V12 H7 V18.5 H3.2 Z" fill="#3B2A20" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></path><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#D5DCE4" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#FFD9B8" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M4.8 10 Q11 5 17.2 10 Q11 7.6 4.8 10 Z" fill="#3B2A20" stroke="#111111" stroke-width="1.2" stroke-linejoin="round"></path></svg>
+        </div>
+        <div style="flex: 1; height: 56px; box-sizing: border-box; border: 3px solid #FF3B5C; border-radius: 12px; background: #FFE4EA; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 3px">
+          <svg viewBox="0 0 22 32" style="display: block; width: 28px; height: 40px"><circle cx="18.6" cy="15" r="3" fill="#3B2A20" stroke="#111111" stroke-width="1.5"></circle><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#D5DCE4" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#FFD9B8" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M4 11 Q4 4 11 4 Q18 4 18 11 Q15.5 8 11 8.2 Q6.5 8 4 11 Z" fill="#3B2A20" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></path></svg>
+        </div>
+        <div style="flex: 1; height: 56px; box-sizing: border-box; border: 3px solid #111111; border-radius: 12px; background: #FFF8D6; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 3px">
+          <svg viewBox="0 0 22 32" style="display: block; width: 28px; height: 40px"><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#D5DCE4" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#FFD9B8" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M4 11 Q4 4 11 4 Q18 4 18 11 Q15.5 8 11 8.2 Q6.5 8 4 11 Z" fill="#3B2A20" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></path><circle cx="11" cy="3.4" r="3" fill="#3B2A20" stroke="#111111" stroke-width="1.5"></circle></svg>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <div style="font-size: 13px; line-height: 18px; font-weight: 800">ふくの色</div>
+      <div style="display: flex; justify-content: space-between">
+        <div style="width: 32px; height: 32px; box-sizing: border-box; border-radius: 50%; background: #FF5C8A; border: 3px solid #111111; box-shadow: 0 0 0 3px #FF3B5C"></div>
+        <div style="width: 32px; height: 32px; box-sizing: border-box; border-radius: 50%; background: #FF3B5C; border: 3px solid #111111"></div>
+        <div style="width: 32px; height: 32px; box-sizing: border-box; border-radius: 50%; background: #FF9F1C; border: 3px solid #111111"></div>
+        <div style="width: 32px; height: 32px; box-sizing: border-box; border-radius: 50%; background: #FFC400; border: 3px solid #111111"></div>
+        <div style="width: 32px; height: 32px; box-sizing: border-box; border-radius: 50%; background: #2EC27E; border: 3px solid #111111"></div>
+        <div style="width: 32px; height: 32px; box-sizing: border-box; border-radius: 50%; background: #00B8D9; border: 3px solid #111111"></div>
+        <div style="width: 32px; height: 32px; box-sizing: border-box; border-radius: 50%; background: #3A86FF; border: 3px solid #111111"></div>
+        <div style="width: 32px; height: 32px; box-sizing: border-box; border-radius: 50%; background: #9B5DE5; border: 3px solid #111111"></div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <div style="font-size: 13px; line-height: 18px; font-weight: 800">こもの</div>
+      <div style="display: flex; gap: 8px">
+        <div style="flex: 1; height: 56px; box-sizing: border-box; border: 3px solid #FF3B5C; border-radius: 12px; background: #FFE4EA; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800">なし</div>
+        <div style="flex: 1; height: 56px; box-sizing: border-box; border: 3px solid #111111; border-radius: 12px; background: #FFF8D6; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 3px">
+          <svg viewBox="0 0 22 32" style="display: block; width: 28px; height: 40px"><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#D5DCE4" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#FFD9B8" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M4 11 Q4 4 11 4 Q18 4 18 11 Q15.5 8 11 8.2 Q6.5 8 4 11 Z" fill="#3B2A20" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></path><circle cx="8.4" cy="12" r="2.3" fill="#FFFFFF" fill-opacity="0.6" stroke="#111111" stroke-width="1.2"></circle><circle cx="13.6" cy="12" r="2.3" fill="#FFFFFF" fill-opacity="0.6" stroke="#111111" stroke-width="1.2"></circle><line x1="10.7" y1="12" x2="11.3" y2="12" stroke="#111111" stroke-width="1.2"></line></svg>
+        </div>
+        <div style="flex: 1; height: 56px; box-sizing: border-box; border: 3px solid #111111; border-radius: 12px; background: #FFF8D6; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 3px">
+          <svg viewBox="0 0 22 32" style="display: block; width: 28px; height: 40px"><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#D5DCE4" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#FFD9B8" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M3.8 10 Q3.8 3.6 11 3.6 Q18.2 3.6 18.2 10 Z" fill="#FF3B5C" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></path><path d="M10 9.6 H20.5 Q21.2 11.4 19.5 11.6 H10 Z" fill="#FF3B5C" stroke="#111111" stroke-width="1.3" stroke-linejoin="round"></path></svg>
+        </div>
+        <div style="flex: 1; height: 56px; box-sizing: border-box; border: 3px solid #111111; border-radius: 12px; background: #FFF8D6; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 3px">
+          <svg viewBox="0 0 22 32" style="display: block; width: 28px; height: 40px"><circle cx="18.6" cy="15" r="3" fill="#3B2A20" stroke="#111111" stroke-width="1.5"></circle><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#D5DCE4" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#FFD9B8" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M4 11 Q4 4 11 4 Q18 4 18 11 Q15.5 8 11 8.2 Q6.5 8 4 11 Z" fill="#3B2A20" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></path><polygon points="15.5,5 20.5,2.2 20.5,7.8" fill="#3A86FF" stroke="#111111" stroke-width="1.2" stroke-linejoin="round"></polygon><polygon points="15.5,5 10.8,2.2 10.8,7.8" fill="#3A86FF" stroke="#111111" stroke-width="1.2" stroke-linejoin="round"></polygon><circle cx="15.5" cy="5" r="1.2" fill="#3A86FF" stroke="#111111" stroke-width="1"></circle></svg>
+        </div>
+        <div style="flex: 1; height: 56px; box-sizing: border-box; border: 3px solid #111111; border-radius: 12px; background: #FFF8D6; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 3px">
+          <svg viewBox="0 0 22 32" style="display: block; width: 28px; height: 40px"><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#D5DCE4" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#FFD9B8" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M4 11 Q4 4 11 4 Q18 4 18 11 Q15.5 8 11 8.2 Q6.5 8 4 11 Z" fill="#3B2A20" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></path><path d="M4 11 Q4 3.8 11 3.8 Q18 3.8 18 11" fill="none" stroke="#111111" stroke-width="2"></path><rect x="2.4" y="9.2" width="3.2" height="5" rx="1.2" fill="#FF3B5C" stroke="#111111" stroke-width="1.2"></rect><rect x="16.4" y="9.2" width="3.2" height="5" rx="1.2" fill="#FF3B5C" stroke="#111111" stroke-width="1.2"></rect></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 12px; height: 56px; flex-shrink: 0">
+    <button style="flex: 1; border: 4px solid #111111; background: #FFFFFF; color: #111111; border-radius: 16px; box-shadow: 4px 4px 0 #111111; font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 800; font-size: 16px; cursor: pointer">おまかせ</button>
+    <button style="flex: 2; border: 4px solid #111111; background: #FF5C8A; color: #111111; border-radius: 16px; box-shadow: 4px 4px 0 #111111; font-family: 'Dela Gothic One', sans-serif; font-size: 22px; cursor: pointer">これできまり!</button>
+  </div>
+  <div style="font-size: 11px; line-height: 15px; font-weight: 800; color: #5B6577; padding: 0 4px">ブラウザのデータを消したり、ほかの端末で開いたりすると、べつの人として扱われて、実績は引き継がれません。</div>
+</div>
+</body>
+</html>

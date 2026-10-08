@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3・2・1・スタート!</title>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=M+PLUS+Rounded+1c:wght@700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.cd{position:absolute;left:0;top:0;width:390px;height:844px;display:flex;align-items:center;justify-content:center;z-index:61;opacity:0;pointer-events:none;font-family:'Dela Gothic One',sans-serif;font-size:240px;line-height:1;color:#FFFFFF;-webkit-text-stroke:14px #111111;paint-order:stroke fill;animation:cd 4s linear infinite both}
+.cd.go{font-size:78px;color:#FF3B5C;-webkit-text-stroke:12px #111111}
+@keyframes cd{0%{opacity:0;transform:scale(1.8)}6%{opacity:1;transform:scale(1)}22%{opacity:1;transform:scale(1)}25%,100%{opacity:0;transform:scale(0.7)}}
+@media (prefers-reduced-motion: reduce){.cd{animation:none;opacity:0;transform:none}.cd.go{opacity:1}}
+.bob{animation:bob 1.8s ease-in-out infinite}
+.cell:nth-child(2n) .bob{animation-delay:0.4s}
+.cell:nth-child(3n) .bob{animation-delay:0.9s}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@media (prefers-reduced-motion: reduce){.bob{animation:none}}
+</style>
+<style>
+body{background:#E6E6E6;display:flex;justify-content:center}
+</style>
+</head>
+<body>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #FFE45E; color: #111111; font-family: 'M PLUS Rounded 1c', sans-serif; padding: 20px; display: flex; flex-direction: column; gap: 10px">
+  <button style="position: absolute; top: 2px; right: 10px; z-index: 100; height: 17px; box-sizing: border-box; padding: 0 9px; border: 2px solid #111111; border-radius: 999px; background: #FFFFFF; color: #111111; font-family: 'M PLUS Rounded 1c', sans-serif; font-size: 10px; line-height: 13px; font-weight: 800; cursor: pointer">English</button>
+  <div style="background: #FFFFFF; border: 4px solid #111111; border-radius: 20px; box-shadow: 6px 6px 0 #111111; padding: 12px 14px; display: flex; flex-direction: column; gap: 8px">
+    <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 8px">
+      <div style="display: flex; flex-direction: column; gap: 0">
+        <div style="font-size: 13px; line-height: 18px; font-weight: 800">つぎの開始まで</div>
+        <div style="display: flex; align-items: baseline; gap: 6px">
+          <span style="font-size: 20px; font-weight: 800">あと</span>
+          <span style="font-family: 'Dela Gothic One', sans-serif; font-size: 46px; line-height: 1">22</span>
+          <span style="font-size: 20px; font-weight: 800">秒</span>
+        </div>
+      </div>
+      <div style="background: #111111; color: #FFFFFF; border-radius: 999px; padding: 2px 12px; font-size: 13px; line-height: 18px; font-weight: 800; margin-bottom: 6px">集合中</div>
+    </div>
+    <div style="height: 16px; box-sizing: border-box; border: 3px solid #111111; border-radius: 999px; background: #FFF8D6; overflow: hidden">
+      <div style="width: 73%; height: 100%; background: #FF5C8A"></div>
+    </div>
+  </div>
+
+  <div style="background: #FFFFFF; border: 4px solid #111111; border-radius: 20px; box-shadow: 6px 6px 0 #111111; padding: 12px; display: flex; flex-direction: column; gap: 10px">
+    <div style="display: flex; align-items: baseline; justify-content: space-between">
+      <div style="font-size: 14px; line-height: 20px; font-weight: 800">あつまった人</div>
+      <div style="font-family: 'Dela Gothic One', sans-serif; font-size: 18px; line-height: 22px">12 <span style="font-family: 'M PLUS Rounded 1c', sans-serif; font-size: 12px; font-weight: 800">/ 20人</span></div>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px">
+      <div class="cell" style="width: calc(25% - 6px); box-sizing: border-box; border: 3px solid #111111; border-radius: 14px; background: #FFF8D6; padding: 4px 2px; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0">
+        <svg class="bob" viewBox="0 0 22 32" style="display: block; width: 30px; height: 44px; transform-origin: 50% 100%"><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#2EC27E" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#E8B58A" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M5.5 18.8 H16.5 V22.5 H5.5 Z" fill="#FF5C8A" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></path><rect x="13" y="21.5" width="3.2" height="5.5" fill="#FF5C8A" stroke="#111111" stroke-width="1.2"></rect></svg>
+        <div style="font-size: 12px; line-height: 14px; font-weight: 800; white-space: nowrap">ゆうき</div>
+        <div style="background: #D5DCE4; color: #111111; border-radius: 999px; padding: 0 6px; font-size: 10px; line-height: 13px; font-weight: 800; white-space: nowrap">常連</div>
+      </div>
+      <div class="cell" style="width: calc(25% - 6px); box-sizing: border-box; border: 3px solid #111111; border-radius: 14px; background: #FFF8D6; padding: 4px 2px; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0">
+        <svg class="bob" viewBox="0 0 22 32" style="display: block; width: 30px; height: 44px; transform-origin: 50% 100%"><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#3A86FF" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#FFD9B8" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M4 11 Q4 4 11 4 Q18 4 18 11 Q15.5 8 11 8.2 Q6.5 8 4 11 Z" fill="#3B2A20" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></path></svg>
+        <div style="font-size: 12px; line-height: 14px; font-weight: 800; white-space: nowrap">はると</div>
+        <div style="background: #FFFFFF; color: #111111; border: 1.5px dashed #111111; border-radius: 999px; padding: 0 5px; font-size: 10px; line-height: 12px; font-weight: 800; white-space: nowrap">新人</div>
+      </div>
+      <div class="cell" style="width: calc(25% - 6px); box-sizing: border-box; border: 3px solid #111111; border-radius: 14px; background: #FFF8D6; padding: 4px 2px; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0">
+        <svg class="bob" viewBox="0 0 22 32" style="display: block; width: 30px; height: 44px; transform-origin: 50% 100%"><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#FF9F1C" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#E8B58A" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><polygon points="4,11 3.5,4.5 7,6.5 8,1.5 11,5.2 14,1.5 15,6.5 18.5,4.5 18,11 15,8.2 11,9 7,8.2" fill="#111111" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></polygon></svg>
+        <div style="font-size: 12px; line-height: 14px; font-weight: 800; white-space: nowrap">そうた</div>
+        <div style="background: #FF8FA3; color: #111111; border-radius: 999px; padding: 0 6px; font-size: 10px; line-height: 13px; font-weight: 800; white-space: nowrap">欲張り</div>
+      </div>
+      <div class="cell" style="width: calc(25% - 6px); box-sizing: border-box; border: 3px solid #111111; border-radius: 14px; background: #FFF8D6; padding: 4px 2px; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0">
+        <svg class="bob" viewBox="0 0 22 32" style="display: block; width: 30px; height: 44px; transform-origin: 50% 100%"><path d="M3.2 11 Q3.2 3.2 11 3.2 Q18.8 3.2 18.8 11 V18.5 H15 V12 H7 V18.5 H3.2 Z" fill="#7B3F00" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></path><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#2EC27E" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#FFD9B8" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M4.8 10 Q11 5 17.2 10 Q11 7.6 4.8 10 Z" fill="#7B3F00" stroke="#111111" stroke-width="1.2" stroke-linejoin="round"></path></svg>
+        <div style="font-size: 12px; line-height: 14px; font-weight: 800; white-space: nowrap">みさき</div>
+        <div style="background: #FFC400; color: #111111; border-radius: 999px; padding: 0 6px; font-size: 10px; line-height: 13px; font-weight: 800; white-space: nowrap">ぴったり王</div>
+      </div>
+      <div class="cell" style="width: calc(25% - 6px); box-sizing: border-box; border: 3px solid #111111; border-radius: 14px; background: #FFF8D6; padding: 4px 2px; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0">
+        <svg class="bob" viewBox="0 0 22 32" style="display: block; width: 30px; height: 44px; transform-origin: 50% 100%"><circle cx="11" cy="10" r="9.5" fill="#111111" stroke="#111111" stroke-width="1.5"></circle><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#9B5DE5" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#C98B5E" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle></svg>
+        <div style="font-size: 12px; line-height: 14px; font-weight: 800; white-space: nowrap">みお</div>
+        <div style="background: #D5DCE4; color: #111111; border-radius: 999px; padding: 0 6px; font-size: 10px; line-height: 13px; font-weight: 800; white-space: nowrap">常連</div>
+      </div>
+      <div class="cell" style="width: calc(25% - 6px); box-sizing: border-box; border: 3px solid #FF3B5C; border-radius: 14px; background: #FFE4EA; padding: 4px 2px; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0">
+        <svg class="bob" viewBox="0 0 22 32" style="display: block; width: 30px; height: 44px; transform-origin: 50% 100%"><circle cx="18.6" cy="15" r="3" fill="#D94F30" stroke="#111111" stroke-width="1.5"></circle><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#FF5C8A" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#FFD9B8" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M4 11 Q4 4 11 4 Q18 4 18 11 Q15.5 8 11 8.2 Q6.5 8 4 11 Z" fill="#D94F30" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></path></svg>
+        <div style="font-size: 12px; line-height: 14px; font-weight: 800; white-space: nowrap">たろう</div>
+        <div style="background: #D5DCE4; color: #111111; border-radius: 999px; padding: 0 6px; font-size: 10px; line-height: 13px; font-weight: 800; white-space: nowrap">常連</div>
+      </div>
+      <div class="cell" style="width: calc(25% - 6px); box-sizing: border-box; border: 3px solid #111111; border-radius: 14px; background: #FFF8D6; padding: 4px 2px; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0">
+        <svg class="bob" viewBox="0 0 22 32" style="display: block; width: 30px; height: 44px; transform-origin: 50% 100%"><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#00B8D9" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#E8B58A" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M4 11 Q4 4 11 4 Q18 4 18 11 Q15.5 8 11 8.2 Q6.5 8 4 11 Z" fill="#111111" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></path><circle cx="8.4" cy="12" r="2.3" fill="#FFFFFF" fill-opacity="0.6" stroke="#111111" stroke-width="1.2"></circle><circle cx="13.6" cy="12" r="2.3" fill="#FFFFFF" fill-opacity="0.6" stroke="#111111" stroke-width="1.2"></circle><line x1="10.7" y1="12" x2="11.3" y2="12" stroke="#111111" stroke-width="1.2"></line></svg>
+        <div style="font-size: 12px; line-height: 14px; font-weight: 800; white-space: nowrap">けんじ</div>
+        <div style="background: #FFFFFF; color: #111111; border: 1.5px dashed #111111; border-radius: 999px; padding: 0 5px; font-size: 10px; line-height: 12px; font-weight: 800; white-space: nowrap">新人</div>
+      </div>
+      <div class="cell" style="width: calc(25% - 6px); box-sizing: border-box; border: 3px solid #111111; border-radius: 14px; background: #FFF8D6; padding: 4px 2px; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0">
+        <svg class="bob" viewBox="0 0 22 32" style="display: block; width: 30px; height: 44px; transform-origin: 50% 100%"><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#FFC400" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#FFD9B8" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M3.8 10 Q3.8 3.6 11 3.6 Q18.2 3.6 18.2 10 Z" fill="#FF3B5C" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></path><path d="M10 9.6 H20.5 Q21.2 11.4 19.5 11.6 H10 Z" fill="#FF3B5C" stroke="#111111" stroke-width="1.3" stroke-linejoin="round"></path></svg>
+        <div style="font-size: 12px; line-height: 14px; font-weight: 800; white-space: nowrap">ひなた</div>
+        <div style="background: #D5DCE4; color: #111111; border-radius: 999px; padding: 0 6px; font-size: 10px; line-height: 13px; font-weight: 800; white-space: nowrap">常連</div>
+      </div>
+      <div class="cell" style="width: calc(25% - 6px); box-sizing: border-box; border: 3px solid #111111; border-radius: 14px; background: #FFF8D6; padding: 4px 2px; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0">
+        <svg class="bob" viewBox="0 0 22 32" style="display: block; width: 30px; height: 44px; transform-origin: 50% 100%"><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#FF3B5C" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#A86B45" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M4 11 Q4 4 11 4 Q18 4 18 11 Q15.5 8 11 8.2 Q6.5 8 4 11 Z" fill="#111111" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></path><circle cx="11" cy="3.4" r="3" fill="#111111" stroke="#111111" stroke-width="1.5"></circle></svg>
+        <div style="font-size: 12px; line-height: 14px; font-weight: 800; white-space: nowrap">あおい</div>
+        <div style="background: #FFC400; color: #111111; border-radius: 999px; padding: 0 6px; font-size: 10px; line-height: 13px; font-weight: 800; white-space: nowrap">ぴったり王</div>
+      </div>
+      <div class="cell" style="width: calc(25% - 6px); box-sizing: border-box; border: 3px solid #111111; border-radius: 14px; background: #FFF8D6; padding: 4px 2px; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0">
+        <svg class="bob" viewBox="0 0 22 32" style="display: block; width: 30px; height: 44px; transform-origin: 50% 100%"><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#7CB518" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#FFD9B8" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M3.8 9.5 Q3.8 2.8 11 2.8 Q18.2 2.8 18.2 9.5 Z" fill="#3A86FF" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></path><rect x="3.4" y="8" width="15.2" height="3" rx="1.2" fill="#FFFFFF" stroke="#111111" stroke-width="1.3"></rect><circle cx="11" cy="2" r="2" fill="#FFFFFF" stroke="#111111" stroke-width="1.2"></circle></svg>
+        <div style="font-size: 12px; line-height: 14px; font-weight: 800; white-space: nowrap">りく</div>
+        <div style="background: #FFFFFF; color: #111111; border: 1.5px dashed #111111; border-radius: 999px; padding: 0 5px; font-size: 10px; line-height: 12px; font-weight: 800; white-space: nowrap">新人</div>
+      </div>
+      <div class="cell" style="width: calc(25% - 6px); box-sizing: border-box; border: 3px solid #111111; border-radius: 14px; background: #FFF8D6; padding: 4px 2px; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0">
+        <svg class="bob" viewBox="0 0 22 32" style="display: block; width: 30px; height: 44px; transform-origin: 50% 100%"><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#3A86FF" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#E8B58A" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M8.5 5.5 L8 1 L9.8 3 L11 0.8 L12.2 3 L14 1 L13.5 5.5 Z" fill="#FF5C8A" stroke="#111111" stroke-width="1.2" stroke-linejoin="round"></path></svg>
+        <div style="font-size: 12px; line-height: 14px; font-weight: 800; white-space: nowrap">ななみ</div>
+        <div style="background: #FF8FA3; color: #111111; border-radius: 999px; padding: 0 6px; font-size: 10px; line-height: 13px; font-weight: 800; white-space: nowrap">欲張り</div>
+      </div>
+      <div class="cell" style="width: calc(25% - 6px); box-sizing: border-box; border: 3px solid #111111; border-radius: 14px; background: #FFF8D6; padding: 4px 2px; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0">
+        <svg class="bob" viewBox="0 0 22 32" style="display: block; width: 30px; height: 44px; transform-origin: 50% 100%"><path d="M3.2 11 Q3.2 3.2 11 3.2 Q18.8 3.2 18.8 11 V18.5 H15 V12 H7 V18.5 H3.2 Z" fill="#111111" stroke="#111111" stroke-width="1.5" stroke-linejoin="round"></path><path d="M4 31 V25.5 Q4 19.5 11 19.5 Q18 19.5 18 25.5 V31 Z" fill="#FF9F1C" stroke="#111111" stroke-width="2" stroke-linejoin="round"></path><circle cx="11" cy="11.5" r="7" fill="#C98B5E" stroke="#111111" stroke-width="2"></circle><circle cx="8.6" cy="12" r="1" fill="#111111"></circle><circle cx="13.4" cy="12" r="1" fill="#111111"></circle><path d="M4.8 10 Q11 5 17.2 10 Q11 7.6 4.8 10 Z" fill="#111111" stroke="#111111" stroke-width="1.2" stroke-linejoin="round"></path><path d="M4.2 8.8 Q11 4.8 17.8 8.8 V10.6 Q11 6.8 4.2 10.6 Z" fill="#FF3B5C" stroke="#111111" stroke-width="1.2" stroke-linejoin="round"></path></svg>
+        <div style="font-size: 12px; line-height: 14px; font-weight: 800; white-space: nowrap">たかし</div>
+        <div style="background: #D5DCE4; color: #111111; border-radius: 999px; padding: 0 6px; font-size: 10px; line-height: 13px; font-weight: 800; white-space: nowrap">常連</div>
+      </div>
+      <div style="width: calc(25% - 6px); height: 89px; box-sizing: border-box; border: 3px dashed rgba(17,17,17,0.35); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #5B6577">空き</div>
+      <div style="width: calc(25% - 6px); height: 89px; box-sizing: border-box; border: 3px dashed rgba(17,17,17,0.35); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #5B6577">空き</div>
+      <div style="width: calc(25% - 6px); height: 89px; box-sizing: border-box; border: 3px dashed rgba(17,17,17,0.35); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #5B6577">空き</div>
+      <div style="width: calc(25% - 6px); height: 89px; box-sizing: border-box; border: 3px dashed rgba(17,17,17,0.35); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #5B6577">空き</div>
+      <div style="width: calc(25% - 6px); height: 89px; box-sizing: border-box; border: 3px dashed rgba(17,17,17,0.35); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #5B6577">空き</div>
+      <div style="width: calc(25% - 6px); height: 89px; box-sizing: border-box; border: 3px dashed rgba(17,17,17,0.35); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #5B6577">空き</div>
+      <div style="width: calc(25% - 6px); height: 89px; box-sizing: border-box; border: 3px dashed rgba(17,17,17,0.35); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #5B6577">空き</div>
+      <div style="width: calc(25% - 6px); height: 89px; box-sizing: border-box; border: 3px dashed rgba(17,17,17,0.35); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #5B6577">空き</div>
+    </div>
+  </div>
+
+  <div style="background: #FFFFFF; border: 4px solid #111111; border-radius: 20px; box-shadow: 6px 6px 0 #111111; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px">
+    <div style="display: flex; flex-direction: column; gap: 0">
+      <div style="font-size: 13px; line-height: 18px; font-weight: 800">いまの目標</div>
+      <div style="font-family: 'Dela Gothic One', sans-serif; font-size: 32px; line-height: 38px">2,400</div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 2px; text-align: right">
+      <div style="font-size: 13px; line-height: 18px; font-weight: 800">12人 × 200</div>
+      <div style="font-size: 12px; line-height: 16px; font-weight: 800">成功は 2,160 〜 2,640</div>
+      <div style="font-size: 11px; line-height: 15px; font-weight: 800; color: #5B6577">人が増えると、目標も上がる</div>
+    </div>
+  </div>
+  <div style="text-align: center; font-size: 12px; line-height: 16px; font-weight: 800">+1と−1で、みんなで目標にぴったり合わせよう</div>
+  <div style="position: absolute; left: 0; top: 0; width: 390px; height: 844px; background: rgba(17,17,17,0.55); z-index: 60; pointer-events: none"></div>
+  <div class="cd" style="animation-delay: 0s">3</div>
+  <div class="cd" style="animation-delay: 1s">2</div>
+  <div class="cd" style="animation-delay: 2s">1</div>
+  <div class="cd go" style="animation-delay: 3s">スタート!</div>
+</div>
+</body>
+</html>
