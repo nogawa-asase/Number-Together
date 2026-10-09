@@ -53,3 +53,8 @@ export interface Player {
   readonly joinedAt: number; // サーバー時刻。入った順(小人の並び順)に使う
   readonly joinedDuring: 'gathering' | 'playing'; // 召喚の演出を出すかの判断に使う
 }
+/** 合図。プレイヤーごとの、最新の押し方の強さ(docs/functional-design.md「エンティティ: Round」) */
+export interface Pulse {
+  readonly t: number; // サーバー時刻
+  readonly power: number; // 直近の押し方の強さ(0〜3)。他の人が書いた値なので、使う側で検証する
+}

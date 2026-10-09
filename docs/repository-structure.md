@@ -151,8 +151,10 @@ domain/
 │       ├── moody.ts            # 気まぐれ
 │       └── lastSpurt.ts        # ラストスパート
 └── layout/
+    ├── stageMetrics.ts         # 舞台の寸法(体の幅・端の余白・奥と手前の高さ・跳ねる高さと速さ)
     ├── stageLayout.ts          # 人数から、小人の並べ方(間隔・重なり・奥と手前)を求める
-    └── graphGeometry.ts        # 値と時刻を、グラフの縦横の位置(%)に変換する
+    ├── jumpFor.ts              # 最新の合図から、小人の跳ね方を求める
+    └── graphGeometry.ts        # 値と時刻を、グラフの縦横の位置(%)に変換する。線の点、倍増タイムの帯、終了の線
 ```
 
 #### infra/
@@ -543,14 +545,16 @@ points/ ──→ targets/
 judge/ ──→ targets/
 rooms/ ──→ schedule/
 pulses/ ──→ config/
-ranking/・titles/・names/・layout/ ──→ types(型だけ)
+ranking/・titles/・names/ ──→ types(型だけ)
+layout/ ──→ schedule/(RoundClock の型だけ)
 ```
 
 - `ai/` は、範囲の判断(`targets/` の `isInRange`・`isWithinRange`)を再利用する。AIの手の選択が、人間と同じ判断を、重複せずに使うため。AIのポイントの計算は、`ai/` ではなく、アプリケーション層の `AiHost` が `points/` を使って行う
 - どの分野も、設定値を `config: GameConfig` で受け取るので、`config/` の型には依存してよい(`ranking/`・`titles/`・`names/` も)
 - `points/` は、`targets/`(範囲内かの判断)と `schedule/`(倍増タイムの時刻)に依存する。逆の依存は作らない
 - `layout/` は、見た目の計算(小人の並べ方、グラフの座標)だけを持ち、ルールの判断(`targets/` など)には依存しない。画面に出す形の計算を、ドメイン層に置くのは、ブラウザなしで、自動テストできるようにするため
-- **確かめ方**: 分野の間の依存の向きは、ESLint では強制せず、コードレビューで確かめる(`development-guidelines.md` の「コードレビュー」)。層の間の依存は、上のとおり ESLint で強制する
+- **確かめ方**: 分野の間の依存の向きも、層の間の依存と同じく、ESLint で強制する(`eslint.config.js` の `DOMAIN_MODULE_DEPS`。型だけの依存も含めた表)。向きを変えるときは、この図と表の両方を直す
+- ESLint の規則は、相対パスの import だけに合う正規表現で書く(`'**/app'` のような書き方は、パッケージ名の `firebase/app` にも合ってしまうため)
 
 ## スケーリング戦略
 

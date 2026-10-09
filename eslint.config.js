@@ -20,6 +20,56 @@ const layerImports = (patterns) => [
 // (group の '**/app' は、パッケージ名の 'firebase/app' にも合ってしまうため)
 const relativeTo = (...dirs) => `^(\\.\\./)+(${dirs.join('|')})(/|$)`;
 
+const DOMAIN_LAYER_PATTERNS = [
+  {
+    regex: relativeTo('app', 'ui'),
+    message: 'ドメイン層から、アプリケーション層・UI層は使えません',
+  },
+  {
+    regex: relativeTo('infra'),
+    message: 'ドメイン層から、インフラ層は使えません',
+  },
+];
+
+// ドメイン層の分野ごとに、依存してよい分野(docs/repository-structure.md「モジュール間の依存」)。
+// 型だけの依存も含める。domain/types.ts と domain/errors.ts は、どの分野も使ってよい
+const DOMAIN_MODULE_DEPS = {
+  config: [],
+  schedule: ['config'],
+  targets: ['config'],
+  judge: ['targets', 'config'],
+  points: ['targets', 'schedule', 'config'],
+  pulses: ['config'],
+  ranking: ['config'],
+  titles: ['config'],
+  names: ['config'],
+  rooms: ['schedule', 'config'],
+  ai: ['targets', 'schedule', 'config'],
+  layout: ['schedule', 'config'],
+};
+
+// 分野ごとに、決めた向き以外の分野への相対 import を禁じる設定を作る。
+// flat config では、後の設定の同じ規則が前を上書きするので、層の規則も含める
+const domainModuleConfigs = Object.entries(DOMAIN_MODULE_DEPS).map(
+  ([module, deps]) => {
+    const forbidden = Object.keys(DOMAIN_MODULE_DEPS).filter(
+      (other) => other !== module && !deps.includes(other)
+    );
+    return {
+      files: [`src/domain/${module}/**/*.ts`],
+      rules: {
+        'no-restricted-imports': layerImports([
+          ...DOMAIN_LAYER_PATTERNS,
+          {
+            regex: relativeTo(...forbidden),
+            message: `domain/${module}/ が依存してよい分野は ${deps.join('・') || 'なし'} だけです(docs/repository-structure.md「モジュール間の依存」)`,
+          },
+        ]),
+      },
+    };
+  }
+);
+
 export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
@@ -49,16 +99,7 @@ export default tseslint.config(
     // ドメイン層: 画面にも Firebase にもブラウザにも依存しない純粋な計算
     files: ['src/domain/**/*.ts'],
     rules: {
-      'no-restricted-imports': layerImports([
-        {
-          regex: relativeTo('app', 'ui'),
-          message: 'ドメイン層から、アプリケーション層・UI層は使えません',
-        },
-        {
-          regex: relativeTo('infra'),
-          message: 'ドメイン層から、インフラ層は使えません',
-        },
-      ]),
+      'no-restricted-imports': layerImports(DOMAIN_LAYER_PATTERNS),
       'no-restricted-globals': [
         'error',
         ...[
@@ -94,6 +135,7 @@ export default tseslint.config(
       ],
     },
   },
+  ...domainModuleConfigs,
   {
     // アプリケーション層: UI層は GameView を通し、インフラ層は実装ではなくインターフェースだけを使う
     files: ['src/app/**/*.ts'],

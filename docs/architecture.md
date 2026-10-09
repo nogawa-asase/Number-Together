@@ -106,6 +106,8 @@ UI / アプリケーション → firebase の import    (NG。Firebaseは、イ
 
 - ESLint の `no-restricted-imports` で、`src/domain` から、`src/app`・`src/ui`・`src/infra`・`firebase/*` への import を禁止する
 - `src/ui` と `src/app` からの `firebase/*` の import を禁止する(Firebase を import してよいのは `src/infra/firebase/**` だけ)
+- `src/domain` の中の分野の間の依存の向き(`repository-structure.md` の「モジュール間の依存」)も、`no-restricted-imports` で強制する
+- 層・分野への import は、相対パスだけに合う正規表現で禁止する(パッケージ名の `firebase/app` などに、誤って合わないようにするため)
 - ESLint の `no-restricted-globals` で、`src/domain` での `window`・`document`・`setTimeout`・`requestAnimationFrame` の使用を禁止し、`no-restricted-properties` で `Math.random`・`Date.now` を禁止する
 
 ### GameStore を2つ用意する理由
