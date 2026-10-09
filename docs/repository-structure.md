@@ -138,7 +138,12 @@ domain/
 ├── ai/
 │   ├── random.ts               # Random インターフェースと、種を固定できる疑似乱数
 │   ├── aiParams.ts             # 性格ごとの、押す頻度・反応の遅れなどの初期値
+│   ├── aiView.ts               # AIが見る状態(AiView)と、反応の遅れ
+│   ├── pressChance.ts          # 1秒あたりの回数から、tick ごとに押す確率
+│   ├── towardTarget.ts         # 目標に近づける向き
+│   ├── types.ts                # AiMove・PersonalityBrain
 │   ├── decide.ts               # 性格に応じて、手を選ぶ入口(機能設計書の AiBrain)
+│   ├── pickPersonalities.ts    # AIを足すときの性格の選び方
 │   └── personalities/
 │       ├── greedy.ts           # がめつい
 │       ├── balancer.ts         # 調整役
@@ -532,6 +537,7 @@ tests/   ──→ 各層(テスト対象)
 
 ```
 ai/ ──→ targets/ ──→ config/
+ └─────→ schedule/(RoundClock の型だけ)
 points/ ──→ targets/
    └─────→ schedule/ ──→ config/
 judge/ ──→ targets/
@@ -540,7 +546,8 @@ pulses/ ──→ config/
 ranking/・titles/・names/・layout/ ──→ types(型だけ)
 ```
 
-- `ai/` は、範囲の判断(`targets/` の `isInRange`)を再利用する。AIの手の選択が、人間と同じ判断を、重複せずに使うため。AIのポイントの計算は、`ai/` ではなく、アプリケーション層の `AiHost` が `points/` を使って行う
+- `ai/` は、範囲の判断(`targets/` の `isInRange`・`isWithinRange`)を再利用する。AIの手の選択が、人間と同じ判断を、重複せずに使うため。AIのポイントの計算は、`ai/` ではなく、アプリケーション層の `AiHost` が `points/` を使って行う
+- どの分野も、設定値を `config: GameConfig` で受け取るので、`config/` の型には依存してよい(`ranking/`・`titles/`・`names/` も)
 - `points/` は、`targets/`(範囲内かの判断)と `schedule/`(倍増タイムの時刻)に依存する。逆の依存は作らない
 - `layout/` は、見た目の計算(小人の並べ方、グラフの座標)だけを持ち、ルールの判断(`targets/` など)には依存しない。画面に出す形の計算を、ドメイン層に置くのは、ブラウザなしで、自動テストできるようにするため
 - **確かめ方**: 分野の間の依存の向きは、ESLint では強制せず、コードレビューで確かめる(`development-guidelines.md` の「コードレビュー」)。層の間の依存は、上のとおり ESLint で強制する

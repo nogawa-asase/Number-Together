@@ -459,7 +459,20 @@ interface Random { next(): number }   // テストでは、固定の値を返す
 function decide(personality: AiPersonality, view: AiView, dtMs: number, random: Random, params: AiParams): '+1' | '-1' | null;
 ```
 
-押す頻度や反応の遅れは、`AiParams`(設定ファイル)にまとめる。範囲の中かどうかは、`Targets` の `isInRange` を使う(人間と同じ判断を、重複して書かない)。AIのポイントは、`decide` ではなく、`AiHost` が `pointsForPress` で計算する。
+```typescript
+/** 見せる数字・目標・時刻から、AiView を求める(範囲の端は rangeFor で求める) */
+function aiViewAt(input: { number: number; target: number; nowMs: number; clock: RoundClock }, config: GameConfig): AiView;
+/** 反応の遅れ(reactionDelayMinMs〜MaxMs)を選ぶ。AIには、この時間だけ前の数字を見せる */
+function reactionDelayMs(random: Random, params: AiParams): number;
+/** AIを足すときの性格。5種類から重ならないように選び、足りなければ一巡してから重ねる */
+function pickPersonalities(count: number, random: Random): AiPersonality[];
+/** 種を固定できる疑似乱数(mulberry32) */
+function createRandom(seed: number): Random;
+```
+
+押す頻度や反応の遅れは、`AiParams`(`domain/ai/aiParams.ts` の `DEFAULT_AI_PARAMS`。頻度は1秒あたりの回数で持ち、tick ごとの確率 `min(1, 回数 × dtMs / 1000)` に直す)にまとめる。範囲の中かどうかは、`Targets` の判断を使う(人間と同じ判断を、重複して書かない)。`AiView` は範囲の端を持っているので、`isInRange` と同じ判断を、範囲を受け取る `isWithinRange(value, range)` で行う(`isInRange` も、これを使う)。AIのポイントは、`decide` ではなく、`AiHost` が `pointsForPress` で計算する。
+
+`decide` は状態を持たない。そのため、気まぐれの「毎秒、選ぶ」は、tick ごとの乱数で近似する(`burstChance` の確率で連打の頻度、それ以外はふだんの頻度。向きは半々)。
 
 ### GameStore(Firebaseの読み書き)
 

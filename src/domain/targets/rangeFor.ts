@@ -49,6 +49,16 @@ export function isInRange(
   target: number,
   config: GameConfig
 ): boolean {
-  const { lower, upper } = rangeFor(target, config);
-  return lower <= value && value <= upper;
+  return isWithinRange(value, rangeFor(target, config));
+}
+/**
+ * 数字が、求めた範囲の中か(端を含む)。
+ *
+ * 範囲をすでに持っているとき(AIが見る状態など)に使う。isInRange も、これで判断する。
+ *
+ * @param value - 調べる数字
+ * @param range - rangeFor の結果
+ */
+export function isWithinRange(value: number, range: Range): boolean {
+  return range.lower <= value && value <= range.upper;
 }

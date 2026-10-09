@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_CONFIG } from '../../../../src/domain/config/defaultConfig';
 import { DomainError } from '../../../../src/domain/errors';
-import { isInRange, rangeFor } from '../../../../src/domain/targets/rangeFor';
+import {
+  isInRange,
+  isWithinRange,
+  rangeFor,
+} from '../../../../src/domain/targets/rangeFor';
 
 /** 整数だけで計算した、±10% の範囲(浮動小数点を使わない、比べるための答え) */
 function exactRange10(target: number) {
@@ -78,5 +82,18 @@ describe('isInRange', () => {
 
   it('負の数は、範囲の外', () => {
     expect(isInRange(-1, 1_000, DEFAULT_CONFIG)).toBe(false);
+  });
+});
+
+describe('isWithinRange', () => {
+  const range = { lower: 900, upper: 1_100 };
+
+  it.each([
+    [899, false],
+    [900, true],
+    [1_100, true],
+    [1_101, false],
+  ])('範囲 900〜1,100 で、%i は範囲の中か: %s', (value, expected) => {
+    expect(isWithinRange(value, range)).toBe(expected);
   });
 });
