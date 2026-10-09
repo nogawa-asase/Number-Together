@@ -402,10 +402,11 @@ interface RankingView {
   top: RankRow[];            // 上位 resultTopN 人
   me: RankRow | null;        // 自分が圏外のときだけ入る(「・・・」で区切って下に出す)
 }
-function buildRanking(players: Player[], points: Record<string, number>, myId: string | null, config: GameConfig): RankingView;
+function buildRanking(players: Player[], points: Record<string, unknown>, myId: string | null, config: GameConfig): RankingView;
+// points は他の人が書いた値なので、0以上の整数でなければ0として扱う
 ```
 
-同点の人は、同じ順位にする。AIも一覧に入れる。
+同点の人は、同じ順位にする(1, 1, 3)。同点の並びは、入った順(`joinedAt`)、次に `id` の順(どの端末でも同じ並びにする)。同点が7位をまたいでも、行数は7で切る。AIも一覧に入れる。
 
 ### Titles(称号)
 
@@ -421,10 +422,11 @@ function titleOf(stats: Stats, config: GameConfig): TitleId;
 
 ```typescript
 function nameUnits(name: string): number;           // 全角を2、半角を1と数えた合計
-function validateName(name: string, config: GameConfig): { ok: true } | { ok: false; reason: 'empty' | 'tooLong' | 'invalidChar' };
+function validateName(name: string, config: GameConfig): { ok: true; name: string } | { ok: false; reason: 'empty' | 'tooLong' | 'invalidChar' };
+// ok のときの name は、前後の空白を取った名前。保存するのは、こちら
 ```
 
-全角(日本語、全角英数、全角記号)は2、半角(英数字、半角記号)は1。合計が `nameMaxUnits`(12)以下なら良い。前後の空白は取る。制御文字は使えない。
+全角(日本語、全角英数、全角記号)は2、半角(ASCII の英数字・記号・空白と、半角カナ)は1。それ以外の文字(絵文字など)も全角として数える。合計が `nameMaxUnits`(12)以下なら良い。前後の空白は取る。制御文字と、見えない書式の文字(ゼロ幅の文字、文字の向きの上書きなど)は使えない。
 
 ### Rooms(部屋の割り振りの判断)
 
@@ -436,6 +438,7 @@ type RoomPlan =
 
 /** 部屋ごとの人数のスナップショットから、入る先を決める。実際の入室は、Store の条件付きの書き込みで確定する */
 function planRoom(counts: number[], phase: Phase, joinVerdict: JoinVerdict, config: GameConfig): RoomPlan;
+// counts[i] は、部屋 i + 1 の人間の人数(部屋の番号は1から)。条件付きの書き込みに負けたら、その部屋を満員として、もう一度呼ぶ
 ```
 
 ### AiBrain(AIの手の選択)
