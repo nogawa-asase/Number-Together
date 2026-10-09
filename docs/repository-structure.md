@@ -351,8 +351,9 @@ tests/unit/
 │   │   └── personalities.test.ts
 │   └── layout/
 ├── app/                       # src/app と同じ構造
-│   ├── PressBatcher.test.ts
-│   ├── AiHost.test.ts
+│   ├── PressBatcher.*.test.ts # まとめ送り・合図・終わりごとに分ける
+│   ├── AiHost.test.ts         # 担当の追従・AIの追加・古い回の削除・エラー
+│   ├── AiHost.play.test.ts    # AIの手の送信・回の切り替え・再現性
 │   └── i18n.test.ts           # 日本語と英語の両方に、すべてのキーがあること
 └── infra/
     └── memory/

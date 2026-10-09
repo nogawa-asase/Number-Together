@@ -556,6 +556,28 @@ class PressBatcher {
 - AIの数字の加算も、`PressBatcher` と同じく、1回に `maxDeltaPerWrite` までにする
 - 集合中の始めに、`roundsToKeep` より古い回のデータを削除する(`deleteRound`)
 
+**インターフェース**:
+
+```typescript
+class AiHost {
+  constructor(
+    deps: { store: GameStore; clock: ServerClock; scheduler: Scheduler; config: GameConfig; aiParams: AiParams; random: Random; onError: (error: unknown) => void },
+    seat: { roomId: number; uid: string }  // どの部屋の、誰のブラウザか
+  );
+  start(): void;      // 部屋の aiHost を購読し、自分が担当のあいだだけ動く(担当を取りにいくのは SessionController)
+  stop(): void;       // 部屋を出た。すべて止める
+  isActive(): boolean;
+}
+```
+
+- 回の始め(と、担当になったとき)に、いまの回の `players`・`number` を購読し、古い回を1つ消す(`roundIndex − roundsToKeep` の回)
+- AIの追加は、ゲーム中で `players` が届いてから、その回で1回だけ試す。AIの id は `ai-1` から順に決めるので、別の担当が同時に足しても、ルール(追加だけ)で二重にならない
+- 足す数を決めるとき、担当の自分は、まだ `players` にいなくても、人間として数える(人間が誰もいなかった回に来た人が、自分の追加より先に担当になる場合)
+- `joinedDuring` は、ゲーム開始の前から担当だったなら `'gathering'`、ゲーム中に担当になったなら `'playing'`
+- AIごとに、反応の遅れ(`reactionDelayMs`)を決め、届いた数字の記録から、その時間だけ前の値を見せる。`decide` は、id の順に呼ぶ(乱数の使い方を決まった順にし、結果を再現できるようにする)
+- 引き継いだときは、AIのポイントを0から数え直す。前の担当が書いた値は、終了の3秒後まで読めない(ルール)ため。ポイントは減らせないので、前の値より小さい間の書き込みは、ルールで拒否され、前の値が残る(AIのポイントが少し少なくなるだけで、人間には影響しない)
+- `addPlayer`・`deleteRound` の `StoreError`(切断など)は、無視する(次の回でやり直す)。それ以外のエラーは `onError` に伝える
+
 ### SessionController(参加・部屋・接続)
 
 **責務**:
