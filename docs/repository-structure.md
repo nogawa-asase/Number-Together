@@ -393,15 +393,23 @@ tests/unit/
 **構造**:
 ```
 tests/rules/
-├── number.rules.test.ts       # ゲーム中だけ加算できる、±50、終了後は拒否
-├── rounds.rules.test.ts       # いまの回でない roundId への書き込みの拒否、古い回の削除(AI担当だけ)
-├── points.rules.test.ts       # 終了の3秒後まで本人しか読めない、減らない
-├── players.rules.test.ts      # 追加だけ、AIはAI担当だけ
-├── pulses.rules.test.ts       # 自分の分だけ(AIはAI担当)、power は 0〜3、いまの回だけ
-└── users.rules.test.ts        # 自分のプロフィール・実績だけ書ける
+├── env.ts                     # 短い周期のルールを読み込ませた、テストの環境
+├── users.rules.test.ts        # 自分のプロフィール・実績だけ書ける、形の検証
+├── rooms.rules.test.ts        # 部屋の数・人数(0〜20、1ずつ)・参加中の印・AI担当
+├── number.rules.test.ts       # ゲーム中だけ加算できる、±50、いまの回だけ、終了後は拒否
+└── round.rules.test.ts        # players(追加だけ、AIはAI担当)・pulses・points(猶予まで本人だけ読める、減らない)・古い回の削除
 ```
 
+- ルールは、サーバーの時刻(`now`)で段階を決める。本物の周期(6分)では、段階を待つのに数分かかるので、`tests/support/testCycle.ts` の `scaledRules()` で、ルールの時刻の数値を短い周期(1周10秒。`TEST_CONFIG`)に置き換えて読み込ませる。式は、そのまま
+- 段階は、`waitFor(phase)` で待つ(エミュレータも、同じ機械の時計を使う)
+
 **命名規則**: `[対象].rules.test.ts`
+
+#### support/
+
+**役割**: エミュレータを使うテスト(ルール・結合・E2E)で共有する補助。
+
+- `testCycle.ts`: 短い周期の設定値(`TEST_CONFIG`)、ルールの時刻の数値の置き換え(`scaledRules`)、段階を待つ(`waitFor`)、いまの回の id(`currentRoundId`)
 
 #### int/
 
