@@ -3,7 +3,7 @@
 ## 技術スタック
 
 - 開発環境: devcontainer
-- Node.js v24.11.0
+- Node.js v24 LTS(パッチ番号は固定しない。devcontainer は `lts` を指定)
 - TypeScript 5.x
 - パッケージマネージャー: npm
 

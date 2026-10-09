@@ -65,7 +65,7 @@ function addPoints(player: { points: number }, gain: number): void {
 | 変数・引数 | camelCase、名詞 | `playerCount`、`playEndsAt` |
 | 関数 | camelCase、動詞で始める | `roundClockAt`、`pointsForPress`、`buildRanking` |
 | 真偽値 | `is`・`has`・`can`・`will` で始める | `isInRange`、`canJoinNow`、`bonusActive` |
-| 定数 | UPPER_SNAKE_CASE | `DEFAULT_BATCH_MS`、`MAX_PRESS_DELTA` |
+| 定数 | UPPER_SNAKE_CASE | `DEFAULT_CONFIG`、`MAX_DIST_BYTES` |
 | 型・インターフェース・クラス | PascalCase、名詞。インターフェースに `I` を付けない | `RoundView`、`GameStore`、`RoundController` |
 | 時刻・長さ | 単位を名前に入れる。時刻は `…At`、長さは `…Ms` | `playEndsAt`、`gatherMs` |
 
@@ -86,10 +86,14 @@ function addPoints(player: { points: number }, gain: number): void {
 | 倍増タイム | `bonus`(`bonusStartsAt`・`bonusActive`) |
 | ポイント | `points` |
 | 実績・称号 | `stats`・`title` |
-| 合図 | `pulse` |
+| 合図(押した合図。小人を跳ねさせる) | `pulse` |
+| 演出(3・2・1、×3タイム、終了10秒前、終了) | `cue` |
 | AI担当 | `aiHost` |
 | 途中参加 | `joinedDuring: 'playing'` |
 
+- **取り違えやすい組み合わせ**:
+  - 「合図」(`pulse`。他の人が押したことを伝える信号)と「演出」(`cue`。段階が変わるときの画面の見せ方)は、別のもの
+  - AIの性格「がめつい」は `AiPersonality` の `'greedy'`、称号「欲張り」は `TitleId` の `'hoarder'`。似た意味なので、名前を取り違えない
 - 時刻は、すべて**サーバー時刻(ミリ秒)**で扱う。端末の時計(`Date.now()`)を、そのまま使わない。`ServerClock.now()` を使う
 
 ### コードフォーマット
@@ -127,14 +131,18 @@ function decide(personality: AiPersonality, view: AiView): '+1' | '-1' | null {
 
 - 共有の数字・ポイント・目標・人数は整数だけを扱う。範囲の下端と上端は、`ceil`・`floor` で整数にする(`lower = ceil(target × 0.9)`、`upper = floor(target × 1.1)`)。浮動小数点で、範囲の端を比べない
 - 時間はミリ秒の整数で扱う。秒を使う画面の表示は、表示の直前に変換する
-- 調整する値は、名前を付けて `domain/config/defaultConfig.ts` に1か所にまとめる。PRD・設計書で決めた値には、コメントで出典を書く。値を変えるときは、**先にドキュメントを直す**
-- **データベースのセキュリティルール(`database.rules.json`)にも、同じ値が書いてある**(5分、20人、3秒、±50など)。設定の値を変えたら、ルールの値も同じ値に直し、`npm run test:rules` を通す
+- 調整する値は、`domain/config/defaultConfig.ts` の `DEFAULT_CONFIG`(型は、機能設計書の `GameConfig`)に1か所にまとめる。PRD・設計書で決めた値には、コメントで出典を書く。値を変えるときは、**先にドキュメントを直す**
+- 関数には、設定を1つのオブジェクト(`config: GameConfig`)として渡す。テストで値を変えるときは、`{ ...DEFAULT_CONFIG, playMs: 180_000 }` のように、一部だけを差し替える
+- **データベースのセキュリティルール(`database.rules.json`)にも、同じ値が書いてある**(1周の長さ、ゲームの開始と終了、ポイントの猶予の3秒、20人、±50など。対応は `architecture.md` の「データベースの配置とセキュリティルール」)。設定の値を変えたら、ルールの値も同じ値に直し、`npm run test:rules` を通す
 
 ```typescript
 // ✅ 良い例
-export const DEFAULT_PER_PLAYER_TARGET = 200; // 1人あたりの目標(PRD「準備」。仮置き)
-export const DEFAULT_BATCH_MS = 200;          // 連打をまとめて送る間隔(PRD「連打」)
-export const DEFAULT_BONUS_MULTIPLIER = 3;    // 倍増タイムの倍率(PRD「個人ポイント」。仮置き)
+export const DEFAULT_CONFIG: GameConfig = {
+  perPlayerTarget: 200, // 1人あたりの目標(PRD「準備」。仮置き)
+  batchMs: 200,         // 連打をまとめて送る間隔(PRD機能1)
+  bonusMultiplier: 3,   // 倍増タイムの倍率(PRD「個人ポイント」。仮置き)
+  // ...(GameConfig のすべての項目)
+};
 
 // ❌ 悪い例
 if (now > endsAt - 60000) { /* 60000 が何か分からない */ }
@@ -231,7 +239,7 @@ if (roundId !== this.roundId) return; // 待っている間に、次の回に変
 - 状態は、色だけで区別せず、文字や形も使う(例: 「範囲内!」の札は、色とチェックマークの両方)
 - ボタンなど、タップする部品は、一辺44px以上にする。+1と−1のボタンは、同じ大きさで、左右対称に並べる
 - ボタンやアイコンには、`aria-label` を付ける(例: 「+1」「−1」「言語を切り替える」)。言語を切り替えたら、`aria-label` も、その言語にする
-- 動き(跳ねる・降りてくる・点滅する・浮かぶ・弾む)は、**CSSのアニメーション**で作る。JavaScriptは、クラスの付け外しと、CSS変数(高さ・長さ)の設定だけにして、毎フレームの更新をしない
+- 動き(跳ねる・降りてくる・点滅する・浮かぶ・弾む)は、`architecture.md` の「動き(アニメーション)の実装方針」に従う(CSSのアニメーションで作り、JavaScriptで毎フレームの更新をしない)
 - 「動きを減らす」設定(`prefers-reduced-motion`)が有効なときは、動きをやめる。`ui/styles/motion.css` に、まとめて書く
 - 自分が押したときは、通信を待たずに、すぐ画面に反映する(数字・ポイント・小人・「+1」の吹き出し)
 
@@ -244,10 +252,26 @@ if (roundId !== this.roundId) return; // 待っている間に、次の回に変
 | ユニットテスト | ドメイン層、アプリケーション層(`InMemoryGameStore` を使う) | ドメイン層は、行・分岐・関数それぞれ80%以上 | `npm test` |
 | ルールのテスト | `database.rules.json` | 機能設計書・技術仕様書の項目がすべて合格 | `npm run test:rules` |
 | 結合テスト | Firebase Emulator Suite を使った、複数クライアントの動き | 機能設計書のシナリオがすべて合格 | `npm run test:int` |
-| シミュレーション | AIだけの回 | 成功率・ぴったり率・ポイントの分布を、調整に使えること | `npm run test:sim` |
-| E2Eテスト | 画面の一連の流れ | 機能設計書のシナリオがすべて合格(Chromium と WebKit) | `npm run test:e2e` |
+| シミュレーション | AIだけの回 | 下の「シミュレーションの合格の条件」を満たす | `npm run test:sim` |
+| E2Eテスト | 画面の一連の流れ | 機能設計書のシナリオがすべて合格(Chromium・Firefox・WebKit) | `npm run test:e2e` |
 
 - UI層は、E2Eテストで確かめる。ユニットテストのカバレッジ目標は課さない
+
+### シミュレーションの合格の条件
+
+シミュレーションは、調整のための数字を出すことが主な目的だが、次の場合は、失敗にする(壊れた変更に気づくため)。
+
+- どの回も、最後(結果発表)まで進む
+- 最終の数字とポイントが、整数で、ポイントは0以上
+- 人数と性格の組み合わせごとに、成功率が0%または100%に張り付いていない(ルールやAIが壊れていると、こうなりやすい)
+
+毎回、組み合わせごとの成功率・ぴったり率・ポイントの分布を、表にしてログに出す。成功率は、PRDのKPI「手応え」の目安(30〜70%。仮)と見比べて、調整に使う(目安を外れても、失敗にはしない。AIだけの回は、人間の回と、成功率が違うため)。
+
+### E2Eテストが不安定なとき
+
+- 失敗したら、まず手元で、同じテストを何回か動かし、再現するかを確かめる。再現したら、不具合として直す
+- 再現しない(タイミングによる)失敗は、待ち方(時刻を進める補助、画面の要素が出るまで待つ)を直す。固定の時間を待つ(`waitForTimeout`)ことで、ごまかさない
+- CI では、Playwright の `retries` を1にする。手元では0にする。再実行で通ったテストは、レポートに「不安定」と出るので、放っておかずに直す
 
 ### テストの書き方
 
@@ -293,7 +317,8 @@ describe('pointsForPress', () => {
 - 範囲の端ちょうど(`lower`・`upper`)と、1つ外
 - 目標とぴったり同じ
 - 倍増タイムの開始のちょうど前後、ゲーム終了のちょうど前後
-- 途中参加の締め切り(終了の1分前)のちょうど前後
+- 途中参加の締め切り(終了の1分前)のちょうど前後と、結果発表中
+- 1回の送信の変化が、±50ちょうどと、±51
 - 部屋の人数が19人・20人・21人のとき
 - 名前の長さ(全角6文字、半角12文字、混ざったとき、13)
 - 人が抜けても、目標が下がらないこと
@@ -355,7 +380,10 @@ Conventional Commits の形式で、要約は日本語で書く。
 | `ci` | CIの設定 |
 | `chore` | その他 |
 
-**scope**: `domain`・`schedule`・`targets`・`points`・`ai`・`infra`・`app`・`ui`・`rules`(データベースのルール)・`i18n`・`e2e`・`docs` など、変更した場所
+**scope**: 変更した場所。決まった一覧ではなく、次の名前から、いちばん近いものを選ぶ
+
+- ドメイン層の分野: `config`・`schedule`・`targets`・`judge`・`points`・`pulses`・`ranking`・`titles`・`names`・`rooms`・`ai`・`layout`(複数の分野にまたがるときは `domain`)
+- そのほか: `infra`・`app`・`ui`・`i18n`・`rules`(データベースのルール)・`unit`・`int`・`sim`・`e2e`・`scripts`・`docs`
 
 **例**:
 ```
@@ -385,19 +413,20 @@ PRDの「個人ポイント」に合わせて、最後の1分は、範囲の中�
 ### レビューの観点
 
 **ルールの正しさ**(最優先):
-- [ ] PRDの「ゲームのルール」と一致しているか(特に、範囲の端、ぴったり、倍増タイムの条件、途中参加で目標が増えること、人が抜けても目標が下がらないこと、AIの数が開始時点で決まること、結果が終了の3秒後に出ること)
+- [ ] PRDの「ゲームのルール」と一致しているか(特に、範囲の端、ぴったり、倍増タイムの条件、途中参加で目標が増えること、人が抜けても目標が下がらないこと、AIの数が開始時点で決まること(ゲーム開始の時刻に人間がいなかった回は、最初の人間が来た時点)、結果が終了の3秒後に出ること)
 - [ ] 判定をドメイン層以外で書き直していないか
 - [ ] 境界の値のテストがあるか(上の「境界の値を必ずテストする」)
 
 **設計**:
 - [ ] 層の依存ルールを守っているか(ESLint が通れば守られている。入れるのは実装の最初の作業で、それまではレビューで確かめる)
+- [ ] ドメイン層の分野の間の依存が、`repository-structure.md` の「モジュール間の依存」の向きになっているか(ESLint では強制しないので、レビューで確かめる)
 - [ ] 状態を書き換えていないか
 - [ ] 乱数・時刻を、ドメイン層で直接使っていないか(`ServerClock.now()` と `Random` を使う)
 - [ ] `firebase/*` を、`infra/firebase/` の外で import していないか
 
 **Firebase・通信**:
 - [ ] 共有の数字を、`increment` で加算しているか(読んで、足して、書き戻していないか)
-- [ ] 連打をまとめて送り、合図を間引いているか
+- [ ] 連打をまとめて送り、合図を間引いているか。1回の送信の変化を、±50(`maxDeltaPerWrite`)までにしているか
 - [ ] 購読の解除と、タイマーの停止を、回の終わりに行っているか
 - [ ] データベースから読んだ値を、検証してから使っているか
 - [ ] セキュリティルールと設定の値が、一致しているか。ルールのテストを足したか
@@ -450,21 +479,23 @@ PRDの「個人ポイント」に合わせて、最後の1分は、範囲の中�
 
 リポジトリ(GitHub)への push で、次を実行する(PR を作った場合は PR でも実行する)。設定(`.github/workflows/ci.yml`)は実装の最初の作業で、`eslint.config.js` の層のルールと一緒に追加する。Emulator Suite を使うジョブは、Java 11以上のセットアップ(`actions/setup-java`)が必要。
 
-| ジョブ | 内容 | タイミング |
-|--------|------|-----------|
-| check | `npm run lint`・`npm run typecheck`・`npm test` | すべての push |
-| build | `npm run build` と `npm run check:size`(配信サイズが `architecture.md` の上限を超えたら失敗) | すべての push |
-| rules | `npm run test:rules` | `database.rules.json`・`src/domain/config/` を変えた push、`main` への push |
-| int | `npm run test:int` | `src/infra/`・`src/app/` を変えた push、`main` への push |
-| e2e | `npm run test:e2e` | `main` への push |
-| sim | `npm run test:sim` | `src/domain/` を変えた `main` への push |
+| ジョブ | 内容 | タイミング | `paths` の指定(変更したファイルで絞るとき) |
+|--------|------|-----------|------|
+| check | `npm run lint`・`npm run typecheck`・`npm test` | すべての push | なし |
+| build | `npm run build` と `npm run check:size`(配信サイズが `architecture.md` の上限を超えたら失敗) | すべての push | なし |
+| rules | `npm run test:rules` | `database.rules.json`・`src/domain/config/` を変えた push、`main` への push | `['database.rules.json', 'src/domain/config/**', 'tests/rules/**']` |
+| int | `npm run test:int` | `src/infra/`・`src/app/` を変えた push、`main` への push | `['src/infra/**', 'src/app/**', 'tests/int/**']` |
+| e2e | `npm run test:e2e` | `main` への push | なし(`main` だけで動かす) |
+| sim | `npm run test:sim` | `src/domain/` を変えた `main` への push | `['src/domain/**', 'tests/sim/**']`(`main` だけ) |
+
+- 「`main` への push では、変更に関わらず動かす」ジョブ(rules・int)は、`paths` で絞ったワークフローと、`main` 用のワークフローの2つの起動条件を書くか、ジョブの中で、変更したファイルを調べて判断する
 
 ## リリース(itch.io への公開)
 
 1. `main` で、`npm run lint`・`npm run typecheck`・`npm test`・`npm run test:rules`・`npm run test:int`・`npm run test:sim`・`npm run test:e2e` がすべて通ることを確かめる
 2. **データベースのセキュリティルール(`database.rules.json`)を、本番に反映する**(`firebase deploy --only database`)。ユーザー(開発者)が、自分で行う。反映するルールが、設定の値と一致していることを、確かめる
 3. `npm run build` で `dist/` を作り、`npm run preview` で PC とスマホ幅の表示を、日本語と英語の両方で確かめる。環境変数(`VITE_FIREBASE_*`)は、本番の値にする
-4. **本番のデータベースにつないで**、複数の端末で遊び、通信量を測る(PRDの機能9)。測ったあと、計測の表示を、外す(または、非表示にする)
+4. **本番のデータベースにつないで**、`VITE_TRAFFIC_METER=1` を付けたビルドで、複数の端末で遊び、通信量を測る(PRDの機能9。測り方は `architecture.md` の「通信量の計測」)。公開用のビルドは、`VITE_TRAFFIC_METER` を付けずに作り直す
 5. 実機で、Safari(iPhone)と Chrome(Android)で、itch.io の埋め込みの中で、IDが保存できるか(開き直したときに、同じ実績が出るか)を確かめる(保存できない場合の表示も確かめる)
 6. `npm run package:itch` で `release/number-together-v[バージョン].zip` を作り、itch.io の管理画面(Edit game > Uploads)から手動でアップロードする(itch.io の設定は `docs/architecture.md` の「デプロイ(itch.io)」)
 7. `main` にバージョンのタグを付ける(例: `v0.1.0`)。最初の版(P0)を `v0.1.0` とし、P1の機能を足すたびにマイナーバージョンを上げる
@@ -479,7 +510,7 @@ PRDの「個人ポイント」に合わせて、最後の1分は、範囲の中�
 | Node.js | v24 LTS | devcontainer に含まれる |
 | Java(JDK) | 11以上 | devcontainer に含まれる(Emulator Suite のデータベースに必要) |
 | Firebase CLI | `firebase-tools`(開発時の依存として入る) | `npm install` で入る。エミュレータだけを使うなら、ログインは不要 |
-| Playwright のブラウザ | @playwright/test に対応するもの | `npx playwright install --with-deps chromium webkit` |
+| Playwright のブラウザ | @playwright/test に対応するもの | `npx playwright install --with-deps chromium firefox webkit` |
 
 ### セットアップ手順
 
@@ -492,7 +523,7 @@ cd number-together
 npm install
 
 # 3. E2Eテスト用のブラウザを入れる(初回だけ)
-npx playwright install --with-deps chromium webkit
+npx playwright install --with-deps chromium firefox webkit
 
 # 4. 環境変数のひな形をコピーする(エミュレータだけで開発するなら、値は仮でよい)
 cp .env.example .env.local

@@ -15,6 +15,7 @@ number-together/
 │   │   ├── targets/           #   目標と範囲
 │   │   ├── judge/             #   結果の判定(ぴったり・成功・失敗)
 │   │   ├── points/            #   ポイントの計算と、報酬・実績の変化
+│   │   ├── pulses/            #   合図の強さ(power)の計算
 │   │   ├── ranking/           #   結果発表の一覧
 │   │   ├── titles/            #   称号
 │   │   ├── names/             #   名前の長さ・使える文字
@@ -82,6 +83,7 @@ number-together/
 
 - 各層を組み立てるのはこのファイルだけ。ここ以外で、層をまたいだ組み立てをしない
 - Firebase の設定は、環境変数(`VITE_FIREBASE_*`)から読む。`VITE_USE_EMULATOR=true` のときは、エミュレータにつなぐ
+- `VITE_TRAFFIC_METER=1` のときは、通信量の計測(`TrafficMeter`)を有効にする。テストプレイ用のビルドのときだけ、コマンドの前に付けて渡す(例: `VITE_TRAFFIC_METER=1 npm run build`)。`.env.local` には書かない(公開用のビルドに混ざらないようにするため)
 
 #### domain/
 
@@ -95,6 +97,7 @@ number-together/
 **命名規則**:
 - 関数を公開するファイルは camelCase(例: `roundClockAt.ts`、`pointsForPress.ts`)
 - 型だけのファイルは `types.ts`
+- 各分野のディレクトリに、まとめて公開するためのファイル(`index.ts`)は置かない。使う側は、ファイルを直接 import する(依存の向きを、import の行から読み取れるようにするため)
 
 **依存関係**:
 - 依存可能: `domain/` の中だけ
@@ -121,6 +124,8 @@ domain/
 ├── points/
 │   ├── pointsForPress.ts       # +1を押した瞬間のポイント(倍増タイムと範囲の判定)
 │   └── settle.ts               # 結果から、報酬と実績の変化を求める
+├── pulses/
+│   └── pulsePowerFor.ts        # 直近1秒に押した回数から、合図の強さ(0〜3)を求める
 ├── ranking/
 │   └── buildRanking.ts         # 上位7人と、自分の行(圏外のとき)
 ├── titles/
@@ -133,7 +138,7 @@ domain/
 ├── ai/
 │   ├── random.ts               # Random インターフェースと、種を固定できる疑似乱数
 │   ├── aiParams.ts             # 性格ごとの、押す頻度・反応の遅れなどの初期値
-│   ├── decide.ts               # 性格に応じて、手を選ぶ入口
+│   ├── decide.ts               # 性格に応じて、手を選ぶ入口(機能設計書の AiBrain)
 │   └── personalities/
 │       ├── greedy.ts           # がめつい
 │       ├── balancer.ts         # 調整役
@@ -177,7 +182,8 @@ infra/
 │   ├── connection.ts          # 接続の状態(オンライン・オフライン)の検知
 │   ├── serverClock.ts         # .info/serverTimeOffset を使った ServerClock の実装
 │   ├── paths.ts               # データベースのパスを作る関数(配置を、ここ1か所に集める)
-│   └── FirebaseGameStore.ts   # GameStore の実装(部屋・回・数字・合図・ポイント)
+│   ├── FirebaseGameStore.ts   # GameStore の実装(部屋・回・数字・合図・ポイント)
+│   └── TrafficMeter.ts        # 通信量の計測(テスト用。VITE_TRAFFIC_METER=1 のときだけ有効)
 └── memory/
     ├── InMemoryGameStore.ts   # GameStore のメモリ上の実装(テスト・シミュレーション用)
     └── FakeClock.ts           # 時刻を進められる ServerClock(テスト・シミュレーション用)
@@ -262,7 +268,7 @@ ui/
 │   ├── PlayScreen.ts           # プレイ中
 │   ├── ResultScreen.ts         # 結果発表(ぴったり・成功・失敗)
 │   ├── AchievementCard.ts      # 実績カード
-│   ├── WaitScreen.ts           # 待機(満員・終了間際)
+│   ├── WaitScreen.ts           # 待機(満員・終了間際・結果発表中)
 │   ├── OfflineScreen.ts        # 通信が切れたとき
 │   ├── BusyScreen.ts           # 混雑中
 │   └── MyPageScreen.ts         # 自分の画面
@@ -285,8 +291,8 @@ ui/
 - `package-itch.ts`: `npm run build` のあと、`dist/` の中身を(`dist/` フォルダ自体は含めずに)`release/number-together-v[バージョン].zip` にまとめる。itch.io は zip 直下の `index.html` をゲームの入り口として扱うため、`dist/` の中に cd してから zip 化する。`npm run package:itch` で、ビルドからまとめて実行できる。`release/` は Git 管理外(`.gitignore`)
 
 **依存関係**:
-- 依存可能: `domain/`
-- 依存禁止: `app/`・`ui/`・`infra/`
+- 依存可能: Node.js の標準のモジュールだけ(どちらのスクリプトも、ファイルを扱うだけで、ゲームのコードを使わない)
+- 依存禁止: `src/` のすべて。配信サイズの上限は、`check-dist-size.ts` の中に定数で持つ(`architecture.md` の「リソース使用量」と同じ値)
 
 ### public/ (そのまま配信するファイル)
 
@@ -322,6 +328,8 @@ tests/unit/
 │   ├── points/
 │   │   ├── pointsForPress.test.ts
 │   │   └── settle.test.ts
+│   ├── pulses/
+│   │   └── pulsePowerFor.test.ts
 │   ├── ranking/
 │   ├── titles/
 │   ├── names/
@@ -352,8 +360,10 @@ tests/unit/
 ```
 tests/rules/
 ├── number.rules.test.ts       # ゲーム中だけ加算できる、±50、終了後は拒否
+├── rounds.rules.test.ts       # いまの回でない roundId への書き込みの拒否、古い回の削除(AI担当だけ)
 ├── points.rules.test.ts       # 終了の3秒後まで本人しか読めない、減らない
 ├── players.rules.test.ts      # 追加だけ、AIはAI担当だけ
+├── pulses.rules.test.ts       # 自分の分だけ(AIはAI担当)、power は 0〜3、いまの回だけ
 └── users.rules.test.ts        # 自分のプロフィール・実績だけ書ける
 ```
 
@@ -395,7 +405,7 @@ tests/sim/
 tests/e2e/
 ├── full-round.spec.ts         # 初回の登録から、結果発表、次の集合中まで
 ├── late-join.spec.ts          # 途中参加(目標UPと召喚)
-├── wait.spec.ts               # 満員・終了間際の待機
+├── wait.spec.ts               # 満員・終了間際・結果発表中の待機
 ├── offline.spec.ts            # 通信が切れて戻る
 ├── mobile.spec.ts             # スマホ幅360pxの表示とタッチ操作
 ├── language.spec.ts           # 日本語と英語の切り替え。文字がはみ出さない
@@ -411,7 +421,7 @@ tests/e2e/
 ### docs/ (ドキュメントディレクトリ)
 
 **配置ドキュメント**:
-- `ideas/`: 壁打ち・アイデアメモ(`initial-requirements.md`)と、画面の資料の説明(`screens-README.md`)
+- `ideas/`: 壁打ち・アイデアメモ(`initial-requirements.md`)と、画面の資料の説明の下書き(`screens-README.md`。`design/screens/` ができる前の版。正式版は `design/screens/README.md` で、実装では、こちらを見ない)
 - `design/`: 画面の資料(見本)
   - `design/screens/`: 日本語版(`README.md` と、`screens/*.html` の見本)
   - `design/screens-en/`: 英語版の見本(`screens/*.html`)
@@ -461,7 +471,7 @@ tests/e2e/
 | 環境変数 | プロジェクトルート | `.env.example`(ひな形。Git 管理)・`.env.local`(本物。Git 管理外) |
 | 仮の値(目標・倍率・時間・人数など) | `src/domain/config/defaultConfig.ts` | 1か所にまとめる(コードに直接書かない) |
 
-- データベースのルールの中の数値(5分、20人、3秒など)は、設定ファイルと同じ値にそろえる(ルールのファイルは、設定ファイルを読めないため)。両方を変えるときの注意を、`docs/firebase-setup.md` に書く
+- データベースのルールの中の数値(1周の長さ、ゲームの開始と終了、ポイントの猶予、20人、±50など)は、設定ファイルと同じ値にそろえる(ルールのファイルは、設定ファイルを読めないため)。値の対応は、`architecture.md` の「データベースの配置とセキュリティルール」にある
 - 環境ごとの設定ファイル(開発・本番など)は作らない。切り替えは、環境変数だけで行う
 
 ## 命名規則
@@ -501,7 +511,7 @@ ui/ ──→ app/ ──→ domain/
 
 infra/firebase/ ──→ firebase/*(外部のライブラリ)
 infra/memory/   ──→ domain/(型)
-scripts/ ──→ domain/
+scripts/ ──→ (Node.js の標準のモジュールだけ)
 tests/   ──→ 各層(テスト対象)
 ```
 
@@ -511,7 +521,7 @@ tests/   ──→ 各層(テスト対象)
 - `app/` → `infra/firebase/`・`infra/memory/` の実装 (❌。インターフェースだけを使い、実装は `main.ts` が渡す)
 - `ui/` → `infra/`・`firebase/*` (❌)
 - `infra/` → `app/`・`ui/` (❌)
-- `scripts/` → `app/`・`ui/`・`infra/` (❌)
+- `scripts/` → `src/` のすべて (❌)
 
 **強制の方法**: ESLint の `no-restricted-imports` を、ディレクトリごとの設定として `eslint.config.js` に書く(`architecture.md` の「層のルールの強制」)。`firebase/*` を import してよいのは、`src/infra/firebase/**` だけ。
 
@@ -521,16 +531,19 @@ tests/   ──→ 各層(テスト対象)
 - `domain/` の各分野の依存は、次の向きだけにする
 
 ```
-ai/ ──→ points/ ──→ targets/ ──→ config/
- │        └─────→ schedule/ ──→ config/
+ai/ ──→ targets/ ──→ config/
+points/ ──→ targets/
+   └─────→ schedule/ ──→ config/
 judge/ ──→ targets/
 rooms/ ──→ schedule/
+pulses/ ──→ config/
 ranking/・titles/・names/・layout/ ──→ types(型だけ)
 ```
 
-- `ai/` は、押したときのポイント(`points/`)と、範囲の判断(`targets/`)を再利用する。AIの手の選択が、人間と同じ判断(範囲・倍増タイム)を、重複せずに使うため
+- `ai/` は、範囲の判断(`targets/` の `isInRange`)を再利用する。AIの手の選択が、人間と同じ判断を、重複せずに使うため。AIのポイントの計算は、`ai/` ではなく、アプリケーション層の `AiHost` が `points/` を使って行う
 - `points/` は、`targets/`(範囲内かの判断)と `schedule/`(倍増タイムの時刻)に依存する。逆の依存は作らない
 - `layout/` は、見た目の計算(小人の並べ方、グラフの座標)だけを持ち、ルールの判断(`targets/` など)には依存しない。画面に出す形の計算を、ドメイン層に置くのは、ブラウザなしで、自動テストできるようにするため
+- **確かめ方**: 分野の間の依存の向きは、ESLint では強制せず、コードレビューで確かめる(`development-guidelines.md` の「コードレビュー」)。層の間の依存は、上のとおり ESLint で強制する
 
 ## スケーリング戦略
 

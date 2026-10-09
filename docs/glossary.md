@@ -4,7 +4,9 @@
 
 このドキュメントは、Number Together のドキュメントとコードで使う用語を定義する。ドキュメントでは日本語の用語を、コードでは「英語表記(コード上の名前)」を使い、両者の対応をここで固定する。
 
-**更新日**: 2026-10-04
+**更新日**: 2026-10-09(用語を追加・変更したら、この日付も直す)
+
+技術用語の表には、このプロジェクトで使う道具・サービス・形式を載せる。略語・頭字語の表には、文章の中で、略して書く言葉を載せる。
 
 **使わない用語**:
 
@@ -28,11 +30,11 @@
 
 **定義**: 「集合 → ゲーム → 結果発表」の1周。
 
-**説明**: 1周は、集合30秒・ゲーム5分・結果発表30秒(仮置き。設定で変える)。サーバー時刻から、回の番号を計算する。誰かが開始を書き込むのではなく、全員が同じ計算をする。
+**説明**: 1周は、集合30秒・ゲーム5分・結果発表30秒(仮置き。設定で変える)。サーバー時刻から、回の番号を計算する。誰かが開始を書き込むのではなく、全員(と、データベースのセキュリティルール)が同じ計算をする。
 
 **関連用語**: 段階、常時開催
 
-**英語表記**: round(番号は `roundIndex`、データベースのキーは `roundId`)
+**英語表記**: round(番号は `roundIndex`、データベースのキーは `roundId`。`roundId` は、`roundIndex` を10進の文字列にしたもの)
 
 #### 段階
 
@@ -72,7 +74,7 @@
 
 **定義**: 入れないときに、次の回の集合まで待つ状態。
 
-**説明**: 理由は2つ。「ゲーム中に来て、全部の部屋が満員」と「終了の1分前以降に来た」。待機画面には、理由と、次の回までのカウントダウンだけを出し、ゲームの様子は見せない。
+**説明**: 理由は2つ。「ゲーム中に来て、全部の部屋が満員」(`full`)と「終了の1分前以降、または結果発表中に来た」(`lastMinute`)。待機画面には、理由と、次の回までのカウントダウンだけを出し、ゲームの様子は見せない。
 
 **関連用語**: 途中参加、部屋
 
@@ -184,9 +186,19 @@
 
 **説明**: 失敗した回のポイントは入らない。AIの分は記録しない。
 
-**関連用語**: 実績、報酬
+**関連用語**: 実績、報酬、ランキング
 
 **英語表記**: total points(`totalPoints`)
+
+#### ランキング
+
+**定義**: 累計ポイントや成功回数の多い順に、人間のプレイヤーを並べたもの。P1の機能(PRDの機能15)。
+
+**説明**: AIは入れない。結果発表の一覧(その回のポイントの順位)とは、別のもの。
+
+**関連用語**: 累計ポイント、実績、結果発表の一覧
+
+**英語表記**: ranking(画面は `RankingScreen`。結果発表の一覧の `buildRanking`・`RankingView` とは別)
 
 ### 参加者
 
@@ -220,7 +232,7 @@
 
 **定義**: 人間が5人未満のとき、5人にそろえるために加わる、コンピューターの参加者。
 
-**説明**: ClaudeなどのAI(LLM)にはつながない。ブラウザの中の、単純なルールと確率のプログラムで動く。数は、ゲーム開始時点で決め、途中で人間が入ってきても変えない。画面には、「がめついAI」のように、性格の名前に「AI」を付けて出す。AIの成績は、実績やランキングに記録しない。
+**説明**: ClaudeなどのAI(LLM)にはつながない。ブラウザの中の、単純なルールと確率のプログラムで動く。数は、ゲーム開始時点で決め、途中で人間が入ってきても変えない(ゲーム開始の時刻に人間が誰もいなかった回だけは、最初の人間が来た時点で、AIを足す)。回の途中で人間が全員抜けたら、AIも止まる。画面には、「がめついAI」のように、性格の名前に「AI」を付けて出す。AIの成績は、実績やランキングに記録しない。
 
 **関連用語**: AIの性格、AI担当、プレイヤー
 
@@ -238,7 +250,7 @@
 | 気まぐれ | 気まぐれAI | Moody AI | `moody` |
 | ラストスパート | ラストスパートAI | Last-Spurt AI | `lastSpurt` |
 
-注意: AIの性格「がめつい」(`AiPersonality` の `'greedy'`)と、称号「欲張り」(`TitleId` の `'greedy'`)は、同じ英語表記だが、別の型。文章では、「性格のがめつい」「称号の欲張り」のように区別する。
+注意: AIの性格「がめつい」(`AiPersonality` の `'greedy'`)と、称号「欲張り」(`TitleId` の `'hoarder'`)は、似た意味だが、別のもの。英語の表示は、どちらも「Greedy」を含むので、文章では、「性格のがめつい」「称号の欲張り」のように区別する。
 
 **関連用語**: AI、称号
 
@@ -248,7 +260,7 @@
 
 **定義**: 部屋の中で、AIの操作を、代わりにデータベースに送る人間のブラウザ。
 
-**説明**: 入った順が最も古い人間が担当になる。担当が抜けたら、次に古い参加者が引き継ぐ。AIの追加と、古い回のデータの削除も、担当が行う。
+**説明**: 入った順が最も古い人間が担当になる。担当が抜けたら、次に古い参加者が引き継ぐ。AIの追加と、古い回のデータの削除(2回分だけ残す)も、担当が行う。ゲーム開始の時刻に人間が誰もいなかった回は、途中から来た最初の人が担当になり、その時点でAIを足す。
 
 **関連用語**: AI、部屋
 
@@ -276,18 +288,18 @@
 
 **定義**: 実績から決まる、通り名。新人・常連・欲張り・ぴったり王。
 
-**説明**: 条件は、設定で変える(仮)。集合中の画面で、名前の下に表示する。
-
-**関連用語**: 実績
-
-**英語表記**: title(`TitleId`: `rookie`・`regular`・`greedy`・`perfectKing`)
+**説明**: 条件は、設定で変える(仮。最初の実装の条件は、機能設計書の「Titles(称号)」)。集合中の画面で、名前の下に表示する。
 
 | 称号 | 英語の表示 | コード上の名前 |
 |------|-----------|---------------|
 | 新人 | Rookie | `rookie` |
 | 常連 | Regular | `regular` |
-| 欲張り | Greedy | `greedy` |
+| 欲張り | Greedy | `hoarder` |
 | ぴったり王 | Perfect King | `perfectKing` |
+
+**関連用語**: 実績、称号の帯
+
+**英語表記**: title(`TitleId`: `rookie`・`regular`・`hoarder`・`perfectKing`)
 
 #### 実績
 
@@ -341,7 +353,7 @@
 
 **定義**: 「いま押した」ことを、他の人の画面に伝える信号。小人を跳ねさせるのに使う。
 
-**説明**: +1か−1かは含まない。1人につき、1秒に1回までにまとめる。直近の押し方の強さ(`power`)を含む。
+**説明**: +1か−1かは含まない。1人につき、1秒に1回までにまとめる。直近の押し方の強さ(`power`。0〜3。直近1秒に押した回数から、`pulsePowerFor` で決める)を含む。
 
 **注意**: 「合図」という言葉は、「ゲーム中の演出」(3・2・1・スタートなど)にも使う。区別するため、文章では「押した合図」と「演出」を使い分ける。
 
@@ -428,6 +440,16 @@
 
 **英語表記**: summon
 
+#### 称号の帯
+
+**定義**: 称号のある人が、ゲーム中に途中参加したときに出る、「ぴったり王 ○○さん参戦!」のような帯。
+
+**説明**: 召喚と同時に出す。プレイ中は実績を見せない、という考えとは合わないが、途中参加の人だけに出してみる。あとから消すかもしれない(PRDの「このゲームで決めたこと」)。
+
+**関連用語**: 称号、召喚、途中参加
+
+**英語表記**: title banner
+
 #### フェードイン
 
 **定義**: 集合中に、AIが、参加者の席に、ふわっと現れる動き。
@@ -490,7 +512,7 @@
 
 **説明**: 2種類ある。「ポイントの猶予」は、終了の3秒後まで、ポイントを書き込める時間(結果は、その後に出す)。「再接続の猶予」は、切れてから60秒(上の「再接続」)。
 
-**英語表記**: grace period
+**英語表記**: grace period(ポイントの猶予は `pointsGraceMs`、再接続の猶予は `reconnectGraceMs`)
 
 ## 技術用語
 
@@ -513,7 +535,7 @@
 | Vite | 開発サーバーとビルドツール | 開発サーバー、`dist/` の出力 | 8.x |
 | tsx | TypeScript をそのまま Node.js で実行するツール | 配信サイズの確認とzip作りのスクリプト | 最新安定版 |
 | Vitest | テストフレームワーク | ユニットテスト、ルールのテスト、結合テスト、シミュレーション | 5.x |
-| Playwright | ブラウザ自動操作によるテストツール | E2Eテスト(Chromium・WebKit) | 1.63.x |
+| Playwright | ブラウザ自動操作によるテストツール | E2Eテスト(Chromium・Firefox・WebKit) | 1.63.x |
 | ESLint / Prettier | 静的解析 / 整形ツール | コードの品質と層の依存ルールの強制 / 整形 | 9.x / 3.x |
 | husky / lint-staged | Git フックの管理 / 変更ファイルへのコマンド実行 | コミット前のチェック | 9.x / 15.x |
 | itch.io | インディーゲームの公開サイト | ゲームの公開先(HTML5ゲームとしてzipをアップロード) | — |
@@ -554,7 +576,21 @@
 
 **本プロジェクトでの適用**: Firebase用の実装(`FirebaseGameStore`)と、メモリ上の実装(`InMemoryGameStore`)の2つがある。後者で、ルールやAIの動きを、ネットワークなしで試せる。
 
-**英語表記**: `GameStore`
+**英語表記**: `GameStore`(`src/infra/store/GameStore.ts`)
+
+### 主なコンポーネント
+
+| 名前 | 層 | 責務(1行) |
+|------|----|-----------|
+| `SessionController` | アプリケーション | 登録・サインイン・部屋への入室と退出・接続の状態・AI担当の引き継ぎ |
+| `RoundController` | アプリケーション | 時計を見た画面の切り替え、`RoundView` の組み立て、押した操作の処理、結果の計算 |
+| `PressBatcher` | アプリケーション | 連打を0.2秒ごとにまとめて送る(1回±50まで)。合図を1秒に1回にまとめる |
+| `AiHost` | アプリケーション | AI担当のブラウザで、AIの追加と、AIの操作の送信、古い回の削除を行う |
+| `GameView` | アプリケーション(インターフェース)/ UI(実装 `DomGameView`) | アプリケーション層が使う、画面の操作 |
+| `AiBrain` | ドメイン | AIの性格ごとの手の選択(`decide`。`src/domain/ai/`) |
+| `TrafficMeter` | インフラ | 通信量の計測(テスト用。`VITE_TRAFFIC_METER=1` のときだけ) |
+
+詳しい責務は `docs/functional-design.md` の「コンポーネント設計」を正とする。
 
 ### 画面の状態
 
@@ -578,7 +614,7 @@
 
 **定義**: 遊びながら調整する値(1人あたりの目標、範囲の割合、倍率、時間、人数、通信の間隔など)を、1か所にまとめたもの。
 
-**本プロジェクトでの適用**: `src/domain/config/defaultConfig.ts`。データベースのセキュリティルール(`database.rules.json`)にも、同じ値(5分、20人、3秒、±50など)があるので、変えるときは、両方をそろえる。
+**本プロジェクトでの適用**: `src/domain/config/defaultConfig.ts` の `DEFAULT_CONFIG`。データベースのセキュリティルール(`database.rules.json`)にも、同じ値(1周の長さ、ゲームの開始と終了、ポイントの猶予の3秒、20人、±50など)があるので、変えるときは、両方をそろえる(対応は `docs/architecture.md` の「データベースの配置とセキュリティルール」)。
 
 **英語表記**: game config(`GameConfig`)
 
@@ -624,7 +660,7 @@ stateDiagram-v2
 | 終了! | `09-end.html` | 演出 |
 | 結果発表 | `10-result-perfect.html`・`11-result-clear.html`・`12-result-fail.html` | ぴったり・成功・失敗 |
 | 実績カード | `13-achievement-card.html` | 小人をタップしたとき |
-| 待機 | `14-wait-full.html`・`15-wait-last-minute.html` | 満員・終了間際 |
+| 待機 | `14-wait-full.html`・`15-wait-last-minute.html` | 満員・終了間際・結果発表中(結果発表中は15を使う) |
 | 通信が切れたとき | `16-offline.html` | 再接続 |
 | 混雑中 | `17-busy.html` | つながらない |
 | 自分の画面 | `18-me.html` | 名前・実績・設定 |
@@ -640,12 +676,15 @@ stateDiagram-v2
 | `Profile` | 名前とキャラクター | `name`・`character` | `src/domain/types.ts` |
 | `CharacterSpec` | キャラクターの見た目 | `hair`・`shirtColor`・`accessory` | `src/domain/types.ts` |
 | `Stats` | 実績 | `plays`・`successes`・`perfects`・`totalPoints`・`lastCountedRound` | `src/domain/types.ts` |
-| `Player` | 回の参加者(人間・AI) | `id`・`kind`・`uid`・`personality`・`joinedAt`・`joinedDuring` | `src/domain/types.ts` |
+| `Player` | 回の参加者(人間・AI) | `id`・`kind`・`uid`・`name`・`character`・`personality`・`joinedAt`・`joinedDuring` | `src/domain/types.ts` |
+| `RoundData` | データベースに置く、回のデータ | `number`・`players`・`pulses`・`points` | `src/domain/types.ts` |
 | `Pulse` | 押した合図 | `t`・`power` | `src/domain/types.ts` |
-| `RoundView` | 画面に出す、まとめた状態 | `clock`・`number`・`players`・`target`・`lower`・`upper`・`inRange`・`myPoints`・`bonusActive` | `src/domain/types.ts` |
+| `RoundView` | 画面に出す、まとめた状態 | `clock`・`number`・`players`・`playerCount`・`target`・`lower`・`upper`・`inRange`・`myPoints`・`bonusActive` | `src/domain/types.ts` |
 | `Outcome` | 結果 | `'perfect'`・`'success'`・`'fail'` | `src/domain/types.ts` |
 | `AiPersonality` | AIの性格 | `'greedy'`・`'balancer'`・`'perfectionist'`・`'moody'`・`'lastSpurt'` | `src/domain/types.ts` |
-| `GameStore` | データベースとのやりとり(インターフェース) | 部屋・回・数字・合図・ポイントの読み書き | `src/infra/store/GameStore.ts` |
+| `TitleId` | 称号 | `'rookie'`・`'regular'`・`'hoarder'`・`'perfectKing'` | `src/domain/types.ts` |
+
+`GameStore` は、上の「アーキテクチャ用語」を参照。
 
 各フィールドの意味は `docs/functional-design.md` の「データモデル定義」を参照。
 
@@ -663,7 +702,7 @@ stateDiagram-v2
 
 **発生条件**: 名前が、空、長すぎる(全角を2、半角を1と数えて12を超える)、使えない文字を含む。
 
-**対処方法**: `validateName` が、結果の値(`{ ok: false, reason: 'empty' | 'tooLong' | 'invalidChar' }`)を返す。入力欄に、数えた量(「6 / 12」)と、短い説明を出し、登録を進めない。
+**対処方法**: `validateName` が、結果の値(`{ ok: false, reason: 'empty' | 'tooLong' | 'invalidChar' }`)を返す。登録ボタンを押せなくする。入力欄には、数えた量(「6 / 12」)だけを出し、理由の説明は出さない(PRDのスコープ外)。
 
 ### 想定外のエラー
 
@@ -673,97 +712,14 @@ stateDiagram-v2
 
 ## 計算・アルゴリズム
 
-### 時計から段階を計算する
+計算式と例は、`docs/functional-design.md` の「アルゴリズム設計」を正とする。ここでは、計算の名前と、実装する場所だけを示す。
 
-**計算式**:
-```
-cycle     = gatherMs + playMs + resultMs
-roundIndex = floor(serverMs / cycle)
-offset    = serverMs mod cycle
-phase     = offset < gatherMs               → gathering
-            offset < gatherMs + playMs      → playing
-            それ以外                          → result
-```
-
-**実装箇所**: `src/domain/schedule/roundClockAt.ts`
-
-**例**:
-```
-入力: cycle = 360,000ms(30秒 + 5分 + 30秒)、offset = 100,000ms
-出力: phase = 'playing'(30,000 ≤ 100,000 < 330,000)
-```
-
-### 目標と範囲
-
-**計算式**:
-```
-target = playerCount × perPlayerTarget
-lower  = ceil(target × (1 − rangeRatio))
-upper  = floor(target × (1 + rangeRatio))
-```
-
-**実装箇所**: `src/domain/targets/targetFor.ts`・`rangeFor.ts`
-
-**例**:
-```
-入力: playerCount = 5、perPlayerTarget = 200、rangeRatio = 0.1
-出力: target = 1,000、lower = 900、upper = 1,100
-```
-
-### ポイント
-
-**計算式**:
-```
-+1を押したとき: 倍増タイム中で、範囲内なら bonusMultiplier(3)、それ以外は 1
-−1を押したとき: 0
-報酬: 成功 → 貯めたポイント / ぴったり → 貯めたポイント × perfectMultiplier(2) / 失敗 → 0
-```
-
-**実装箇所**: `src/domain/points/pointsForPress.ts`・`settle.ts`
-
-**例**:
-```
-入力: 倍増タイム中、押した瞬間の数字が1,000(目標1,000)、+1
-出力: 3ポイント
-```
-
-### グラフの縦の位置
-
-**計算式**:
-```
-y% = 23.1 − ((v − target) / (0.2 × target)) × 15.4
-```
-
-**説明**: 範囲の下端が30.8%、目標が23.1%、上端が15.4%。値0が下端(100%)、目標×1.3が上端(0%)。
-
-**実装箇所**: `src/domain/layout/graphGeometry.ts`
-
-### 名前の長さ
-
-**計算式**:
-```
-nameUnits = 全角の文字数 × 2 + 半角の文字数 × 1     (12以下なら良い)
-```
-
-**実装箇所**: `src/domain/names/nameUnits.ts`
-
-**例**:
-```
-入力: 「たろう」(全角3文字)  → 6
-入力: 「Michael」(半角7文字)  → 7
-入力: 「たろうTaro」          → 6 + 4 = 10
-```
-
-### 部屋の割り振り
-
-**定義**: 入る部屋を決める手順。
-
-**計算式**:
-```
-終了の1分前以降                       → 待機(lastMinute)
-空きのある部屋(人間が20人未満)がある   → その部屋に入る
-全部の部屋が満員で、集合中              → 新しい部屋を作って入る
-全部の部屋が満員で、集合中ではない       → 待機(full)
-```
-
-**実装箇所**: `src/domain/rooms/planRoom.ts`(入室の確定は、インフラ層の条件付きの書き込み)
+| 計算 | 意味 | 機能設計書の節 | 実装箇所 |
+|------|------|---------------|---------|
+| 時計から段階を計算する | サーバー時刻から、回の番号・段階・各時刻を求める | 1. 時計から段階を計算する | `src/domain/schedule/roundClockAt.ts` |
+| 目標と範囲 | 人数から、目標と範囲の下端・上端を求める | 2. 目標と範囲 | `src/domain/targets/targetFor.ts`・`rangeFor.ts` |
+| ポイント | +1を押した瞬間のポイントと、結果による報酬 | 3. ポイントの計算、4. 結果の判定と報酬 | `src/domain/points/pointsForPress.ts`・`settle.ts` |
+| 合図の強さ | 直近1秒に押した回数から、`power`(0〜3)を求める | データモデル定義の「エンティティ: Round」(`Pulse`) | `src/domain/pulses/pulsePowerFor.ts` |
+| 部屋の割り振り | 入る部屋・新しい部屋・待機を決める | 6. 部屋の割り振り | `src/domain/rooms/planRoom.ts` |
+| グラフの位置 | 値と時刻を、グラフの縦横の位置(%)に変える | 9. グラフの描画 | `src/domain/layout/graphGeometry.ts` |
+| 名前の長さ | 全角を2、半角を1と数えた合計(12以下なら良い) | コンポーネント設計の「Names」 | `src/domain/names/nameUnits.ts` |
