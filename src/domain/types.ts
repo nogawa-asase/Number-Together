@@ -42,6 +42,12 @@ export interface CharacterSpec {
   readonly accessory: AccessoryId;
 }
 
+/** 名前とキャラクター(docs/functional-design.md「エンティティ: Profile」) */
+export interface Profile {
+  readonly name: string; // ニックネーム。validateName を通したもの
+  readonly character: CharacterSpec;
+}
+
 /** 回の参加者(docs/functional-design.md「エンティティ: Player」) */
 export interface Player {
   readonly id: string; // 回の中で一意。人間は uid、AIは 'ai-1' など

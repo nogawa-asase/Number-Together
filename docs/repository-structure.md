@@ -182,7 +182,8 @@ domain/
 infra/
 ├── store/
 │   ├── GameStore.ts           # インターフェース
-│   └── ServerClock.ts         # インターフェース
+│   ├── ServerClock.ts         # インターフェース
+│   └── StoreError.ts          # ストアの失敗(offline・permissionDenied・notSignedIn)
 ├── firebase/
 │   ├── firebaseApp.ts         # 初期化(環境変数から設定を読む。エミュレータへの接続の切り替え)
 │   ├── auth.ts                # 匿名認証と、IDの保持(保存できないときは、メモリ上に切り替える)
@@ -192,7 +193,8 @@ infra/
 │   ├── FirebaseGameStore.ts   # GameStore の実装(部屋・回・数字・合図・ポイント)
 │   └── TrafficMeter.ts        # 通信量の計測(テスト用。VITE_TRAFFIC_METER=1 のときだけ有効)
 └── memory/
-    ├── InMemoryGameStore.ts   # GameStore のメモリ上の実装(テスト・シミュレーション用)
+    ├── InMemoryServer.ts      # 全員で共有するデータと、ルールと同じ判断(Firebase のサーバーに当たる)
+    ├── InMemoryGameStore.ts   # GameStore のメモリ上の実装(利用者ごとの窓口。テスト・シミュレーション用)
     └── FakeClock.ts           # 時刻を進められる ServerClock(テスト・シミュレーション用)
 ```
 
@@ -351,7 +353,8 @@ tests/unit/
 │   └── i18n.test.ts           # 日本語と英語の両方に、すべてのキーがあること
 └── infra/
     └── memory/
-        └── InMemoryGameStore.test.ts
+        ├── FakeClock.test.ts
+        └── InMemoryGameStore.*.test.ts  # 利用者・部屋・回・接続ごとに分ける
 ```
 
 **命名規則**:
@@ -517,7 +520,7 @@ ui/ ──→ app/ ──→ domain/
  └──────────────→ domain/(型と純粋関数)
 
 infra/firebase/ ──→ firebase/*(外部のライブラリ)
-infra/memory/   ──→ domain/(型)
+infra/memory/   ──→ domain/(型と、ルールと同じ時計の計算の roundClockAt・roundId)
 scripts/ ──→ (Node.js の標準のモジュールだけ)
 tests/   ──→ 各層(テスト対象)
 ```

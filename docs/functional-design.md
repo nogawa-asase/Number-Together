@@ -495,7 +495,9 @@ interface GameStore {
   tryEnterRoom(roomId: number, uid: string, capacity: number): Promise<boolean>;  // 条件付きの書き込み
   createRoom(uid: string): Promise<number>;                                     // 集合中だけ呼ぶ
   leaveRoom(roomId: number, uid: string): Promise<void>;                         // 接続が切れたときの自動の削除も、ここで登録する
+  onPresence(roomId: number, listener: (members: Record<string, { joinedAt: number }>) => void): () => void; // 参加中の印(AI担当の引き継ぎの順に使う)
   claimAiHost(roomId: number, roundId: string, uid: string): Promise<boolean>;
+  onAiHost(roomId: number, listener: (uid: string | null) => void): () => void;
 
   // 回
   addPlayer(roomId: number, roundId: string, player: Player): Promise<void>;
@@ -509,6 +511,12 @@ interface GameStore {
   deleteRound(roomId: number, roundId: string): Promise<void>;                  // 古い回の削除(AI担当だけ)
 }
 ```
+
+- ルールに拒否された書き込みは、例外にしない(「エラーハンドリング」の表: 無視して、画面はデータベースの値に合わせる)。条件付きの書き込み(`tryEnterRoom`・`claimAiHost`)は `false` を返す
+- `readPoints` は、読める分だけを返す(自分の分はいつでも、他の人の分は終了の3秒後から)
+- サインインの前の呼び出しは `StoreError('notSignedIn')`、接続が切れている間の書き込みは `StoreError('offline')`(`infra/store/StoreError.ts`)
+- 購読は、登録したときに今の値を1回知らせ、変わるたびに知らせる
+- メモリ上の実装(`InMemoryGameStore`)は、全員で共有する `InMemoryServer`(データとルールの判断)と、利用者ごとの窓口に分ける。ルールの判断は `database.rules.json` と同じにする
 
 **依存関係**: Firebase SDK(`architecture.md` で定める)
 
