@@ -8,7 +8,12 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      include: ['src/domain/**/*.ts', 'src/infra/memory/**/*.ts'],
+      include: [
+        'src/domain/**/*.ts',
+        'src/infra/memory/**/*.ts',
+        'src/infra/timer/**/*.ts',
+        'src/app/**/*.ts',
+      ],
       exclude: ['src/domain/**/types.ts'],
       thresholds: {
         branches: 80,

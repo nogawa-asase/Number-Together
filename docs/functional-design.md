@@ -527,14 +527,20 @@ interface GameStore {
 - 押された+1・−1を数えて、`batchMs`(0.2秒)ごとに、まとめて1回送る(「+1を5回」ではなく「+5を1回」)
 - 1回に送る量は、`maxDeltaPerWrite`(±50)までにする。超えた分は、次の送信に回す(セキュリティルールで、1回の変化が±50を超える書き込みは、まるごと拒否されるため)
 - 自分の画面には、送る前でも、すぐ反映する(押した分は、サーバーから届く値に足して見せる)
-- 合図(`sendPulse`)は、`pulseIntervalMs`(1秒)に1回までにまとめる。`power` は、`pulsePowerFor` で計算する
-- ゲーム終了の時刻になったら、送るのをやめる
+- 合図(`sendPulse`)は、`pulseIntervalMs`(1秒)に1回までにまとめる。押したとき、前の合図から1秒たっていればすぐ送り、そうでなければ、前の合図の1秒後に1回だけ送る。`power` は、直近1秒に押した回数から `pulsePowerFor` で計算する(0なら送らない)
+- 貯めたポイントの合計が増えていれば、数字と一緒に `writePoints` で書く。ポイントの計算(`pointsForPress`)は、押した瞬間の画面の数字が要るので、呼ぶ側(`RoundController`・`AiHost`)が行い、合計を `press` に渡す
+- ゲーム終了の時刻になったら、数字と合図を送るのをやめる(まだ送っていない分は失われる)。ポイントは、終了の3秒後まで書けるので、最後に1回書く
+- 接続が切れて送れなかった分(`StoreError`)は、次の送信でやり直す。それ以外のエラーは `onError` で上に伝える
+- タイマーは `Scheduler`(`infra/store/Scheduler.ts`)を通す。テストでは `FakeClock` が時計とタイマーを一緒に進める
 
 ```typescript
-interface PressBatcher {
-  press(kind: '+1' | '-1'): void;     // 押された
+interface PressSlot { roomId: number; roundId: string; playerId: string; playEndsAt: number }
+
+class PressBatcher {
+  constructor(deps: { store: GameStore; clock: ServerClock; scheduler: Scheduler; config: GameConfig; onError: (error: unknown) => void }, slot: PressSlot);
+  press(kind: '+1' | '-1', totalPoints: number): void;  // 押された。totalPoints は、押したあとの、この回で貯めたポイントの合計
   pendingDelta(): number;             // まだ送っていない分(画面の数字に足す)
-  stop(): void;
+  stop(): void;                       // 止める。この後は、何も送らない
 }
 ```
 

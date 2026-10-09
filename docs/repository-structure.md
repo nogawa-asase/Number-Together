@@ -183,6 +183,7 @@ infra/
 ├── store/
 │   ├── GameStore.ts           # インターフェース
 │   ├── ServerClock.ts         # インターフェース
+│   ├── Scheduler.ts           # タイマーのインターフェース(アプリケーション層は setTimeout を直接使わない)
 │   └── StoreError.ts          # ストアの失敗(offline・permissionDenied・notSignedIn)
 ├── firebase/
 │   ├── firebaseApp.ts         # 初期化(環境変数から設定を読む。エミュレータへの接続の切り替え)
@@ -192,10 +193,12 @@ infra/
 │   ├── paths.ts               # データベースのパスを作る関数(配置を、ここ1か所に集める)
 │   ├── FirebaseGameStore.ts   # GameStore の実装(部屋・回・数字・合図・ポイント)
 │   └── TrafficMeter.ts        # 通信量の計測(テスト用。VITE_TRAFFIC_METER=1 のときだけ有効)
+├── timer/
+│   └── SystemScheduler.ts     # 本物のタイマー(setTimeout・setInterval)を使う Scheduler
 └── memory/
     ├── InMemoryServer.ts      # 全員で共有するデータと、ルールと同じ判断(Firebase のサーバーに当たる)
     ├── InMemoryGameStore.ts   # GameStore のメモリ上の実装(利用者ごとの窓口。テスト・シミュレーション用)
-    └── FakeClock.ts           # 時刻を進められる ServerClock(テスト・シミュレーション用)
+    └── FakeClock.ts           # 時刻とタイマーを一緒に進められる ServerClock・Scheduler(テスト・シミュレーション用)
 ```
 
 #### app/
@@ -215,8 +218,8 @@ infra/
 - 関数や定数のファイルは camelCase
 
 **依存関係**:
-- 依存可能: `domain/`・`infra/` の**インターフェース**(`GameStore`・`ServerClock`)
-- 依存禁止: `ui/`(UI層は `GameView` インターフェースを通してだけ扱う)、`infra/firebase/` と `infra/memory/` の実装(どの実装を使うかは、`main.ts` が決めて渡す)、`firebase/*`
+- 依存可能: `domain/`・`infra/` の**インターフェース**(`infra/store/` の `GameStore`・`ServerClock`・`Scheduler`・`StoreError`)
+- 依存禁止: `ui/`(UI層は `GameView` インターフェースを通してだけ扱う)、`infra/firebase/`・`infra/memory/`・`infra/timer/` の実装(どの実装を使うかは、`main.ts` が決めて渡す。ESLint で強制する)、`firebase/*`
 
 **例**:
 ```

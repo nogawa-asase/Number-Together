@@ -146,7 +146,7 @@ export default tseslint.config(
           message: 'アプリケーション層から UI層は使えません(GameView を通す)',
         },
         {
-          regex: relativeTo('infra/firebase', 'infra/memory'),
+          regex: relativeTo('infra/firebase', 'infra/memory', 'infra/timer'),
           message:
             'インフラ層の実装ではなく、インターフェース(infra/store)を使ってください',
         },
