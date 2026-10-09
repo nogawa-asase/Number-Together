@@ -594,7 +594,7 @@
 | `RoundController` | アプリケーション | 時計を見た画面の切り替え、`RoundView` の組み立て、押した操作の処理、結果の計算 |
 | `PressBatcher` | アプリケーション | 連打を0.2秒ごとにまとめて送る(1回±50まで)。合図を1秒に1回にまとめる |
 | `AiHost` | アプリケーション | AI担当のブラウザで、AIの追加と、AIの操作の送信、古い回の削除を行う |
-| `GameView` | アプリケーション(インターフェース)/ UI(実装 `DomGameView`) | アプリケーション層が使う、画面の操作 |
+| `DomGameView` | UI | セッションの状態と回の view を購読して、画面を切り替えて描く |
 | `AiBrain` | ドメイン | AIの性格ごとの手の選択(`decide`。`src/domain/ai/`) |
 | `TrafficMeter` | インフラ | 通信量の計測(テスト用。`VITE_TRAFFIC_METER=1` のときだけ) |
 

@@ -1,0 +1,9 @@
+/* 端末の「動きを減らす」設定のときは、動きをやめて、静止した表示にする */
+@media (prefers-reduced-motion: reduce) {
+  .bob,
+  .dot,
+  .jig,
+  .offline-icon {
+    animation: none;
+  }
+}

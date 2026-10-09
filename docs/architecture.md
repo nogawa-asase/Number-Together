@@ -88,7 +88,7 @@ UI / アプリケーション → firebase の import    (NG。Firebaseは、イ
 
 #### アプリケーション層(`src/app`)
 - **責務**: `SessionController`・`RoundController`・`PressBatcher`・`AiHost`。画面の遷移、ドメイン層の呼び出し、`GameStore`(インターフェース)を通した読み書き、タイマー
-- **許可される操作**: ドメイン層の呼び出し、`GameStore` と `GameView` のインターフェースを通した呼び出し
+- **許可される操作**: ドメイン層の呼び出し、`GameStore`(インターフェース)を通した読み書き。画面は呼ばず、状態と出来事を知らせる(UI層が購読する)
 - **禁止される操作**: ルールの判定を自前で行うこと(判定は必ずドメイン層に任せる)
 
 #### ドメイン層(`src/domain`)

@@ -46,6 +46,7 @@ const DOMAIN_MODULE_DEPS = {
   rooms: ['schedule', 'config'],
   ai: ['targets', 'schedule', 'config'],
   layout: ['schedule', 'config'],
+  character: ['ai'], // おまかせに、ai/ の Random を使う
 };
 
 // 分野ごとに、決めた向き以外の分野への相対 import を禁じる設定を作る。

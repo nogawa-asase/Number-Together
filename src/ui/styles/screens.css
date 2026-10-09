@@ -1,0 +1,581 @@
+/* 画面の共通部品と、各画面(見本のインラインのスタイルを、クラスに移したもの) */
+.heading {
+  padding: 24px 4px 0 4px;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 32px;
+  line-height: 40px;
+}
+
+.lead {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 800;
+}
+
+.card {
+  background: #ffffff;
+  border: 4px solid var(--ink);
+  border-radius: 20px;
+  box-shadow: 6px 6px 0 var(--ink);
+}
+
+.btn {
+  border: 4px solid var(--ink);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.btn-big {
+  flex-shrink: 0;
+  height: 64px;
+  background: var(--pink);
+  border-radius: 20px;
+  box-shadow: 5px 5px 0 var(--ink);
+  font-family: var(--font-display);
+  font-size: 22px;
+}
+
+.note-gray {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 800;
+  color: var(--gray-text);
+}
+
+/* 跳ねる点(待機・通信切れ) */
+.dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--ink);
+  animation: dot 1.2s ease-in-out infinite;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes dot {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
+}
+
+/* ---- 01 名前とキャラクター選び ---- */
+.setup {
+  gap: 10px;
+}
+
+.setup .heading {
+  padding-top: 4px;
+}
+
+.setup .title {
+  font-size: 30px;
+  line-height: 38px;
+}
+
+.setup-preview {
+  position: relative;
+  height: 150px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  border: 4px solid var(--ink);
+  border-radius: 20px;
+  box-shadow: 6px 6px 0 var(--ink);
+  background: var(--cream);
+  overflow: hidden;
+}
+
+.setup-preview .ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 30px;
+  height: 20px;
+  background: var(--sand);
+  border-top: 3px solid var(--ink);
+  box-sizing: border-box;
+}
+
+.setup-preview .me {
+  position: absolute;
+  left: 50%;
+  bottom: 36px;
+  margin-left: -27px;
+  width: 54px;
+  height: 78px;
+}
+
+.setup-preview .name {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 4px;
+  text-align: center;
+  font-size: 13px;
+  line-height: 20px;
+  font-weight: 800;
+  min-height: 20px;
+}
+
+.sparkle {
+  position: absolute;
+}
+
+.bob {
+  animation: bob 1.6s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.setup-card {
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.setup-row-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.setup-label {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 800;
+}
+
+.setup-input {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  height: 44px;
+  border: 3px solid var(--ink);
+  border-radius: 12px;
+  background: var(--cream);
+  padding: 0 12px;
+  gap: 8px;
+}
+
+.setup-input input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 800;
+  color: var(--ink);
+  outline: none;
+}
+
+.setup-count {
+  font-family: var(--font-display);
+  font-size: 14px;
+  line-height: 18px;
+  color: var(--gray-text);
+  white-space: nowrap;
+}
+
+.setup-count.over {
+  color: var(--red);
+}
+
+.setup-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.setup-choices {
+  display: flex;
+  gap: 8px;
+}
+
+.choice {
+  flex: 1;
+  height: 56px;
+  box-sizing: border-box;
+  border: 3px solid var(--ink);
+  border-radius: 12px;
+  background: var(--cream);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 0 3px 0;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.choice.text {
+  align-items: center;
+  padding: 0;
+}
+
+.choice svg {
+  display: block;
+  width: 28px;
+  height: 40px;
+}
+
+.choice.selected {
+  border-color: var(--red);
+  background: var(--pink-pale);
+}
+
+.swatches {
+  display: flex;
+  justify-content: space-between;
+}
+
+.swatch {
+  width: 32px;
+  height: 32px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 3px solid var(--ink);
+  padding: 0;
+  cursor: pointer;
+}
+
+.swatch.selected {
+  box-shadow: 0 0 0 3px var(--red);
+}
+
+.setup-buttons {
+  display: flex;
+  gap: 12px;
+  height: 56px;
+  flex-shrink: 0;
+}
+
+.setup-buttons .random {
+  flex: 1;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 4px 4px 0 var(--ink);
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 16px;
+}
+
+.setup-buttons .decide {
+  flex: 2;
+  background: var(--pink);
+  border-radius: 16px;
+  box-shadow: 4px 4px 0 var(--ink);
+  font-family: var(--font-display);
+  font-size: 22px;
+}
+
+.setup-warning {
+  font-size: 11px;
+  line-height: 15px;
+  font-weight: 800;
+  color: var(--gray-text);
+  padding: 0 4px;
+}
+
+/* ---- 14・15 待機 ---- */
+.wait-card {
+  background: var(--ink);
+  color: #ffffff;
+  border: 4px solid var(--ink);
+  border-radius: 20px;
+  box-shadow: 6px 6px 0 var(--red);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.wait-label {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 800;
+}
+
+.wait-time {
+  font-family: var(--font-display);
+  font-size: 56px;
+  line-height: 64px;
+  color: var(--yellow);
+}
+
+.wait-bar {
+  width: 100%;
+  box-sizing: border-box;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.3);
+  overflow: hidden;
+}
+
+.wait-bar > div {
+  height: 100%;
+  background: var(--yellow);
+}
+
+.wait-note {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 800;
+  margin-top: 4px;
+  text-align: center;
+}
+
+.waiting {
+  padding-top: 6px;
+}
+
+.waiting .label {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 800;
+  margin-left: 4px;
+}
+
+/* ---- 16 通信が切れたとき・17 混雑中 ---- */
+.status-card {
+  padding: 18px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.offline-icon {
+  width: 120px;
+  height: 120px;
+  box-sizing: border-box;
+  border: 4px solid var(--ink);
+  border-radius: 50%;
+  background: var(--cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: wob 2.4s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+
+@keyframes wob {
+  0%,
+  100% {
+    transform: rotate(-3deg);
+  }
+  50% {
+    transform: rotate(3deg);
+  }
+}
+
+.status-text {
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.notes {
+  background: var(--cream);
+  border: 3px solid var(--ink);
+  border-radius: 16px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.notes .item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 22px;
+  font-weight: 800;
+}
+
+.notes .item::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ink);
+  margin-top: 7px;
+  flex-shrink: 0;
+}
+
+.busy-stage {
+  position: relative;
+  width: 300px;
+  max-width: 100%;
+  height: 120px;
+  box-sizing: border-box;
+  border: 3px solid var(--ink);
+  border-radius: 14px;
+  background: var(--cream);
+  overflow: hidden;
+}
+
+.busy-stage .ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 10px;
+  height: 16px;
+  background: var(--sand);
+  border-top: 3px solid var(--ink);
+  box-sizing: border-box;
+}
+
+.busy-stage svg {
+  position: absolute;
+  width: 30px;
+  height: 44px;
+}
+
+.jig {
+  animation: jig 0.9s ease-in-out infinite;
+}
+
+@keyframes jig {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.busy-retry {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.busy-retry .row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.busy-retry .time {
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 20px;
+}
+
+.busy-bar {
+  height: 14px;
+  box-sizing: border-box;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  background: var(--cream);
+  overflow: hidden;
+}
+
+.busy-bar > div {
+  height: 100%;
+  background: var(--pink);
+}
+
+/* ---- 仮の部屋の画面(次の作業で、集合中・プレイ中の画面に置き換える) ---- */
+.temp-room .big {
+  font-family: var(--font-display);
+  font-size: 64px;
+  line-height: 72px;
+  text-align: center;
+}
+
+.temp-room .row {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 800;
+  padding: 0 14px;
+}
+
+.chip {
+  display: inline-block;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.chip.in {
+  background: var(--green);
+}
+
+.chip.out {
+  background: #ffffff;
+}
+
+.press-buttons {
+  display: flex;
+  gap: 12px;
+  height: 96px;
+  flex-shrink: 0;
+}
+
+.press-buttons .btn {
+  flex: 1;
+  border-radius: 24px;
+  box-shadow: 5px 5px 0 var(--ink);
+  font-family: var(--font-display);
+  font-size: 36px;
+}
+
+.press-buttons .plus {
+  flex: 2;
+  background: var(--pink);
+}
+
+.press-buttons .minus {
+  background: #ffffff;
+}

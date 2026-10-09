@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { DEFAULT_CONFIG } from '../../../src/domain/config/defaultConfig';
+import type { CharacterSpec } from '../../../src/domain/types';
 import { StoreError } from '../../../src/infra/store/StoreError';
 import { sessionWorld, settle } from '../fixtures/app';
 import {
@@ -11,7 +12,11 @@ import {
 } from '../fixtures/memoryStore';
 
 const NEXT_ROUND = String(Number(ROUND) + 1);
-const CHARACTER = { hair: 'short', shirtColor: 'red', accessory: 'none' };
+const CHARACTER: CharacterSpec = {
+  hair: 'short',
+  shirtColor: 'red',
+  accessory: 'none',
+};
 const SMALL = { ...DEFAULT_CONFIG, roomCapacity: 2 }; // 1部屋2人まで
 
 describe('SessionController: 起動と登録', () => {

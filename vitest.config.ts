@@ -12,6 +12,7 @@ export default defineConfig({
         'src/domain/**/*.ts',
         'src/infra/memory/**/*.ts',
         'src/infra/timer/**/*.ts',
+        'src/infra/prefs.ts',
         'src/app/**/*.ts',
       ],
       exclude: ['src/domain/**/types.ts'],

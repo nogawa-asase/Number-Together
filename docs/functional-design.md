@@ -711,21 +711,34 @@ class RoundController {
 - 入力(+1、−1、小人のタップ、ボタン)を、`RoundController` に伝える
 - 文言は、すべて、言語ごとの一覧から引く(画面の部品に、文言を直接書かない)
 
+アプリケーション層は、画面を呼ばない。`SessionController`(`onState`)と `RoundController`(`onView`・`onEvent`)が、状態と出来事を知らせ、UI層の `DomGameView` が、それを購読して画面を選んで描く(最初の設計の `GameView` インターフェース — アプリケーション層が画面を呼ぶ形 — は使わない)。
+
 ```typescript
-interface GameView {
-  showSetup(initial: Profile | null): Promise<Profile>;             // 初回の名前とキャラクター選び
-  render(view: RoundView, extra: ViewExtra): void;                  // 集合中・プレイ中・結果発表の描画
-  cue(kind: 'start' | 'x3' | 'tenSeconds' | 'end'): void;           // 合図の演出
-  summon(player: Player, targetFrom: number, targetTo: number): void; // 途中参加の召喚と「目標UP!」
-  fadeIn(player: Player): void;                                     // 集合中に入る人・AI
-  showResult(result: ResultView): void;
-  showCard(player: Player, stats: Stats | null): void;              // 実績カード
-  showWait(reason: 'full' | 'lastMinute', nextRoundStartsAt: number): void;
-  showOffline(attempt: number): void;
-  showBusy(retryInMs: number): void;
-  showMyPage(profile: Profile, stats: Stats): void;
+class DomGameView {
+  constructor(deps: {
+    root: HTMLElement;                  // #app
+    session: SessionController;
+    round: RoundController;
+    config: GameConfig;
+    now: () => number;                  // サーバー時刻(待機のカウントダウン)
+  });
+  start(): void;                        // 状態の購読と、言語の切り替えボタン
+  showError(): void;                    // 想定外のエラー: 画面全体を止め、再読み込みのボタンを出す
 }
 ```
+
+| セッションの状態 | 画面 |
+| --- | --- |
+| `connecting`・`entering` | つないでいる途中(見出しだけ) |
+| `busy` | 混雑中(17) |
+| `offline`・`reconnecting` | 通信が切れたとき(16) |
+| `needsProfile` | 名前とキャラクター選び(01) |
+| `waiting` | 待機(`full` は 14、`lastMinute`・`afterOffline` は 15 の形) |
+| `inRoom` | 集合中・プレイ中・結果発表(`RoundView` の段階で選ぶ) |
+
+- 画面は、固定のテンプレートから作り、文言・名前・数字は、あとから文字として入れる(他の人の名前を `innerHTML` に渡さない)
+- 言語が変わったら、いまの画面を作り直す(名前とキャラクター選びの入力は残す)
+- 髪と肌の色は、選べない(見本 01 にない)。参加者の id から決まった色にする(どの端末でも同じ)
 
 ### i18n(言語)
 
@@ -741,7 +754,7 @@ function t(key: MessageKey, params?: Record<string, string | number>): string;  
 - すべての文言は、言語ごとの一覧(`ja`・`en`)に置く。コードや画面の部品に、直接書かない
 - 称号、AIの名前、演出の文字、注意書き、メッセージも、一覧に入れる。他の人が付けた名前は、翻訳しない
 - 英語の文言は、日本語の文言をもとに、短く、やさしい言葉で作る
-- 初めて開いたときの言語は、ブラウザの言語設定に合わせる(日本語なら日本語、それ以外は英語。仮)。選んだ言語は、ブラウザに覚える。覚えられない場合(itch.ioのiframeなど)は、開いている間だけ保つ
+- 初めて開いたときの言語は、ブラウザの言語設定に合わせる(日本語なら日本語、それ以外は英語。仮。`detectLang`)。選んだ言語は、ブラウザに覚える(`infra/prefs.ts`)。覚えられない場合(itch.ioのiframeなど)は、開いている間だけ保つ。i18n は infra に依存せず、`main.ts` が、覚えた言語で `setLang` し、`onLangChange` で覚える
 
 ## アルゴリズム設計
 

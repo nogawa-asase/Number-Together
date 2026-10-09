@@ -30,10 +30,11 @@ export type Outcome = 'perfect' | 'success' | 'fail';
 export type AiPersonality =
   'greedy' | 'balancer' | 'perfectionist' | 'moody' | 'lastSpurt';
 
-// キャラクターの部品の種類は、PRDの未決定事項。決まったら、値を絞る
-export type HairId = string;
-export type ShirtColorId = string;
-export type AccessoryId = string;
+// キャラクターの部品の種類(PRDの未決定事項。画面の見本 01 の種類で仮置き。一覧は character/parts.ts)
+export type HairId = 'short' | 'spiky' | 'long' | 'ponytail' | 'bun';
+export type ShirtColorId =
+  'pink' | 'red' | 'orange' | 'yellow' | 'green' | 'cyan' | 'blue' | 'purple';
+export type AccessoryId = 'none' | 'glasses' | 'cap' | 'ribbon' | 'headphones';
 
 /** 人間の小人の見た目 */
 export interface CharacterSpec {

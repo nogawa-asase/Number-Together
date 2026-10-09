@@ -1,0 +1,34 @@
+/* 色と書体(docs/design/screens/README.md「共通のデザイン」) */
+:root {
+  --yellow: #ffe45e;
+  --ink: #111111;
+  --pink: #ff5c8a;
+  --red: #ff3b5c;
+  --green: #2ec27e;
+  --cream: #fff8d6;
+  --sand: #ebdc9a;
+  --gray-text: #5b6577;
+  --pink-pale: #ffe4ea;
+  --font-display: 'Dela Gothic One', 'M PLUS Rounded 1c', sans-serif;
+  --font-body: 'M PLUS Rounded 1c', sans-serif;
+}
+
+/* 言語の切り替えボタン(どの画面でも右上) */
+.lang-switch {
+  position: absolute;
+  top: 2px;
+  right: 10px;
+  z-index: 100;
+  height: 17px;
+  box-sizing: border-box;
+  padding: 0 9px;
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 10px;
+  line-height: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}

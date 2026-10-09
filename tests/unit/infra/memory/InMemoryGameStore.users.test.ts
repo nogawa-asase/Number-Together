@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { InMemoryGameStore } from '../../../../src/infra/memory/InMemoryGameStore';
+import type { HairId, Profile } from '../../../../src/domain/types';
 import { StoreError } from '../../../../src/infra/store/StoreError';
 import { memoryWorld } from '../../fixtures/memoryStore';
 
-const PROFILE = {
+const PROFILE: Profile = {
   name: 'ゆうき',
   character: { hair: 'short', shirtColor: 'red', accessory: 'none' },
 };
@@ -60,7 +61,10 @@ describe('InMemoryGameStore: 利用者・プロフィール・実績', () => {
     ['13文字の名前', { ...PROFILE, name: 'abcdefghijklm' }],
     [
       '21文字の部品',
-      { ...PROFILE, character: { ...PROFILE.character, hair: 'x'.repeat(21) } },
+      {
+        ...PROFILE,
+        character: { ...PROFILE.character, hair: 'x'.repeat(21) as HairId },
+      },
     ],
   ])('%s は、保存できない', async (_label, profile) => {
     const world = memoryWorld();

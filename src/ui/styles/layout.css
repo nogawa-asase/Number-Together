@@ -1,0 +1,38 @@
+/* 幅390pxの縦画面。PCでは中央に、同じ幅で出す */
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: #e6e6e6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#app {
+  position: relative;
+  width: min(390px, 100vw);
+  height: min(844px, 100dvh);
+  overflow: hidden;
+  background: var(--yellow);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.spacer {
+  flex-grow: 1;
+}

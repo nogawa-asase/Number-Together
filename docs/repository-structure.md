@@ -19,6 +19,7 @@ number-together/
 │   │   ├── ranking/           #   結果発表の一覧
 │   │   ├── titles/            #   称号
 │   │   ├── names/             #   名前の長さ・使える文字
+│   │   ├── character/         #   キャラクターの部品の一覧と、おまかせ
 │   │   ├── rooms/             #   部屋の割り振りの判断
 │   │   ├── ai/                #   AIの手の選択(性格ごと)と乱数
 │   │   └── layout/            #   小人の並べ方・グラフの座標など、画面に出す形の計算(純粋な関数)
@@ -82,6 +83,7 @@ number-together/
 **役割**: アプリの起動。`FirebaseGameStore` と `ServerClock` を作り、アプリケーション層の `SessionController`・`RoundController` と、UI層の `DomGameView` を結びつけて、起動する。
 
 - 各層を組み立てるのはこのファイルだけ。ここ以外で、層をまたいだ組み立てをしない
+- いまは「ローカルモード」だけ: `InMemoryServer`・`InMemoryGameStore`・`SystemClock`・`SystemScheduler` で組み立てる(1人で、AIと遊べる。ページを閉じるとデータは消える)。`FirebaseGameStore` ができたら、Firebase の設定があれば、そちらを使う
 - Firebase の設定は、環境変数(`VITE_FIREBASE_*`)から読む。`VITE_USE_EMULATOR=true` のときは、エミュレータにつなぐ
 - `VITE_TRAFFIC_METER=1` のときは、通信量の計測(`TrafficMeter`)を有効にする。テストプレイ用のビルドのときだけ、コマンドの前に付けて渡す(例: `VITE_TRAFFIC_METER=1 npm run build`)。`.env.local` には書かない(公開用のビルドに混ざらないようにするため)
 
@@ -133,6 +135,8 @@ domain/
 ├── names/
 │   ├── nameUnits.ts            # 全角を2、半角を1と数える
 │   └── validateName.ts         # 長さと使える文字の検証
+├── character/
+│   └── parts.ts                # 髪型・服の色・小物の一覧(見本 01 の種類。仮)と、おまかせ
 ├── rooms/
 │   └── planRoom.ts             # 入る部屋・新しい部屋・待機の判断
 ├── ai/
@@ -195,7 +199,8 @@ infra/
 │   ├── FirebaseGameStore.ts   # GameStore の実装(部屋・回・数字・合図・ポイント)
 │   └── TrafficMeter.ts        # 通信量の計測(テスト用。VITE_TRAFFIC_METER=1 のときだけ有効)
 ├── timer/
-│   └── SystemScheduler.ts     # 本物のタイマー(setTimeout・setInterval)を使う Scheduler
+│   ├── SystemScheduler.ts     # 本物のタイマー(setTimeout・setInterval)を使う Scheduler
+│   └── SystemClock.ts         # 端末の時計をそのまま使う ServerClock(ローカルモード用)
 └── memory/
     ├── InMemoryServer.ts      # 全員で共有するデータと、ルールと同じ判断(Firebase のサーバーに当たる)
     ├── InMemoryGameStore.ts   # GameStore のメモリ上の実装(利用者ごとの窓口。テスト・シミュレーション用)
@@ -213,7 +218,6 @@ infra/
 - `RoundView.ts`: 画面に渡す型(`RoundView`・`ResultView`・`RoundEvent`)
 - `PressBatcher.ts`: 連打のまとめ送り(0.2秒ごと)と、合図の間引き
 - `AiHost.ts`: AI担当の動き(AIの追加、AIの手の送信、担当の引き継ぎ、古い回のデータの削除)
-- `GameView.ts`: UI層が実装する `GameView` インターフェース(アプリケーション層が必要とする画面の操作を、ここで定める)
 - `i18n/`: 言語の状態と、言語ごとの文言の一覧
 
 **命名規則**:
@@ -222,7 +226,7 @@ infra/
 
 **依存関係**:
 - 依存可能: `domain/`・`infra/` の**インターフェース**(`infra/store/` の `GameStore`・`ServerClock`・`Scheduler`・`StoreError`)
-- 依存禁止: `ui/`(UI層は `GameView` インターフェースを通してだけ扱う)、`infra/firebase/`・`infra/memory/`・`infra/timer/` の実装(どの実装を使うかは、`main.ts` が決めて渡す。ESLint で強制する)、`firebase/*`
+- 依存禁止: `ui/`(アプリケーション層は画面を呼ばない。UI層が、状態と出来事を購読する)、`infra/firebase/`・`infra/memory/`・`infra/timer/` の実装(どの実装を使うかは、`main.ts` が決めて渡す。ESLint で強制する)、`firebase/*`
 
 **例**:
 ```
@@ -233,7 +237,6 @@ app/
 ├── RoundView.ts
 ├── PressBatcher.ts
 ├── AiHost.ts
-├── GameView.ts
 └── i18n/
     ├── i18n.ts                # getLang・setLang・onLangChange・t(今の言語の文言を返す)
     ├── keys.ts                # 文言のキーの型(日本語と英語の両方にないと、ビルドで失敗させる)
@@ -243,10 +246,11 @@ app/
 
 #### ui/
 
-**役割**: UI層。`GameView` の実装、18の画面と演出の描画、入力の受付。
+**役割**: UI層。`SessionController`・`RoundController` の状態と出来事を購読して、18の画面と演出を描き、入力を受け付ける。
 
 **配置ファイル**:
-- `DomGameView.ts`: `GameView` の実装。下の部品を組み合わせる
+- `DomGameView.ts`: 画面の切り替え(セッションの状態で画面を選び、言語が変わったら作り直す)
+- `dom.ts`: 要素を作る小さな補助(固定のテンプレート・`data-ref`・文字の差し込み・`data-i18n`)と、`Screen` インターフェース
 - `LanguageSwitch.ts`: 言語の切り替えボタン(どの画面でも、右上に置く)
 - `stage/`: 小人の舞台
 - `graph/`: グラフ
@@ -260,13 +264,14 @@ app/
 - CSS は kebab-case(例: `stage.css`、`theme.css`)
 
 **依存関係**:
-- 依存可能: `app/`(`GameView` インターフェース、`RoundController`・`SessionController` の公開メソッド、`i18n`)、`domain/` の型と純粋関数(例: `stageLayout`・`graphGeometry`)
+- 依存可能: `app/`(`RoundController`・`SessionController` の公開メソッド、`i18n`)、`domain/` の型と純粋関数(例: `stageLayout`・`graphGeometry`)
 - 依存禁止: ゲームの状態を直接書き換えること(状態の変更は `RoundController` を通す)、`infra/`、`firebase/*`
 
 **例**:
 ```
 ui/
 ├── DomGameView.ts
+├── dom.ts
 ├── LanguageSwitch.ts
 ├── stage/
 │   ├── StageView.ts            # 小人の舞台全体(並べ方・跳ねる動き・「あなた」の吹き出し・「+1」の吹き出し)
@@ -285,7 +290,8 @@ ui/
 │   ├── PlayScreen.ts           # プレイ中
 │   ├── ResultScreen.ts         # 結果発表(ぴったり・成功・失敗)
 │   ├── AchievementCard.ts      # 実績カード
-│   ├── WaitScreen.ts           # 待機(満員・終了間際・結果発表中)
+│   ├── WaitScreen.ts           # 待機(満員・終了間際・結果発表中・通信が戻ったあと)
+│   ├── MessageScreen.ts        # 見出しだけの画面(つないでいる途中・想定外のエラー)
 │   ├── OfflineScreen.ts        # 通信が切れたとき
 │   ├── BusyScreen.ts           # 混雑中
 │   └── MyPageScreen.ts         # 自分の画面
@@ -544,7 +550,7 @@ tests/   ──→ 各層(テスト対象)
 
 **禁止される依存**:
 - `domain/` → `app/`・`ui/`・`infra/`・`firebase/*` (❌)
-- `app/` → `ui/` (❌。`GameView` インターフェースを通す)
+- `app/` → `ui/` (❌。UI層が、アプリケーション層の状態と出来事を購読する)
 - `app/` → `infra/firebase/`・`infra/memory/` の実装 (❌。インターフェースだけを使い、実装は `main.ts` が渡す)
 - `ui/` → `infra/`・`firebase/*` (❌)
 - `infra/` → `app/`・`ui/` (❌)
@@ -566,6 +572,7 @@ judge/ ──→ targets/
 rooms/ ──→ schedule/
 pulses/ ──→ config/
 ranking/・titles/・names/ ──→ types(型だけ)
+character/ ──→ ai/(Random の型だけ)
 layout/ ──→ schedule/(RoundClock の型だけ)
 ```
 
