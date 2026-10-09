@@ -22,3 +22,6 @@ export interface Stats {
  * 称号「欲張り」は 'hoarder' にする(docs/glossary.md「称号」)
  */
 export type TitleId = 'rookie' | 'regular' | 'hoarder' | 'perfectKing';
+
+/** 結果。ぴったり成功・成功・失敗(judge が決め、settle が報酬に使う) */
+export type Outcome = 'perfect' | 'success' | 'fail';

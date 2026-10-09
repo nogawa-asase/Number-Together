@@ -384,7 +384,9 @@ function pointsForPress(input: {
   target: number;
   nowMs: number;
   clock: RoundClock;
+  currentPoints: number;   // この回で、いままでに貯めたポイント(pointCap を超えない量にするため)
 }, config: GameConfig): number;
+// ゲーム中(playStartsAt ≤ nowMs < playEndsAt)でなければ0
 
 /** 結果が出たときの、報酬と累計の変化 */
 function settle(outcome: Outcome, points: number, config: GameConfig): { awarded: number; statsDelta: StatsDelta };
@@ -660,6 +662,7 @@ inRange(v) = lower ≤ v ≤ upper
   if now ≥ bonusStartsAt かつ inRange(numberAtPress):  gain = bonusMultiplier(3)
   else:                                                gain = 1
   points += gain   (pointCap があり、超えるなら、cap まで)
+  ゲーム中でなければ(終了の時刻を過ぎていたら) gain = 0
 
 −1を押したとき:
   gain = 0
