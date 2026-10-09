@@ -592,6 +592,44 @@ class AiHost {
 - 部屋の `presence` と `aiHost` を購読し、AI担当がいなくなったら、自分がそのとき最も古い参加者なら、`claimAiHost` を試す
 - 回が変わったら、同じ部屋で、そのまま次の回の参加者になる
 
+**インターフェース**:
+
+```typescript
+type SessionState =
+  | { kind: 'connecting' }                                   // 起動中
+  | { kind: 'busy'; attempts: number }                        // 混雑中(端末はオンラインなのに、つながらない)
+  | { kind: 'offline'; attempts: number }                     // 起動時に、端末がオフライン
+  | { kind: 'needsProfile' }                                  // 初回の登録を待つ
+  | { kind: 'entering' }                                      // 部屋を決めている
+  | { kind: 'waiting'; reason: 'full' | 'lastMinute' | 'afterOffline'; until: number } // 待機(until に、もう一度試す)
+  | { kind: 'inRoom'; roomId: number; roundId: string; joinedDuring: 'gathering' | 'playing' }
+  | { kind: 'reconnecting'; roomId: number; attempts: number }; // 部屋にいるあいだに切れた
+
+class SessionController {
+  constructor(deps: {
+    store: GameStore; clock: ServerClock; scheduler: Scheduler; config: GameConfig;
+    deviceOnline: () => boolean;                                        // navigator.onLine
+    createAiHost: (seat: { roomId: number; uid: string }) => { start(): void; stop(): void };
+    onError: (error: unknown) => void;
+  });
+  start(): void;
+  stop(): Promise<void>;                                                 // 部屋を出て、すべて止める
+  register(name: string, character: CharacterSpec): Promise<NameVerdict>; // 使えない名前なら保存しない
+  retryNow(): void;                                                      // 「いますぐ、ためす」
+  onState(listener: (state: SessionState) => void): () => void;          // 登録したときにも1回知らせる
+  state(): SessionState;
+  uid(): string | null;
+  profile(): Profile | null;
+  stats(): Stats | null;                                                 // 読み込みに失敗したら null
+}
+```
+
+- 状態と画面の対応: `busy` は混雑中、`offline`・`reconnecting` は通信が切れたとき、`needsProfile` は名前とキャラクター選び、`waiting` は待機(`full` は満員、`lastMinute`・`afterOffline` は終了間際)。`inRoom` の中の段階(集合中・プレイ中・結果発表)は、`RoundController` が時計から決める
+- 入室: `readRoomCounts` → `planRoom`。`tryEnterRoom` に負けたら、その部屋を満員として決め直す。待機は、次の回の集合の始めに、もう一度試す。切断などで決められなければ、`retryMs` 後にやり直す
+- 部屋にいるあいだ: 次の回の集合の始めに、次の回の参加者になる(同じ回に2回は足さない)。`AiHost` を動かす。担当がいなければ、`presence` の `joinedAt` が最も古い人(同じなら uid の順)が `claimAiHost` を試す
+- 部屋にいるあいだに切れたら、部屋の購読と `AiHost` を止める。つながったとき、続きから参加できなければ、集合中ならすぐ、それ以外は次の回の集合で、入室し直す(`waiting: afterOffline`)
+- サーバー時刻の差が変わったとき(時刻が飛んだとき)の、タイマーの組み直しは、まだしない(`RoundController` と一緒に決める)
+
 ### TrafficMeter(通信量の計測。テスト用)
 
 **責務**: PRDの機能9。1回のプレイで受け取った更新の回数とバイト数を数える。

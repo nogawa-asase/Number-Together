@@ -207,7 +207,7 @@ infra/
 **役割**: アプリケーション層。参加と部屋、回の進行と画面の切り替え、連打のまとめ送り、AI担当、文言。ドメイン層の純粋な計算と、インフラ層の `GameStore` を、結びつける。
 
 **配置ファイル**:
-- `SessionController.ts`: 機能設計書の `SessionController`(サインイン、プロフィール、部屋への入室と退出、接続の状態)
+- `SessionController.ts`: 機能設計書の `SessionController`(サインイン、プロフィール、部屋への入室と退出、接続の状態、回ごとの参加、AI担当を取りにいく)
 - `RoundController.ts`: 機能設計書の `RoundController`(時計を見た画面の切り替え、`RoundView` の組み立て、押された操作の処理、演出のきっかけ、結果の計算と実績の保存)
 - `PressBatcher.ts`: 連打のまとめ送り(0.2秒ごと)と、合図の間引き
 - `AiHost.ts`: AI担当の動き(AIの追加、AIの手の送信、担当の引き継ぎ、古い回のデータの削除)
@@ -355,6 +355,8 @@ tests/unit/
 │   ├── PressBatcher.*.test.ts # まとめ送り・合図・終わりごとに分ける
 │   ├── AiHost.test.ts         # 担当の追従・AIの追加・古い回の削除・エラー
 │   ├── AiHost.play.test.ts    # AIの手の送信・回の切り替え・再現性
+│   ├── SessionController.test.ts            # 起動・登録・入室・待機・回の切り替え
+│   ├── SessionController.connection.test.ts # 混雑中・再接続・AI担当の引き継ぎ・stop
 │   └── i18n.test.ts           # 日本語と英語の両方に、すべてのキーがあること
 └── infra/
     └── memory/

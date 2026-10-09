@@ -1,11 +1,16 @@
 import { vi } from 'vitest';
 import { AiHost } from '../../../src/app/AiHost';
 import { PressBatcher } from '../../../src/app/PressBatcher';
+import {
+  SessionController,
+  type SessionState,
+} from '../../../src/app/SessionController';
 import { DEFAULT_AI_PARAMS } from '../../../src/domain/ai/aiParams';
 import { createRandom } from '../../../src/domain/ai/random';
 import { DEFAULT_CONFIG } from '../../../src/domain/config/defaultConfig';
 import type { GameConfig } from '../../../src/domain/config/types';
 import type { FakeClock } from '../../../src/infra/memory/FakeClock';
+import { InMemoryGameStore } from '../../../src/infra/memory/InMemoryGameStore';
 import { memoryWorld, PLAY_END, PLAY_START, ROUND, START } from './memoryStore';
 import { humanOf } from './players';
 
@@ -127,3 +132,56 @@ export async function aiHostWorld(
 }
 
 type Member = Awaited<ReturnType<ReturnType<typeof memoryWorld>['connect']>>;
+
+/** SessionController を何人分か動かす世界。時計とタイマーは同じ FakeClock */
+export function sessionWorld(
+  startMs = START,
+  config: GameConfig = DEFAULT_CONFIG
+) {
+  const world = memoryWorld(startMs, config);
+  const onError = vi.fn();
+
+  /** 新しい端末で SessionController を作る(まだ start しない) */
+  function device(options: { deviceOnline?: () => boolean } = {}) {
+    const store = new InMemoryGameStore(world.server);
+    const session = new SessionController({
+      store,
+      clock: world.clock,
+      scheduler: world.clock,
+      config,
+      deviceOnline: options.deviceOnline ?? (() => true),
+      createAiHost: (seat) =>
+        new AiHost(
+          {
+            store,
+            clock: world.clock,
+            scheduler: world.clock,
+            config,
+            aiParams: DEFAULT_AI_PARAMS,
+            random: createRandom(1),
+            onError,
+          },
+          seat
+        ),
+      onError,
+    });
+    const states: SessionState[] = [];
+    session.onState((state) => states.push(state));
+    return { store, session, states };
+  }
+
+  /** 登録済みの人の端末(プロフィールを先に保存しておく)。start して、入室まで進める */
+  async function registered(name = 'ねこ') {
+    const d = device();
+    const { uid } = await d.store.signIn();
+    await d.store.saveProfile(uid, {
+      name,
+      character: { hair: 'short', shirtColor: 'red', accessory: 'none' },
+    });
+    d.session.start();
+    await settle();
+    return { ...d, uid };
+  }
+
+  return { ...world, onError, device, registered };
+}
