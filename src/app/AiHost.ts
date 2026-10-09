@@ -6,6 +6,7 @@ import {
   pickPersonalities,
 } from '../domain/ai/pickPersonalities';
 import type { Random } from '../domain/ai/random';
+import { tempoFor, withTempo } from '../domain/ai/tempo';
 import type { GameConfig } from '../domain/config/types';
 import { pointsForPress } from '../domain/points/pointsForPress';
 import { roundClockAt, roundId } from '../domain/schedule/roundClockAt';
@@ -41,6 +42,7 @@ interface AiSeat {
   readonly id: string;
   readonly personality: AiPersonality;
   readonly delayMs: number; // 反応の遅れ。この時間だけ前の数字を見る
+  readonly params: AiParams; // 勢い(tempoFor)を掛けた、このAIの設定値
   readonly batcher: PressBatcher;
   points: number; // この担当が数えた、この回のポイント
 }
@@ -289,6 +291,10 @@ class AiRound {
         id: player.id,
         personality,
         delayMs: reactionDelayMs(this.deps.random, this.deps.aiParams),
+        params: withTempo(
+          this.deps.aiParams,
+          tempoFor(this.deps.random, this.deps.aiParams)
+        ),
         batcher,
         points: 0, // 引き継いだときも0から(前の担当の値は、ルールで読めない)
       });
@@ -320,7 +326,7 @@ class AiRound {
         view,
         aiParams.tickMs,
         random,
-        aiParams
+        ai.params
       );
       if (move === null) {
         continue;

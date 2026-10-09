@@ -6,10 +6,10 @@ import { fixedRandom } from '../../../fixtures/random';
 
 describe('balancer(調整役)', () => {
   describe('分岐', () => {
-    it('下端より下なら、+1で戻す(確率0.75)', () => {
+    it('下端より下なら、+1で戻す(確率0.375)', () => {
       const view = viewOf({ number: 899 });
-      expect(balancer(view, 250, fixedRandom(0.74), PARAMS)).toBe('+1');
-      expect(balancer(view, 250, fixedRandom(0.75), PARAMS)).toBeNull();
+      expect(balancer(view, 250, fixedRandom(0.374), PARAMS)).toBe('+1');
+      expect(balancer(view, 250, fixedRandom(0.375), PARAMS)).toBeNull();
     });
 
     it('上端より上なら、−1で戻す', () => {
@@ -32,12 +32,14 @@ describe('balancer(調整役)', () => {
   });
 
   describe('傾向', () => {
-    it('範囲の外では、1秒に約3回、戻す方向だけに押す', () => {
+    it('範囲の外では、1秒に約1.5回、戻す方向だけに押す', () => {
       const low = tally(balancer, viewOf({ number: 500 }), PARAMS);
-      expect(low.perSec.plus).toBeGreaterThan(2.7);
+      expect(low.perSec.plus).toBeGreaterThan(1.3);
+      expect(low.perSec.plus).toBeLessThan(1.7);
       expect(low.minus).toBe(0);
       const high = tally(balancer, viewOf({ number: 1_500 }), PARAMS);
-      expect(high.perSec.minus).toBeGreaterThan(2.7);
+      expect(high.perSec.minus).toBeGreaterThan(1.3);
+      expect(high.perSec.minus).toBeLessThan(1.7);
       expect(high.plus).toBe(0);
     });
 

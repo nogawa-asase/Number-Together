@@ -464,6 +464,10 @@ function decide(personality: AiPersonality, view: AiView, dtMs: number, random: 
 function aiViewAt(input: { number: number; target: number; nowMs: number; clock: RoundClock }, config: GameConfig): AiView;
 /** 反応の遅れ(reactionDelayMinMs〜MaxMs)を選ぶ。AIには、この時間だけ前の数字を見せる */
 function reactionDelayMs(random: Random, params: AiParams): number;
+/** AIごとの勢い(1 ± tempoSpread)。押す頻度の倍率 */
+function tempoFor(random: Random, params: AiParams): number;
+/** 押す頻度(1秒あたりの回数)だけを tempo 倍した設定値 */
+function withTempo(params: AiParams, tempo: number): AiParams;
 /** AIを足すときの性格。5種類から重ならないように選び、足りなければ一巡してから重ねる */
 function pickPersonalities(count: number, random: Random): AiPersonality[];
 /** 種を固定できる疑似乱数(mulberry32) */
@@ -574,7 +578,7 @@ class AiHost {
 - AIの追加は、ゲーム中で `players` が届いてから、その回で1回だけ試す。AIの id は `ai-1` から順に決めるので、別の担当が同時に足しても、ルール(追加だけ)で二重にならない
 - 足す数を決めるとき、担当の自分は、まだ `players` にいなくても、人間として数える(人間が誰もいなかった回に来た人が、自分の追加より先に担当になる場合)
 - `joinedDuring` は、ゲーム開始の前から担当だったなら `'gathering'`、ゲーム中に担当になったなら `'playing'`
-- AIごとに、反応の遅れ(`reactionDelayMs`)を決め、届いた数字の記録から、その時間だけ前の値を見せる。`decide` は、id の順に呼ぶ(乱数の使い方を決まった順にし、結果を再現できるようにする)
+- AIごとに、反応の遅れ(`reactionDelayMs`)と勢い(`tempoFor`)を決め、届いた数字の記録から、その時間だけ前の値を見せる。`decide` は、id の順に呼ぶ(乱数の使い方を決まった順にし、結果を再現できるようにする)
 - 引き継いだときは、AIのポイントを0から数え直す。前の担当が書いた値は、終了の3秒後まで読めない(ルール)ため。ポイントは減らせないので、前の値より小さい間の書き込みは、ルールで拒否され、前の値が残る(AIのポイントが少し少なくなるだけで、人間には影響しない)
 - `addPlayer`・`deleteRound` の `StoreError`(切断など)は、無視する(次の回でやり直す)。それ以外のエラーは `onError` に伝える
 
@@ -813,14 +817,15 @@ AIは、一定の間隔(例: 250ms)ごとに、`decide` を呼ぶ。AIが見る�
 | 性格 | 方針 |
 | --- | --- |
 | がめつい(greedy) | +1をよく押す(1秒に約2回。倍増タイム中はもっと多く)。範囲の上端に近づいても、頻度が少し下がる程度で、止まらない。−1は、ほとんど押さない |
-| 調整役(balancer) | 数字が範囲の外に出たら、戻す方向に1秒に約3回押す。範囲の中では、1秒に約0.3回、たまに押す |
+| 調整役(balancer) | 数字が範囲の外に出たら、戻す方向に1秒に約1.5回押す。範囲の中では、1秒に約0.3回、たまに押す |
 | ぴったり主義(perfectionist) | 前半は、目標に向けて、ゆっくり押す。残り20秒を切ったら、目標との差を見て、足りなければ+1、多ければ−1を、1秒に約4回押し、ぴったりなら押さない |
 | 気まぐれ(moody) | 毎秒、何もしない・+1・−1を、乱数で選ぶ。たまに連打する |
 | ラストスパート(lastSpurt) | ゲームの前半から中盤は、ほとんど押さない(1秒に約0.1回)。倍増タイムが始まったら、一気に+1を押す(範囲を超えそうなときは、控える) |
 
 - AIのポイントも、人間と同じ計算(`pointsForPress`)で貯める
 - AIの合図も、人間と同じ形で、1秒に1回までにまとめて送る
-- 「つよい」「ふつう」のような強さの段階は、持たない
+- 「つよい」「ふつう」のような強さの段階は、持たない。そのかわり、AIごとに「勢い」(押す頻度の倍率。`tempoSpread` = 0.8 で、0.2〜1.8倍)を、加わったときに乱数で決める。同じ性格でも、押す速さに個体差が出る。勢いがないと、同じ顔ぶれの回は、毎回ほぼ同じ数字で終わり、AIだけの回の成功率が、0%か100%に張り付く(シミュレーションで確かめた)
+- 頻度の値は、AIだけの回のシミュレーション(`npm run test:sim`)で調整した。本番と同じ選び方の顔ぶれで、成功率は5人で約65%、10人で約70%、20人で約83%(各40回)。人間のプレイテストのあとに、見直す
 
 ### 8. 押した操作と画面の反映
 

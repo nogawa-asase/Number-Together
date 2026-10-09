@@ -7,5 +7,6 @@ export default defineConfig({
     include: ['tests/sim/**/*.sim.test.ts'],
     passWithNoTests: true,
     testTimeout: 120_000,
+    silent: false, // 表をログに出す(通ったときも)
   },
 });

@@ -144,6 +144,7 @@ domain/
 │   ├── types.ts                # AiMove・PersonalityBrain
 │   ├── decide.ts               # 性格に応じて、手を選ぶ入口(機能設計書の AiBrain)
 │   ├── pickPersonalities.ts    # AIを足すときの性格の選び方
+│   ├── tempo.ts                # AIごとの勢い(押す頻度の倍率)
 │   └── personalities/
 │       ├── greedy.ts           # がめつい
 │       ├── balancer.ts         # 調整役
@@ -405,8 +406,12 @@ tests/int/
 **構造**:
 ```
 tests/sim/
-└── aiRounds.sim.test.ts
+├── aiRound.ts              # 1回分を動かす(simulateAiRound)、集計(summarize)、表(formatTable)
+└── aiRounds.sim.test.ts    # 人数(5・10・20)と性格の組み合わせごとに回し、表を出し、合格の条件を確かめる
 ```
+
+- 回数は、環境変数 `SIM_ROUNDS`(既定40)で変える。乱数の種は、組み合わせごとに 1〜回数
+- AI担当の人間を1人つなぐが、`players` には入れない(押さない)。`AiHost` は担当を人間として数えるので、`aiFillTo` を「AIの数 + 1」にして、AIだけの回にする
 
 **命名規則**: `[シナリオ].sim.test.ts`。`npm test` では除外し、`npm run test:sim` でだけ実行する
 

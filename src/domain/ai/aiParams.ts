@@ -6,6 +6,7 @@ export interface AiParams {
   readonly tickMs: number; // decide を呼ぶ間隔
   readonly reactionDelayMinMs: number; // AIが見る数字の遅れ(最小)
   readonly reactionDelayMaxMs: number; // AIが見る数字の遅れ(最大)
+  readonly tempoSpread: number; // AIごとの勢い(押す頻度の倍率)の幅。1 ± この値
 
   readonly greedy: {
     readonly plusPerSec: number; // +1の頻度
@@ -40,6 +41,7 @@ export const DEFAULT_AI_PARAMS: AiParams = {
   tickMs: 250, // functional-design.md「AIの手」の例
   reactionDelayMinMs: 300, // 0.3〜0.8秒前の値を見る
   reactionDelayMaxMs: 800,
+  tempoSpread: 0.8, // 同じ性格でも、頻度が 0.2〜1.8 倍になる(シミュレーションで調整)
 
   // +1をよく押す(1秒に約2回。倍増タイム中はもっと多く)。上端に近づいても、少し下がる程度
   greedy: {
@@ -49,8 +51,8 @@ export const DEFAULT_AI_PARAMS: AiParams = {
     nearUpperFactor: 0.7,
     minusPerSec: 0.05, // ほとんど押さない
   },
-  // 範囲の外では、戻す方向に1秒に約3回。範囲の中では、1秒に約0.3回
-  balancer: { correctPerSec: 3, idlePerSec: 0.3 },
+  // 範囲の外では、戻す方向に1秒に約1.5回(シミュレーションで調整: 3 → 1.5)。範囲の中では、1秒に約0.3回
+  balancer: { correctPerSec: 1.5, idlePerSec: 0.3 },
   // 前半はゆっくり。残り20秒を切ったら、1秒に約4回
   perfectionist: { slowPerSec: 0.5, finalWindowMs: 20_000, finalPerSec: 4 },
   // 何もしない・+1・−1を、乱数で選ぶ。たまに連打する
