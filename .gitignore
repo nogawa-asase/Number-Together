@@ -57,3 +57,8 @@ release/
 # Playwright
 test-results/
 playwright-report/
+
+# E2E のビルドと結果
+dist-e2e/
+test-results/
+playwright-report/

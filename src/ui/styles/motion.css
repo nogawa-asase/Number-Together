@@ -3,6 +3,7 @@
  * <html> に .reduce-motion が付く(ui/motion.ts)。動きをやめて、静止した表示にする(見本のCSSのとおり)
  */
 .reduce-motion .bob,
+.reduce-motion .lobby .bob,
 .reduce-motion .dot,
 .reduce-motion .jig,
 .reduce-motion .offline-icon,

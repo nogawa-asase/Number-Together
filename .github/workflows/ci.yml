@@ -115,9 +115,8 @@ jobs:
           java-version: '21'
       - run: npm ci
       - run: npx playwright install --with-deps chromium firefox webkit
+      # E2E のビルドの設定(エミュレータ・短い周期)は .env.e2e にある
       - run: npm run test:e2e
-        env:
-          VITE_USE_EMULATOR: 'true'
 
   sim:
     needs: changes

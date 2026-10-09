@@ -45,7 +45,7 @@ number-together/
 │   ├── int/                   # Firebase Emulator Suite を使った結合テスト
 │   ├── sim/                   # AIだけの回のシミュレーション
 │   ├── e2e/                   # E2Eテスト(Playwright)
-│   └── helpers/               # エミュレータへの接続など、複数のテストで使う補助
+│   └── support/               # 短い周期の設定とルール、エミュレータの操作など、複数のテストで使う補助
 ├── docs/                      # 永続ドキュメント
 │   ├── ideas/                 #   壁打ち・アイデアメモ
 │   └── design/                #   画面の資料(見本)
@@ -411,7 +411,8 @@ tests/rules/
 
 **役割**: エミュレータを使うテスト(ルール・結合・E2E)で共有する補助。
 
-- `testCycle.ts`: 短い周期の設定値(`TEST_CONFIG`)、ルールの時刻の数値の置き換え(`scaledRules`)、段階を待つ(`waitFor`)、いまの回の id(`currentRoundId`)
+- `testCycle.ts`: 短い周期の設定値(`TEST_CONFIG` = `QUICK_CONFIG`)、ルールの時刻の数値の置き換え(`scaledRules`)、段階を待つ(`waitFor`)、いまの回の id(`currentRoundId`)
+- `emulator.ts`: エミュレータを空にして短い周期のルールを読み込ませる(`resetEmulator`)、ルールを通さずに読み書きする(`readAsOwner`・`writeAsOwner`)
 
 #### int/
 
@@ -454,20 +455,21 @@ tests/sim/
 **構造**:
 ```
 tests/e2e/
-├── full-round.spec.ts         # 初回の登録から、結果発表、次の集合中まで
+├── support.ts                 # テストごとにエミュレータを空にするフィクスチャ、登録・画面の部品・はみ出しの補助
+├── full-round.spec.ts         # 初回の登録から、結果発表、次の集合中まで(すべてのブラウザ・スマホ)
 ├── late-join.spec.ts          # 途中参加(目標UPと召喚)
-├── wait.spec.ts               # 満員・終了間際・結果発表中の待機
+├── wait.spec.ts               # 終了間際・満員の待機
 ├── offline.spec.ts            # 通信が切れて戻る
-├── mobile.spec.ts             # スマホ幅360pxの表示とタッチ操作
-├── language.spec.ts           # 日本語と英語の切り替え。文字がはみ出さない
-└── reduced-motion.spec.ts     # 「動きを減らす」設定で、動きがやむ
+├── mobile.spec.ts             # スマホ幅360pxの表示とタッチ操作(スマホでも)
+├── language.spec.ts           # 日本語と英語の切り替え。文字がはみ出さない。覚えている
+└── reduced-motion.spec.ts     # 「動きを減らす」設定(端末・スイッチ)で、動きがやむ
 ```
 
+- E2E 用のビルド(`npm run build:e2e`。`.env.e2e` の設定で、エミュレータにつなぎ、1周10秒)を `dist-e2e/` に作り、配信する。ルールも、同じ短い周期に置き換えて読み込ませる(テストごとに、データベースと一緒に)
+- どのテストも、同じエミュレータのデータベースを使うので、1つずつ動かす(`workers: 1`)。すべてのシナリオは Chromium で、Firefox・WebKit・スマホは、一連の流れ(とスマホ幅)だけ動かす(時間のため。全体で約4分)
+- 段階は、本物の時刻で進む(サーバーの時刻でルールが決まるため)。決まった段階で操作したいときは、`tests/support/testCycle.ts` の `waitFor` で待つ
+
 **命名規則**: `[シナリオ].spec.ts`(kebab-case)。拡張子を `.spec.ts` にして Vitest のテストと区別する
-
-#### helpers/
-
-**役割**: エミュレータへの接続、複数のFirebaseアプリを作る補助、時計を進める補助など、`rules/`・`int/`・`e2e/` で使う共通の材料。
 
 ### docs/ (ドキュメントディレクトリ)
 

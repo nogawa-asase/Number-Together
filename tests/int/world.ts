@@ -11,11 +11,10 @@ import {
 import { FirebaseGameStore } from '../../src/infra/firebase/FirebaseGameStore';
 import { FirebaseServerClock } from '../../src/infra/firebase/serverClock';
 import { SystemScheduler } from '../../src/infra/timer/SystemScheduler';
-import { scaledRules, TEST_CONFIG } from '../support/testCycle';
+import { DATABASE, PROJECT } from '../support/emulator';
+import { TEST_CONFIG } from '../support/testCycle';
 
-const PROJECT = 'demo-number-together';
-const DATABASE = 'http://127.0.0.1:9000';
-const OWNER = { Authorization: 'Bearer owner' };
+export { readAsOwner, resetEmulator } from '../support/emulator';
 
 /** エミュレータにつなぐ設定(.env.example と同じ) */
 const SETTINGS = {
@@ -26,26 +25,6 @@ const SETTINGS = {
   appId: 'demo-app-id',
   useEmulator: true,
 };
-
-/** 短い周期のルールを読み込ませ、データベースと利用者を空にする */
-export async function resetEmulator(): Promise<void> {
-  const rules = await fetch(`${DATABASE}/.settings/rules.json?ns=${PROJECT}`, {
-    method: 'PUT',
-    headers: OWNER,
-    body: scaledRules(),
-  });
-  if (!rules.ok) {
-    throw new Error(`ルールを読み込めません: ${await rules.text()}`);
-  }
-  await fetch(`${DATABASE}/.json?ns=${PROJECT}`, {
-    method: 'DELETE',
-    headers: OWNER,
-  });
-  await fetch(
-    `http://127.0.0.1:9099/emulator/v1/projects/${PROJECT}/accounts`,
-    { method: 'DELETE' }
-  );
-}
 
 /** 1人分の端末(別々の FirebaseApp で、エミュレータにつなぐ) */
 export interface Client {
@@ -130,12 +109,4 @@ export async function until(
     }
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
-}
-
-/** オーナー(ルールを通さない)で読む */
-export async function readAsOwner(path: string): Promise<unknown> {
-  const response = await fetch(`${DATABASE}/${path}.json?ns=${PROJECT}`, {
-    headers: OWNER,
-  });
-  return response.json();
 }

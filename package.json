@@ -21,7 +21,8 @@
     "test:sim": "vitest run --config vitest.sim.config.ts",
     "test:rules": "firebase emulators:exec --only database \"vitest run --config vitest.rules.config.ts\"",
     "test:int": "firebase emulators:exec --only auth,database \"vitest run --config vitest.int.config.ts\"",
-    "test:e2e": "npm run build && firebase emulators:exec --only auth,database \"playwright test\""
+    "build:e2e": "vite build --mode e2e --outDir dist-e2e",
+    "test:e2e": "npm run build:e2e && firebase emulators:exec --only auth,database \"playwright test\""
   },
   "keywords": [
     "browser-game",
