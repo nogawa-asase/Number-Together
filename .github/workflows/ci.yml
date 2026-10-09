@@ -1,0 +1,133 @@
+# CI(docs/development-guidelines.md「CI(GitHub Actions)」)
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  # どのジョブを動かすかを、変更したファイルから決める
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      rules: ${{ steps.filter.outputs.rules }}
+      int: ${{ steps.filter.outputs.int }}
+      domain: ${{ steps.filter.outputs.domain }}
+      hasE2e: ${{ steps.e2e.outputs.hasE2e }}
+    steps:
+      - uses: actions/checkout@v4
+      # E2Eテストのファイルが、まだないときは、e2e ジョブを動かさない
+      - id: e2e
+        run: |
+          if ls tests/e2e/*.spec.ts >/dev/null 2>&1; then
+            echo "hasE2e=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "hasE2e=false" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            rules:
+              - 'database.rules.json'
+              - 'src/domain/config/**'
+              - 'tests/rules/**'
+            int:
+              - 'src/infra/**'
+              - 'src/app/**'
+              - 'tests/int/**'
+            domain:
+              - 'src/domain/**'
+              - 'tests/sim/**'
+
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm run check:size
+
+  rules:
+    needs: changes
+    if: needs.changes.outputs.rules == 'true' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm ci
+      - run: npm run test:rules
+
+  int:
+    needs: changes
+    if: needs.changes.outputs.int == 'true' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm ci
+      - run: npm run test:int
+
+  e2e:
+    needs: changes
+    if: needs.changes.outputs.hasE2e == 'true' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: npm run test:e2e
+        env:
+          VITE_USE_EMULATOR: 'true'
+
+  sim:
+    needs: changes
+    if: needs.changes.outputs.domain == 'true' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+      - run: npm ci
+      - run: npm run test:sim

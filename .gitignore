@@ -44,3 +44,16 @@ coverage/
 # yarn.lock
 
 .claude/settings.local.json
+
+# Firebase Emulator Suite
+emulator-data/
+firebase-debug.log
+database-debug.log
+ui-debug.log
+
+# itch.io 用の zip
+release/
+
+# Playwright
+test-results/
+playwright-report/

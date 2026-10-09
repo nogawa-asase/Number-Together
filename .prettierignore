@@ -6,9 +6,16 @@ CLAUDE.md
 
 # ログファイル
 *log.json
+*.log
 
 # 依存関係
 node_modules/
+package-lock.json
 
-# ビルド成果物
+# ビルド成果物・出力
 dist/
+release/
+coverage/
+emulator-data/
+test-results/
+playwright-report/

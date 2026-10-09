@@ -35,7 +35,7 @@
 | @vitest/ui | 5.x | テスト結果をブラウザで見る(`npm run test:ui`) | リポジトリで準備済み |
 | @types/node | 24.x | スクリプトとテストで使う Node.js の型 | Node.js v24 に合わせる |
 | firebase-tools | 最新安定版(Emulator Suite を使うには、8.14.0 以上) | Firebase Emulator Suite(認証・Realtime Database)の起動、データベースのルールの反映 | 本番のデータに影響させずに、同時に押す・部屋に入るなどの動きを確かめられる |
-| @firebase/rules-unit-testing | 最新安定版 | データベースのセキュリティルールのテスト | 「他人のポイントは終了まで読めない」「終了後の加算は拒否される」などを、自動で確かめられる |
+| @firebase/rules-unit-testing | firebase 12 に対応する版(5.x。6.x は firebase 13 が前提) | データベースのセキュリティルールのテスト | 「他人のポイントは終了まで読めない」「終了後の加算は拒否される」などを、自動で確かめられる |
 | Playwright | 1.63.x | E2Eテスト | Chromium・Firefox・WebKit(iOS Safari 相当)で、スマホの画面幅とタッチ操作を再現できる。複数のブラウザの画面(コンテキスト)を同時に動かして、複数人の参加を再現できる |
 | ESLint + typescript-eslint | 9.x / 8.x | 静的解析 | リポジトリで準備済み。層の依存ルールの強制にも使う(後述) |
 | Prettier | 3.x | 整形 | リポジトリで準備済み |
@@ -468,7 +468,7 @@ PRDの機能9。数える仕組みは、機能設計書の `TrafficMeter`。こ�
 ### 環境要件
 - **遊ぶ環境**: PRDの対応環境のブラウザ。JavaScript が有効で、インターネットにつながっていること
 - **画面**: 幅360px以上
-- **開発環境**: devcontainer(Node.js LTS、Java 11以上)。Playwright のブラウザと、Firebase CLI は、devcontainer 内にインストールする
+- **開発環境**: devcontainer(Node.js LTS、Java 21、GitHub CLI)。Playwright のブラウザと、Firebase CLI は、devcontainer 内にインストールする
 
 ### パフォーマンス制約
 - 実行時の外部通信は、Firebase と、書体の読み込みだけ
@@ -490,7 +490,7 @@ PRDの機能9。数える仕組みは、機能設計書の `TrafficMeter`。こ�
 | @types/node | Node.js の型 | 開発時 | `^24.x`。Node.js のメジャーバージョンに合わせる |
 | @playwright/test | E2Eテスト | 開発時 | `^1.63.x` |
 | firebase-tools | Emulator Suite・ルールの反映 | 開発時 | 最新の安定版(8.14.0 以上) |
-| @firebase/rules-unit-testing | ルールのテスト | 開発時 | 最新の安定版 |
+| @firebase/rules-unit-testing | ルールのテスト | 開発時 | `^5.0.2`。`firebase` のメジャーバージョンに合わせる(firebase を 13 に上げるときに、6.x に上げる) |
 | tsx | スクリプトの実行 | 開発時 | `^` の最新安定版 |
 | eslint / typescript-eslint / prettier / husky / lint-staged | 静的解析・整形・コミット前チェック | 開発時 | 既存の指定を維持 |
 

@@ -1,23 +1,15 @@
 import { defineConfig } from 'vitest/config';
 
+// ユニットテスト(npm test)。ルール・結合・シミュレーション・E2E は、別の設定で動かす
 export default defineConfig({
   test: {
-    globals: true,
     environment: 'node',
-    include: [
-      'src/**/*.{test,spec}.{ts,tsx}',
-      'tests/**/*.{test,spec}.{ts,tsx}',
-    ],
+    include: ['tests/unit/**/*.test.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      exclude: [
-        'node_modules/**',
-        'dist/**',
-        '.steering/**',
-        '**/*.config.{ts,js}',
-        '**/types/**',
-      ],
+      include: ['src/domain/**/*.ts'],
+      exclude: ['src/domain/**/types.ts'],
       thresholds: {
         branches: 80,
         functions: 80,

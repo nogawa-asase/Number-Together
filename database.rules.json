@@ -1,0 +1,163 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "users": {
+      "$uid": {
+        "profile": {
+          ".read": "auth != null",
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.hasChildren(['name', 'character'])",
+          "name": {
+            ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 12"
+          },
+          "character": {
+            ".validate": "newData.hasChildren(['hair', 'shirtColor', 'accessory'])",
+            "hair": {
+              ".validate": "newData.isString() && newData.val().length <= 20"
+            },
+            "shirtColor": {
+              ".validate": "newData.isString() && newData.val().length <= 20"
+            },
+            "accessory": {
+              ".validate": "newData.isString() && newData.val().length <= 20"
+            },
+            "$other": {
+              ".validate": false
+            }
+          },
+          "$other": {
+            ".validate": false
+          }
+        },
+        "stats": {
+          ".read": "auth != null",
+          ".write": "auth != null && auth.uid === $uid",
+          ".validate": "newData.hasChildren(['plays', 'successes', 'perfects', 'totalPoints'])",
+          "plays": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() % 1 === 0"
+          },
+          "successes": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() % 1 === 0"
+          },
+          "perfects": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() % 1 === 0"
+          },
+          "totalPoints": {
+            ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() % 1 === 0"
+          },
+          "lastCountedRound": {
+            ".validate": "newData.isString()"
+          },
+          "$other": {
+            ".validate": false
+          }
+        }
+      }
+    },
+    "roomCount": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      ".validate": "newData.isNumber() && newData.val() >= 1 && (!data.exists() || newData.val() === data.val() + 1)"
+    },
+    "rooms": {
+      "$room": {
+        "memberCount": {
+          ".read": "auth != null",
+          ".write": "auth != null",
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 20 && (!data.exists() || (newData.val() <= data.val() + 1 && newData.val() >= data.val() - 1))"
+        },
+        "presence": {
+          ".read": "auth != null",
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid",
+            ".validate": "newData.hasChildren(['joinedAt']) && newData.child('joinedAt').val() === now"
+          }
+        },
+        "aiHost": {
+          ".read": "auth != null",
+          ".write": "auth != null && newData.val() === auth.uid && (!data.exists() || !root.child('rooms/' + $room + '/presence/' + data.val()).exists())"
+        },
+        "rounds": {
+          "$round": {
+            ".write": "auth != null && root.child('rooms/' + $room + '/aiHost').val() === auth.uid && !newData.exists() && $round !== '' + (now - now % 360000) / 360000",
+            "number": {
+              ".read": "auth != null",
+              ".write": "auth != null && $round === '' + (now - now % 360000) / 360000 && now % 360000 >= 30000 && now % 360000 < 330000",
+              ".validate": "newData.isNumber() && newData.val() % 1 === 0 && newData.val() - (data.exists() ? data.val() : 0) <= 50 && newData.val() - (data.exists() ? data.val() : 0) >= -50"
+            },
+            "players": {
+              ".read": "auth != null",
+              "$playerId": {
+                ".write": "auth != null && !data.exists() && $round === '' + (now - now % 360000) / 360000 && ((newData.child('kind').val() === 'human' && $playerId === auth.uid && newData.child('uid').val() === auth.uid) || (newData.child('kind').val() === 'ai' && root.child('rooms/' + $room + '/aiHost').val() === auth.uid))",
+                ".validate": "newData.hasChildren(['id', 'kind', 'joinedAt', 'joinedDuring']) && newData.child('id').val() === $playerId && newData.child('joinedAt').val() === now && (newData.child('joinedDuring').val() === 'gathering' || newData.child('joinedDuring').val() === 'playing') && (newData.child('kind').val() === 'human' || (newData.child('personality').val() === 'greedy' || newData.child('personality').val() === 'balancer' || newData.child('personality').val() === 'perfectionist' || newData.child('personality').val() === 'moody' || newData.child('personality').val() === 'lastSpurt'))",
+                "id": {
+                  ".validate": "newData.isString()"
+                },
+                "kind": {
+                  ".validate": "newData.val() === 'human' || newData.val() === 'ai'"
+                },
+                "uid": {
+                  ".validate": "newData.isString() && newData.val() === auth.uid"
+                },
+                "name": {
+                  ".validate": "newData.isString() && newData.val().length <= 12"
+                },
+                "character": {
+                  ".validate": "newData.hasChildren(['hair', 'shirtColor', 'accessory'])",
+                  "hair": {
+                    ".validate": "newData.isString() && newData.val().length <= 20"
+                  },
+                  "shirtColor": {
+                    ".validate": "newData.isString() && newData.val().length <= 20"
+                  },
+                  "accessory": {
+                    ".validate": "newData.isString() && newData.val().length <= 20"
+                  },
+                  "$other": {
+                    ".validate": false
+                  }
+                },
+                "personality": {
+                  ".validate": "newData.isString()"
+                },
+                "joinedAt": {
+                  ".validate": "newData.isNumber()"
+                },
+                "joinedDuring": {
+                  ".validate": "newData.isString()"
+                },
+                "$other": {
+                  ".validate": false
+                }
+              }
+            },
+            "pulses": {
+              ".read": "auth != null",
+              "$playerId": {
+                ".write": "auth != null && $round === '' + (now - now % 360000) / 360000 && now % 360000 >= 30000 && now % 360000 < 330000 && ($playerId === auth.uid || (root.child('rooms/' + $room + '/aiHost').val() === auth.uid && root.child('rooms/' + $room + '/rounds/' + $round + '/players/' + $playerId + '/kind').val() === 'ai'))",
+                ".validate": "newData.hasChildren(['t', 'power']) && newData.child('t').val() === now && newData.child('power').isNumber() && newData.child('power').val() >= 0 && newData.child('power').val() <= 3 && newData.child('power').val() % 1 === 0",
+                "t": {
+                  ".validate": "newData.isNumber()"
+                },
+                "power": {
+                  ".validate": "newData.isNumber()"
+                },
+                "$other": {
+                  ".validate": false
+                }
+              }
+            },
+            "points": {
+              "$playerId": {
+                ".read": "auth != null && ($playerId === auth.uid || $round !== '' + (now - now % 360000) / 360000 || now % 360000 >= 333000)",
+                ".write": "auth != null && ($playerId === auth.uid || (root.child('rooms/' + $room + '/aiHost').val() === auth.uid && root.child('rooms/' + $room + '/rounds/' + $round + '/players/' + $playerId + '/kind').val() === 'ai')) && $round === '' + (now - now % 360000) / 360000 && now % 360000 >= 30000 && now % 360000 < 333000",
+                ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() % 1 === 0 && (!data.exists() || newData.val() >= data.val())"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

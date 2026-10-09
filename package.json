@@ -1,44 +1,62 @@
 {
-  "name": "claude-code-book-chapter8",
+  "name": "number-together",
   "version": "0.1.0",
-  "description": "Claude Code book - Chapter 8 template",
+  "description": "見えない誰かと、ひとつの数字をぴったり合わせる、みんなで遊ぶブラウザゲーム",
   "type": "module",
   "scripts": {
     "prepare": "husky",
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "emulators": "firebase emulators:start --only auth,database",
+    "check:size": "tsx scripts/check-dist-size.ts",
+    "package:itch": "tsx scripts/package-itch.ts",
     "lint": "eslint .",
-    "format": "npx prettier --write .",
+    "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "test:sim": "vitest run --config vitest.sim.config.ts",
+    "test:rules": "firebase emulators:exec --only database \"vitest run --config vitest.rules.config.ts\"",
+    "test:int": "firebase emulators:exec --only auth,database \"vitest run --config vitest.int.config.ts\"",
+    "test:e2e": "npm run build && firebase emulators:exec --only auth,database \"playwright test\""
   },
   "keywords": [
-    "spec-driven-development",
-    "claude-code",
-    "template"
+    "browser-game",
+    "firebase",
+    "itch.io"
   ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^20.11.0",
-    "@vitest/coverage-v8": "^2.0.0",
-    "@vitest/ui": "^2.0.0",
+    "@eslint/js": "^9.39.5",
+    "@firebase/rules-unit-testing": "^5.0.2",
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^24.19.1",
+    "@vitest/coverage-v8": "^5.0.3",
+    "@vitest/ui": "^5.0.3",
     "eslint": "^9.0.0",
     "eslint-config-prettier": "^9.1.0",
+    "firebase-tools": "^15.33.0",
+    "globals": "^14.0.0",
     "husky": "^9.0.0",
     "lint-staged": "^15.2.0",
     "prettier": "^3.2.0",
-    "typescript": "~5.3.0",
+    "tsx": "^4.23.15",
+    "typescript": "~5.9.0",
     "typescript-eslint": "^8.0.0",
-    "vitest": "^2.0.0"
+    "vite": "^8.3.4",
+    "vitest": "^5.0.3"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
       "eslint --fix",
       "prettier --write"
     ]
+  },
+  "dependencies": {
+    "firebase": "12.19.0"
   }
 }
