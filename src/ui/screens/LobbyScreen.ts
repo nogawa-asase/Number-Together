@@ -4,6 +4,7 @@ import type { GameConfig } from '../../domain/config/types';
 import type { Player } from '../../domain/types';
 import { formatNumber, html, ref, splitAround, text, translate } from '../dom';
 import { playerSvg } from '../stage/characterSvg';
+import { TITLE_CLASS } from '../overlays/AchievementCard';
 import { robotBadgeSvg, robotSvg } from '../stage/robotSvg';
 import type { RoomPart } from './RoomPart';
 
@@ -42,13 +43,6 @@ const TEMPLATE = `
   <div class="lobby-hint" data-i18n="lobby.hint"></div>
 </div>`;
 
-const TITLE_CLASS = {
-  rookie: 'rookie',
-  regular: 'regular',
-  hoarder: 'hoarder',
-  perfectKing: 'king',
-} as const;
-
 /** 02・03 集合中 */
 export class LobbyScreen implements RoomPart {
   readonly element: HTMLElement;
@@ -56,7 +50,8 @@ export class LobbyScreen implements RoomPart {
 
   constructor(
     private readonly myId: string,
-    private readonly config: GameConfig
+    private readonly config: GameConfig,
+    private readonly onTap: (playerId: string) => void
   ) {
     this.element = html(TEMPLATE);
     translate(this.element);
@@ -148,6 +143,8 @@ export class LobbyScreen implements RoomPart {
       }<div class="name"></div><div class="title-chip" hidden></div></div>`
     );
     text(cell.querySelector('.name')!, player.name); // 他の人の名前は、文字として入れる
+    cell.classList.add('tappable');
+    cell.addEventListener('click', () => this.onTap(player.id));
     const title = view.titles[player.id];
     if (title !== undefined) {
       const chip = cell.querySelector<HTMLElement>('.title-chip')!;

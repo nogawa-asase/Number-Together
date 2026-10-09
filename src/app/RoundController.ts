@@ -1,5 +1,7 @@
 import type { PressKind } from '../domain/points/types';
+import type { Stats } from '../domain/types';
 import type { Unsubscribe } from '../infra/store/GameStore';
+import { StoreError } from '../infra/store/StoreError';
 import { ActiveRound, type RoundDeps } from './ActiveRound';
 import type { RoundEvent, RoundView } from './RoundView';
 import type { SessionState } from './SessionController';
@@ -59,6 +61,21 @@ export class RoundController {
   press(kind: PressKind): void {
     if (this.online) {
       this.active?.press(kind);
+    }
+  }
+
+  /**
+   * 参加者の実績(実績カード)。読めなければ null。
+   * 他の人の実績は、誰でも読める(docs/functional-design.md「データベースの配置」)
+   */
+  async statsOf(playerId: string): Promise<Stats | null> {
+    try {
+      return await this.deps.store.loadStats(playerId);
+    } catch (error) {
+      if (!(error instanceof StoreError)) {
+        this.deps.onError(error);
+      }
+      return null;
     }
   }
 

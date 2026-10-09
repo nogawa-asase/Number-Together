@@ -1,49 +1,68 @@
-/* 端末の「動きを減らす」設定のときは、動きをやめて、静止した表示にする */
-@media (prefers-reduced-motion: reduce) {
-  .bob,
-  .dot,
-  .jig,
-  .offline-icon,
-  .lobby .bob,
-  .cell.ai,
-  .avatar.fade-in,
-  .bump.bumping,
-  .remaining.urgent,
-  .cue .tw,
-  .cue.warn,
-  .slam {
-    animation: none;
-  }
+/*
+ * 「動きをへらす」: 端末の設定(prefers-reduced-motion)か、自分の画面のスイッチが入っていると、
+ * <html> に .reduce-motion が付く(ui/motion.ts)。動きをやめて、静止した表示にする(見本のCSSのとおり)
+ */
+.reduce-motion .bob,
+.reduce-motion .dot,
+.reduce-motion .jig,
+.reduce-motion .offline-icon,
+.reduce-motion .cell.ai,
+.reduce-motion .avatar.fade-in,
+.reduce-motion .bump.bumping,
+.reduce-motion .remaining.urgent,
+.reduce-motion .tw,
+.reduce-motion .cue.warn,
+.reduce-motion .result-head .burst,
+.reduce-motion .spk {
+  animation: none;
+}
 
-  /* 跳ねる代わりに、光らせる(見本 05) */
-  .avatar.act,
-  .avatar.hop-once {
-    animation: none;
-    filter: drop-shadow(0 0 3px #ff3b5c);
-  }
+/* 跳ねる代わりに、光らせる(見本 05) */
+.reduce-motion .avatar.act,
+.reduce-motion .avatar.hop-once {
+  animation: none;
+  filter: drop-shadow(0 0 3px #ff3b5c);
+}
 
-  .press-floater {
-    animation: none;
-    opacity: 0;
-  }
+.reduce-motion .press-floater {
+  animation: none;
+  opacity: 0;
+}
 
-  .beat {
-    animation: none;
-    transform: rotate(-3deg);
-  }
+.reduce-motion .beat {
+  animation: none;
+  transform: rotate(-3deg);
+}
 
-  .slam {
-    transform: rotate(-6deg);
-  }
+.reduce-motion .slam {
+  animation: none;
+  transform: rotate(-6deg);
+}
 
-  /* 3・2・1 は出さず、「スタート!」だけを静止して出す */
-  .cd {
-    animation: none;
-    opacity: 0;
-    transform: none;
-  }
+/* 召喚は、降りてくる動きをやめて、その場に現れて光る */
+.reduce-motion .avatar.summoning {
+  animation: none;
+  transform: none;
+  opacity: 1;
+}
 
-  .cd.go {
-    opacity: 1;
-  }
+.reduce-motion .summon-beam {
+  animation: none;
+  opacity: 0.6;
+}
+
+.reduce-motion .target-up,
+.reduce-motion .join-banner {
+  animation: none;
+}
+
+/* 3・2・1 は出さず、「スタート!」だけを静止して出す */
+.reduce-motion .cd {
+  animation: none;
+  opacity: 0;
+  transform: none;
+}
+
+.reduce-motion .cd.go {
+  opacity: 1;
 }

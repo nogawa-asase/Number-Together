@@ -298,15 +298,18 @@ export class ActiveRound {
     const { store, config } = this.deps;
     try {
       const points = await store.readPoints(this.roomId, this.roundId);
-      if (this.closed) {
-        return;
-      }
       const players = this.players;
       const target = targetFor(players.length, config);
       const verdict = judge(this.serverNumber, target, config);
       const listed = players.some((p) => p.id === this.myId);
       const myPoints = Math.max(this.myPoints, points[this.myId] ?? 0);
       const settlement = settle(verdict.outcome, myPoints, config);
+      const totalBefore = listed
+        ? await this.readTotalBefore(settlement.awarded)
+        : null;
+      if (this.closed) {
+        return;
+      }
       this.result = {
         outcome: verdict.outcome,
         missBy: verdict.missBy,
@@ -314,6 +317,7 @@ export class ActiveRound {
         target,
         myPoints,
         awarded: settlement.awarded,
+        totalBefore,
         ranking: buildRanking(
           players,
           points,
@@ -332,6 +336,22 @@ export class ActiveRound {
       }
     } finally {
       this.settling = false;
+    }
+  }
+
+  /**
+   * この回を足す前の、自分の累計ポイント(結果発表の「累計 3,420 → 3,724 p」)。
+   * もう数えてあれば(途中から戻ったとき)、報酬を引いて戻す。読めなければ null
+   */
+  private async readTotalBefore(awarded: number): Promise<number | null> {
+    try {
+      const stats = await this.deps.store.loadStats(this.myId);
+      return stats.lastCountedRound === this.roundId
+        ? stats.totalPoints - awarded
+        : stats.totalPoints;
+    } catch (error) {
+      this.report(error);
+      return null;
     }
   }
 

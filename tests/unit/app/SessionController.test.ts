@@ -98,6 +98,60 @@ describe('SessionController: 起動と登録', () => {
   });
 });
 
+describe('SessionController: 自分の画面', () => {
+  it('updateProfile: 名前とキャラを変える。入室はし直さない', async () => {
+    const w = sessionWorld();
+    const me = await w.registered('a');
+    const states = me.states.length;
+    const other: CharacterSpec = { ...CHARACTER, hair: 'bun' };
+
+    expect(await me.session.updateProfile('  ', other)).toEqual({
+      ok: false,
+      reason: 'empty',
+    });
+    expect(me.session.profile()!.name).toBe('a');
+
+    expect(await me.session.updateProfile('b', other)).toEqual({
+      ok: true,
+      name: 'b',
+    });
+    expect(me.session.profile()).toEqual({ name: 'b', character: other });
+    expect(await me.store.loadProfile(me.uid)).toEqual({
+      name: 'b',
+      character: other,
+    });
+    expect(me.states).toHaveLength(states);
+  });
+
+  it('updateProfile: サインインの前はエラー', async () => {
+    const d = sessionWorld().device();
+    await expect(d.session.updateProfile('b', CHARACTER)).rejects.toThrow(
+      'サインインの前'
+    );
+  });
+
+  it('refreshStats: 自分の実績を読み直す。読めなければ null で、前の値は残す', async () => {
+    const w = sessionWorld();
+    expect(await w.device().session.refreshStats()).toBeNull(); // サインインの前
+
+    const me = await w.registered();
+    w.server.applyStats(me.uid, me.uid, 'r1', {
+      plays: 1,
+      successes: 1,
+      perfects: 0,
+      totalPoints: 30,
+    });
+    expect(await me.session.refreshStats()).toMatchObject({ totalPoints: 30 });
+    expect(me.session.stats()).toMatchObject({ totalPoints: 30 });
+
+    vi.spyOn(me.store, 'loadStats').mockRejectedValueOnce(
+      new StoreError('offline', '切れた')
+    );
+    expect(await me.session.refreshStats()).toBeNull();
+    expect(me.session.stats()).toMatchObject({ totalPoints: 30 });
+  });
+});
+
 describe('SessionController: 入室と待機', () => {
   it('集合中は空いた部屋に入り、全部満員なら部屋を作る', async () => {
     const w = sessionWorld(START, SMALL);

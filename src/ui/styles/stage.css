@@ -155,3 +155,81 @@
     opacity: 0;
   }
 }
+
+.avatar.tappable {
+  cursor: pointer;
+}
+
+/* 途中参加の召喚(見本 05): 光の柱の中を、キラキラをまとって降りてきて、着いたとき少しつぶれる */
+.avatar.summoning {
+  z-index: 20 !important;
+  filter: drop-shadow(0 0 5px #ffffff);
+  animation: summon 4s linear both;
+}
+
+@keyframes summon {
+  0% {
+    transform: translateY(-130px) scale(1, 1);
+    opacity: 0;
+  }
+  8% {
+    transform: translateY(-124px) scale(1, 1);
+    opacity: 1;
+  }
+  85% {
+    transform: translateY(0) scale(1, 1);
+  }
+  90% {
+    transform: translateY(0) scale(1.12, 0.86);
+  }
+  100% {
+    transform: translateY(0) scale(1, 1);
+    opacity: 1;
+  }
+}
+
+.summon-beam {
+  position: absolute;
+  top: -50px;
+  width: 34px;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.7);
+  border-left: 2px dashed #ffffff;
+  border-right: 2px dashed #ffffff;
+  z-index: 19;
+  pointer-events: none;
+  animation: beam 4.5s linear both;
+}
+
+@keyframes beam {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.avatar .spk {
+  position: absolute;
+  transform-origin: 50% 50%;
+  animation: twinkle 0.9s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    transform: scale(0.4);
+    opacity: 0.2;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}

@@ -1,18 +1,15 @@
-import { t } from '../../app/i18n/i18n';
+import { type MessageKey, t } from '../../app/i18n/i18n';
 import type { RoundView } from '../../app/RoundView';
 import type { GameConfig } from '../../domain/config/types';
 import type { PressKind } from '../../domain/points/types';
 import { html, ref, text } from '../dom';
+import { CHECK_SVG, SPIKY_BUBBLE } from '../shapes';
 import { GraphView } from '../graph/GraphView';
 import { StageView } from '../stage/StageView';
 import type { RoomPart } from './RoomPart';
 
-/** トゲトゲの吹き出しの形(見本 05。しっぽなし) */
-const SPIKY =
-  '120.0,11.0 136.5,24.7 162.5,12.3 167.2,31.5 192.4,29.6 191.5,44.1 226.3,44.8 206.2,61.0 228.2,69.3 209.2,79.7 227.7,92.5 200.2,97.8 213.8,115.5 180.4,112.8 176.6,127.2 152.4,122.7 141.8,141.7 120.0,126.2 100.0,136.0 87.6,122.7 61.0,129.4 59.6,112.8 26.2,115.5 39.8,97.8 16.6,91.8 30.8,79.7 1.8,68.7 33.8,61.0 22.7,47.3 48.5,44.1 44.5,27.7 72.8,31.5 77.5,12.3 103.5,24.7';
-
-const CHECK =
-  '<svg viewBox="0 0 24 24" class="check" fill="none" stroke="#111111" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 L10 18.5 L20 6"></path></svg>';
+/** 「目標UP!」と称号の帯を出しておく長さ(CSS の pop と同じ) */
+const OVERLAY_MS = 5_000;
 
 /** 05 プレイ中(舞台・いまの数字・グラフ・あなたのポイント・ボタン) */
 export class PlayScreen implements RoomPart {
@@ -24,9 +21,10 @@ export class PlayScreen implements RoomPart {
   constructor(
     myId: string,
     config: GameConfig,
-    onPress: (kind: PressKind) => void
+    onPress: (kind: PressKind) => void,
+    onTap: (playerId: string) => void
   ) {
-    this.stage = new StageView(myId);
+    this.stage = new StageView(myId, onTap);
     this.graph = new GraphView(config);
     this.element = html(`
 <div class="screen play">
@@ -36,7 +34,7 @@ export class PlayScreen implements RoomPart {
         <div class="label" data-ref="currentLabel"></div>
         <div class="number" data-ref="number"></div>
       </div>
-      <div class="range-chip" data-ref="range">${CHECK}<span data-ref="rangeText"></span></div>
+      <div class="range-chip" data-ref="range">${CHECK_SVG}<span data-ref="rangeText"></span></div>
     </div>
   </div>
   <div class="points-board">
@@ -49,8 +47,8 @@ export class PlayScreen implements RoomPart {
   </div>
   <div class="x3-bubble" data-ref="x3Bubble" hidden>
     <svg viewBox="0 0 240 170">
-      <polygon points="${SPIKY}" fill="#111111" transform="translate(5 6)"></polygon>
-      <polygon points="${SPIKY}" fill="#FFFFFF" stroke="#111111" stroke-width="4" stroke-linejoin="round"></polygon>
+      <polygon points="${SPIKY_BUBBLE}" fill="#111111" transform="translate(5 6)"></polygon>
+      <polygon points="${SPIKY_BUBBLE}" fill="#FFFFFF" stroke="#111111" stroke-width="4" stroke-linejoin="round"></polygon>
       <text x="120" y="62" text-anchor="middle" class="press-now" data-ref="pressNow"></text>
       <text x="120" y="108" text-anchor="middle" class="press-x3" data-ref="pressX3"></text>
     </svg>
@@ -98,6 +96,37 @@ export class PlayScreen implements RoomPart {
   /** 自分が押した */
   myPress(kind: PressKind): void {
     this.stage.myPress(kind);
+  }
+
+  /** 途中参加: 小人が降りてきて、「目標UP! from → to」の吹き出しを出す(見本 05) */
+  summon(playerId: string, targetFrom: number, targetTo: number): void {
+    this.stage.summon(playerId);
+    const bubble = html(`
+<div class="target-up">
+  <svg viewBox="0 0 240 150">
+    <g transform="translate(0 150) scale(1 -1)">
+      <polygon points="${SPIKY_BUBBLE}" fill="#111111" transform="translate(5 -6)"></polygon>
+      <polygon points="${SPIKY_BUBBLE}" fill="#FFFFFF" stroke="#111111" stroke-width="4" stroke-linejoin="round"></polygon>
+    </g>
+    <text x="120" y="86" text-anchor="middle" class="up"></text>
+    <text x="120" y="112" text-anchor="middle" class="change"></text>
+  </svg>
+</div>`);
+    text(bubble.querySelector('.up')!, t('summon.targetUp'));
+    text(bubble.querySelector('.change')!, `${targetFrom} → ${targetTo}`);
+    this.element.append(bubble);
+    setTimeout(() => bubble.remove(), OVERLAY_MS); // 動きをへらしているときは、動きの終わりが来ない
+  }
+
+  /** 称号のある人の途中参加: 「ぴったり王 さくらさん 参戦!」の帯(見本 06) */
+  banner(titleKey: MessageKey, titleClass: string, name: string): void {
+    const banner = html(
+      `<div class="join-banner"><span class="title-chip ${titleClass}"></span><span class="who"></span></div>`
+    );
+    text(banner.querySelector('.title-chip')!, t(titleKey));
+    text(banner.querySelector('.who')!, t('summon.joins', { name }));
+    this.element.append(banner);
+    setTimeout(() => banner.remove(), OVERLAY_MS);
   }
 }
 

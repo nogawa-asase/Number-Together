@@ -11,6 +11,7 @@ import { browserStorage, createPrefs } from './infra/prefs';
 import { SystemClock } from './infra/timer/SystemClock';
 import { SystemScheduler } from './infra/timer/SystemScheduler';
 import { DomGameView } from './ui/DomGameView';
+import { Motion } from './ui/motion';
 import './ui/styles/theme.css';
 import './ui/styles/layout.css';
 import './ui/styles/screens.css';
@@ -19,6 +20,8 @@ import './ui/styles/stage.css';
 import './ui/styles/graph.css';
 import './ui/styles/play.css';
 import './ui/styles/overlays.css';
+import './ui/styles/result.css';
+import './ui/styles/me.css';
 import './ui/styles/motion.css';
 
 /**
@@ -83,12 +86,18 @@ function main(): void {
     session
   );
 
+  const motion = new Motion({
+    get: () => prefs.get('reduceMotion') === '1',
+    set: (on) => prefs.set('reduceMotion', on ? '1' : '0'),
+  });
+
   view = new DomGameView({
     root,
     session,
     round,
     config,
     now: () => clock.now(),
+    motion,
   });
   view.start();
   round.start();

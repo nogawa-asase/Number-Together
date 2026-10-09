@@ -233,6 +233,47 @@ export class SessionController {
     return verdict;
   }
 
+  /**
+   * 名前とキャラクターを変える(自分の画面)。入室や参加者には触れない
+   * (参加者の名前と見た目は、次の回から変わる)。
+   *
+   * @returns 名前の検証の結果。使えない名前なら、保存しない
+   * @throws Error - サインインの前に呼んだとき
+   * @throws StoreError - 保存に失敗したとき
+   */
+  async updateProfile(
+    name: string,
+    character: CharacterSpec
+  ): Promise<NameVerdict> {
+    const uid = this.myUid;
+    if (uid === null) {
+      throw new Error('サインインの前に、変更はできません');
+    }
+    const verdict = validateName(name, this.deps.config);
+    if (!verdict.ok) {
+      return verdict;
+    }
+    const profile: Profile = { name: verdict.name, character };
+    await this.deps.store.saveProfile(uid, profile);
+    this.myProfile = profile;
+    return verdict;
+  }
+
+  /** 自分の実績を読み直す(自分の画面)。読めなければ null(前に読んだ値は残す) */
+  async refreshStats(): Promise<Stats | null> {
+    const uid = this.myUid;
+    if (uid === null) {
+      return null;
+    }
+    try {
+      this.myStats = await this.deps.store.loadStats(uid);
+      return this.myStats;
+    } catch (error) {
+      this.report(error);
+      return null;
+    }
+  }
+
   // ---- 入室と待機 ----
 
   private async enterRoom(): Promise<void> {

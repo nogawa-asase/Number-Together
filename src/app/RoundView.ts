@@ -12,6 +12,7 @@ export interface ResultView {
   readonly target: number;
   readonly myPoints: number; // 貯めたポイント(失敗のときも、見せる)
   readonly awarded: number; // 報酬ポイント
+  readonly totalBefore: number | null; // この回を足す前の累計ポイント(読めなければ、見ているだけなら null)
   readonly ranking: RankingView;
 }
 

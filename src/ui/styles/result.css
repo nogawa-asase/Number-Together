@@ -1,0 +1,387 @@
+/* 10・11・12 結果発表 */
+.result {
+  gap: 10px;
+}
+
+.result .label {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 800;
+}
+
+.result .row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.result-head {
+  position: relative;
+  height: 140px;
+  flex-shrink: 0;
+}
+
+.result-head .tw {
+  position: absolute;
+  animation: tw 1.1s ease-in-out infinite;
+}
+
+.result-head .burst {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 300px;
+  height: 116px;
+  margin-left: -150px;
+  transform-origin: 50% 50%;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.result-head .burst svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.result-head .word {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 46px;
+  line-height: 1;
+  color: #ffffff;
+  -webkit-text-stroke: 9px var(--ink);
+  paint-order: stroke fill;
+  white-space: nowrap;
+}
+
+.result-head .word.long {
+  font-size: 36px;
+  -webkit-text-stroke-width: 8px;
+}
+
+.result-head .burst.plain {
+  animation: none;
+}
+
+.result-head .burst.plain .word {
+  font-size: 52px;
+  color: var(--ink);
+  -webkit-text-stroke: 0;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.result-head .note-wrap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.result-head .note {
+  background: #ffffff;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  padding: 1px 14px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.result-head .note.gold {
+  background: #ffc400;
+}
+
+.result-final {
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.result-final .value {
+  font-family: var(--font-display);
+  font-size: 44px;
+  line-height: 50px;
+}
+
+.result-final .side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  text-align: right;
+}
+
+.result-final .target {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 800;
+}
+
+.result-final .range .nums {
+  white-space: nowrap;
+}
+
+.result-final .range {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 800;
+  color: var(--gray-text);
+}
+
+.range-chip.small {
+  box-shadow: none;
+  padding: 0 10px 0 6px;
+  font-size: 14px;
+  line-height: 20px;
+  margin: 0;
+}
+
+.range-chip.small .check {
+  width: 16px;
+  height: 16px;
+}
+
+.range-chip.perfect {
+  background: #ffc400;
+}
+
+.range-chip.in {
+  background: var(--green);
+}
+
+.range-chip.out {
+  background: #ff8fa3;
+}
+
+.result-points {
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.result-points .total {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 800;
+  color: var(--gray-text);
+  white-space: nowrap;
+}
+
+.result-points .line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.result-points .pts {
+  font-family: var(--font-display);
+}
+
+.result-points .pts.small {
+  font-size: 24px;
+  line-height: 40px;
+}
+
+.result-points .pts.small .unit {
+  font-size: 14px;
+}
+
+.result-points .pts.big {
+  font-size: 40px;
+  line-height: 44px;
+  color: var(--red);
+}
+
+.result-points .pts.big .unit {
+  font-size: 20px;
+}
+
+.result-points .pts.lost {
+  color: var(--gray-text);
+  text-decoration: line-through;
+}
+
+.result-points .eq {
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 40px;
+}
+
+.pill {
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  padding: 0 10px;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.pill.gold {
+  background: #ffc400;
+  font-size: 12px;
+  padding: 0 8px;
+}
+
+.pill.green {
+  background: var(--green);
+}
+
+.pill.gray {
+  background: #d5dce4;
+}
+
+.result-ranking {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+
+.result-ranking .label {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.result-ranking .count,
+.result-ranking .others {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 800;
+  color: var(--gray-text);
+}
+
+.result-ranking .others {
+  text-align: center;
+}
+
+.result-ranking .rows {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.rank-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  box-sizing: border-box;
+  padding: 0 8px;
+  border: 3px solid transparent;
+  border-radius: 10px;
+}
+
+.rank-row.me {
+  border-color: var(--red);
+  background: var(--pink-pale);
+}
+
+.rank-row .rank {
+  width: 22px;
+  height: 22px;
+  box-sizing: border-box;
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.rank-row .face {
+  display: block;
+  width: 18px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.rank-row .name {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rank-row .pts {
+  font-family: var(--font-display);
+  font-size: 16px;
+  line-height: 20px;
+}
+
+.rank-row .pts .unit {
+  font-size: 11px;
+}
+
+.dots-row {
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 14px;
+  line-height: 14px;
+  letter-spacing: 4px;
+  color: var(--gray-text);
+  height: 14px;
+}
+
+.result-next {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--ink);
+  color: #ffffff;
+  border-radius: 16px;
+  padding: 8px 14px;
+  flex-shrink: 0;
+}
+
+.result-next .label {
+  white-space: nowrap;
+}
+
+.result-next .time {
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 24px;
+  white-space: nowrap;
+}
+
+.result-next .bar {
+  flex: 1;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.3);
+  overflow: hidden;
+}
+
+.result-next .bar > div {
+  height: 100%;
+  background: var(--yellow);
+}

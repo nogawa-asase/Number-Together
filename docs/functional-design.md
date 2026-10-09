@@ -309,6 +309,7 @@ interface ResultView {
   target: number;
   myPoints: number;            // 貯めたポイント(失敗のときも見せる)
   awarded: number;             // 報酬ポイント
+  totalBefore: number | null;  // この回を足す前の累計(「累計 3,420 → 3,724 p」。読めなければ・見ているだけなら null)
   ranking: RankingView;
 }
 ```
@@ -633,6 +634,8 @@ class SessionController {
   start(): void;
   stop(): Promise<void>;                                                 // 部屋を出て、すべて止める
   register(name: string, character: CharacterSpec): Promise<NameVerdict>; // 使えない名前なら保存しない
+  updateProfile(name: string, character: CharacterSpec): Promise<NameVerdict>; // 自分の画面から変更(入室はし直さない。参加者の名前は次の回から)
+  refreshStats(): Promise<Stats | null>;                                 // 自分の画面で、実績を読み直す
   retryNow(): void;                                                      // 「いますぐ、ためす」
   onState(listener: (state: SessionState) => void): () => void;          // 登録したときにも1回知らせる
   state(): SessionState;
@@ -691,6 +694,7 @@ class RoundController {
   start(): void;
   stop(): void;
   press(kind: '+1' | '-1'): void;                                   // ボタンが押された
+  statsOf(playerId: string): Promise<Stats | null>;                 // 実績カード。読めなければ null
   onView(listener: (view: RoundView | null) => void): () => void;   // 部屋にいないときは null。登録したときにも1回
   onEvent(listener: (event: RoundEvent) => void): () => void;
 }
@@ -744,7 +748,11 @@ class DomGameView {
 - 集合中のAIの席: AIはゲーム開始の時刻に加わるので、集合中は、まだ性格が決まっていない。人間が `aiFillTo` 人に足りない分だけ、灰色のランプのロボットと「AI」の札の席を出す(見本 03 の名前「がめついAI」などは、ゲーム開始のあとの舞台で分かる)
 - AIのロボットの胸のランプ: がめつい=赤・気まぐれ=青・調整役=緑(見本 03)、ぴったり主義=黄・ラストスパート=紫(仮)
 - プレイ中のグラフは、画面の高さに合わせて伸び縮みする(見本は高さ306pxで固定。背の低いスマホで、ボタンが画面の外に出ないようにする)
-- 「動きを減らす」設定のときは、跳ねる代わりに小人を光らせ、「3・2・1」は出さずに「スタート!」だけを出す(見本のCSSのとおり)
+- 「動きを減らす」設定のときは、跳ねる代わりに小人を光らせ、「3・2・1」は出さずに「スタート!」だけを出す(見本のCSSのとおり)。端末の設定(`prefers-reduced-motion`)か、自分の画面のスイッチ(ブラウザに覚える)のどちらかが入っていれば、`<html>` に `.reduce-motion` を付けて、動きを止める
+- 自分の画面(18)は、右上の「じぶん」ボタン(言語の切り替えの左。見本にないので足した)から開く。登録が済んでから(部屋の中・待機中)出す
+- 結果発表の「みんなのポイント」: 自分が上位のすぐ下(8位)なら続けて出し、「ほか n人」。離れていれば「・・・」で区切って自分の行を出し、「ほか」は出さない(見本 10・11)
+- 途中参加: 召喚の知らせ(`summon`)で、小人が光の柱の中を降りてきて(約4秒)、「目標UP!」を出す。称号は、実績を読んだあとに届くので、召喚から4秒の間に新人以外の称号が届いたら、帯を出す
+- 実績カード(13)は、人間の小人(舞台・集合中の席)をタップして出す。AIをタップしても出さない(見本にない)
 
 ### i18n(言語)
 

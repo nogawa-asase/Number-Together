@@ -1,18 +1,25 @@
-import { t } from '../../app/i18n/i18n';
+import type { MessageKey } from '../../app/i18n/i18n';
 import type { RoundController } from '../../app/RoundController';
-import type { RoundView } from '../../app/RoundView';
+import type { RoundEvent, RoundView } from '../../app/RoundView';
 import type { GameConfig } from '../../domain/config/types';
-import { html, ref, type Screen, text } from '../dom';
+import { html, type Screen } from '../dom';
+import { AchievementCard, TITLE_CLASS } from '../overlays/AchievementCard';
 import { CueLayer } from '../overlays/cues';
 import { LobbyScreen } from './LobbyScreen';
 import { PlayScreen } from './PlayScreen';
+import { ResultScreen } from './ResultScreen';
 import type { RoomPart } from './RoomPart';
 
 /** 時間で動くもの(カウントダウン・グラフ)を描き直す間隔 */
 const TICK_MS = 250;
 
+/** 途中参加の人の称号を待つ時間(実績は、参加者の一覧より少しあとに届く) */
+const BANNER_WAIT_MS = 4_000;
+
+type PartKind = 'lobby' | 'play' | 'result';
+
 /**
- * 部屋の中(集合中・プレイ中・結果発表)。RoundView の段階で、画面を出し分け、合図を重ねる。
+ * 部屋の中(集合中・プレイ中・結果発表)。RoundView の段階で、画面を出し分け、合図と実績カードを重ねる。
  *
  * view は、届くたびに描かず、1コマに1回にまとめる(数字が1秒に何十回も変わるため)。
  */
@@ -20,11 +27,14 @@ export class RoomScreen implements Screen {
   readonly element: HTMLElement;
   private readonly cues = new CueLayer();
   private part: RoomPart | null = null;
-  private partKind: 'lobby' | 'play' | 'result' | null = null;
+  private partKind: PartKind | null = null;
   private view: RoundView | null = null;
   private frame: number | null = null;
   private readonly timer: ReturnType<typeof setInterval>;
   private readonly offs: (() => void)[] = [];
+  private card: AchievementCard | null = null;
+  /** 称号の帯を待っている途中参加の人(id → 待つ期限。Date.now()) */
+  private readonly awaitingBanner = new Map<string, number>();
 
   constructor(
     private readonly round: RoundController,
@@ -39,16 +49,7 @@ export class RoomScreen implements Screen {
         this.view = view;
         this.schedule();
       }),
-      round.onEvent((event) => {
-        if (event.kind === 'cue') {
-          this.cues.show(event.cue);
-        } else if (
-          event.kind === 'myPress' &&
-          this.part instanceof PlayScreen
-        ) {
-          this.part.myPress(event.press);
-        }
-      })
+      round.onEvent((event) => this.handle(event))
     );
     this.timer = setInterval(() => this.schedule(), TICK_MS);
   }
@@ -65,6 +66,27 @@ export class RoomScreen implements Screen {
     this.part?.dispose();
   }
 
+  private handle(event: RoundEvent): void {
+    switch (event.kind) {
+      case 'cue':
+        this.cues.show(event.cue);
+        break;
+      case 'myPress':
+        if (this.part instanceof PlayScreen) {
+          this.part.myPress(event.press);
+        }
+        break;
+      case 'summon':
+        if (this.part instanceof PlayScreen) {
+          this.part.summon(event.player.id, event.targetFrom, event.targetTo);
+          this.awaitingBanner.set(event.player.id, Date.now() + BANNER_WAIT_MS);
+        }
+        break;
+      case 'fadeIn':
+        break; // 舞台が、あとから加わったAIを、ふわっと出す
+    }
+  }
+
   private schedule(): void {
     if (this.frame === null) {
       this.frame = requestAnimationFrame(() => {
@@ -79,7 +101,7 @@ export class RoomScreen implements Screen {
     if (view === null) {
       return;
     }
-    const kind =
+    const kind: PartKind =
       view.clock.phase === 'gathering'
         ? 'lobby'
         : view.result === null
@@ -96,37 +118,62 @@ export class RoomScreen implements Screen {
       }
     }
     this.part!.update(view, this.now());
+    this.showBanners(view);
   }
 
-  private create(kind: 'lobby' | 'play' | 'result'): RoomPart {
-    switch (kind) {
-      case 'lobby':
-        return new LobbyScreen(this.myId, this.config);
-      case 'play':
-        return new PlayScreen(this.myId, this.config, (press) =>
-          this.round.press(press)
-        );
-      case 'result':
-        return new ResultStub();
+  /** 称号(新人以外)が届いた途中参加の人の帯を出す(見本 06) */
+  private showBanners(view: RoundView): void {
+    for (const [id, until] of this.awaitingBanner) {
+      const title = view.titles[id];
+      const player = view.players.find((p) => p.id === id);
+      if (Date.now() > until) {
+        this.awaitingBanner.delete(id);
+      } else if (title !== undefined && player !== undefined) {
+        this.awaitingBanner.delete(id);
+        if (title !== 'rookie' && this.part instanceof PlayScreen) {
+          this.part.banner(
+            `title.${title}` as MessageKey,
+            TITLE_CLASS[title],
+            player.name
+          );
+        }
+      }
     }
   }
-}
 
-/** 結果発表の仮の画面(次の作業で、見本 10〜12 の画面に置き換える) */
-class ResultStub implements RoomPart {
-  readonly element = html(`
-<div class="screen">
-  <div class="heading"><div class="title" data-ref="title"></div><div class="lead" data-ref="lead"></div></div>
-</div>`);
-
-  update(view: RoundView): void {
-    text(ref(this.element, 'title'), t('phase.result'));
-    const result = view.result!;
-    text(
-      ref(this.element, 'lead'),
-      `${result.outcome} ${result.finalNumber} / ${result.target} · ${result.myPoints}${t('play.pointUnit')}`
-    );
+  private create(kind: PartKind): RoomPart {
+    const onTap = (playerId: string) => void this.openCard(playerId);
+    switch (kind) {
+      case 'lobby':
+        return new LobbyScreen(this.myId, this.config, onTap);
+      case 'play':
+        return new PlayScreen(
+          this.myId,
+          this.config,
+          (press) => this.round.press(press),
+          onTap
+        );
+      case 'result':
+        return new ResultScreen(this.config);
+    }
   }
 
-  dispose(): void {}
+  /** 13 実績カード(人間の小人をタップした) */
+  private async openCard(playerId: string): Promise<void> {
+    const player = this.view?.players.find((p) => p.id === playerId);
+    if (player === undefined || this.card !== null) {
+      return;
+    }
+    const card = new AchievementCard(
+      player,
+      this.view?.titles[playerId] ?? null,
+      () => {
+        card.element.remove();
+        this.card = null;
+      }
+    );
+    this.card = card;
+    this.element.append(card.element);
+    card.setStats(await this.round.statsOf(playerId));
+  }
 }

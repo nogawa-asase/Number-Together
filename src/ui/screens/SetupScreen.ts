@@ -21,11 +21,17 @@ import {
 const SPARKLE =
   '<path d="M6 0 L7.4 4.6 L12 6 L7.4 7.4 L6 12 L4.6 7.4 L0 6 L4.6 4.6 Z" stroke="#111111" stroke-width="1.2" stroke-linejoin="round"/>';
 
+const CLOSE_ICON =
+  '<svg viewBox="0 0 24 24" fill="none" stroke="#111111" stroke-width="3.5" stroke-linecap="round" aria-hidden="true"><path d="M5 5 L19 19 M19 5 L5 19"></path></svg>';
+
 const TEMPLATE = `
 <div class="screen setup">
-  <div class="heading">
-    <div class="title" data-i18n="setup.title"></div>
-    <div class="lead" data-i18n="setup.lead"></div>
+  <div class="heading setup-heading">
+    <div>
+      <div class="title" data-ref="title" data-i18n="setup.title"></div>
+      <div class="lead" data-ref="lead" data-i18n="setup.lead"></div>
+    </div>
+    <button type="button" class="close-btn" data-ref="close" hidden>${CLOSE_ICON}</button>
   </div>
   <div class="setup-preview">
     <div class="ground"></div>
@@ -75,6 +81,8 @@ export interface SetupDeps {
     name: string,
     character: CharacterSpec
   ) => Promise<boolean>;
+  /** 自分の画面から開いたとき(名前とキャラの変更)は、閉じる。初回の登録では、なし */
+  readonly onClose?: () => void;
 }
 
 /** 01 名前とキャラクター選び */
@@ -85,6 +93,15 @@ export class SetupScreen implements Screen {
 
   constructor(private readonly deps: SetupDeps) {
     this.element = html(TEMPLATE);
+    if (deps.onClose !== undefined) {
+      // 変更: 見出しを変え、閉じるボタンを出す
+      ref(this.element, 'title').dataset.i18n = 'me.editTitle';
+      ref(this.element, 'title').classList.add('edit');
+      ref(this.element, 'lead').dataset.i18n = 'me.editLead';
+      const close = ref(this.element, 'close');
+      close.hidden = false;
+      close.addEventListener('click', deps.onClose);
+    }
     translate(this.element);
     this.character = deps.initial?.character ?? DEFAULT_CHARACTER;
     this.nameInput.value = deps.initial?.name ?? '';

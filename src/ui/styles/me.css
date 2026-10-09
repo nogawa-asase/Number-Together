@@ -1,0 +1,196 @@
+/* 右上のボタン(じぶん・言語の切り替え) */
+.top-buttons {
+  position: absolute;
+  top: 2px;
+  right: 10px;
+  z-index: 100;
+  display: flex;
+  gap: 6px;
+}
+
+.top-buttons .lang-switch {
+  position: static;
+}
+
+/* 閉じるボタン(自分の画面・名前とキャラの変更) */
+.close-btn {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+}
+
+.close-btn svg {
+  display: block;
+  width: 18px;
+  height: 18px;
+}
+
+.setup-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* 18 自分の画面(どの画面の上にも重ねる) */
+.overlay-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+  background: var(--yellow);
+}
+
+.me {
+  gap: 12px;
+}
+
+.me-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 4px 0 4px;
+}
+
+.me-head .title {
+  font-size: 28px;
+  line-height: 36px;
+}
+
+.me-profile {
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.me-profile .portrait {
+  width: 84px;
+  height: 118px;
+  border-radius: 14px;
+}
+
+.me-profile .portrait svg {
+  left: 14px;
+  width: 52px;
+  height: 76px;
+}
+
+.me-profile .who {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.me-profile .name {
+  font-family: var(--font-display);
+  font-size: 28px;
+  line-height: 32px;
+  overflow-wrap: anywhere;
+}
+
+.me-profile .edit {
+  align-self: flex-start;
+  height: 36px;
+  padding: 0 14px;
+  border: 3px solid var(--ink);
+  background: #ffffff;
+  color: var(--ink);
+  border-radius: 12px;
+  box-shadow: 3px 3px 0 var(--ink);
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.me-section {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.me-section .heading-small {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 800;
+}
+
+.me-section .stats .stat-tile {
+  width: calc(50% - 6px);
+}
+
+.setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.setting .name {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 800;
+}
+
+.setting .note {
+  font-size: 11px;
+  line-height: 15px;
+  font-weight: 800;
+  color: var(--gray-text);
+}
+
+/* スイッチ */
+.switch {
+  width: 56px;
+  height: 32px;
+  box-sizing: border-box;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  background: #d5dce4;
+  position: relative;
+  flex-shrink: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.switch::after {
+  content: '';
+  position: absolute;
+  left: 3px;
+  top: 3px;
+  width: 20px;
+  height: 20px;
+  box-sizing: border-box;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: #ffffff;
+  transition: left 0.15s;
+}
+
+.switch[aria-checked='true'] {
+  background: var(--green);
+}
+
+.switch[aria-checked='true']::after {
+  left: 27px;
+}
+
+.me .setup-warning {
+  padding-bottom: 6px;
+}
+
+.setup .title.edit {
+  font-size: 24px;
+  line-height: 32px;
+}

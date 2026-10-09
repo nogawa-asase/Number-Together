@@ -47,6 +47,7 @@ describe('RoundController: 結果', () => {
       finalNumber: final,
       target: 1_000,
       myPoints: 5,
+      totalBefore: 0, // 初めての回
     });
     expect(result.awarded).toBe(
       verdict.outcome === 'fail' ? 0 : verdict.outcome === 'perfect' ? 10 : 5
@@ -133,7 +134,61 @@ describe('RoundController: 結果', () => {
     const result = d.view()!.result!;
     expect(result.ranking.top.some((row) => row.isMe)).toBe(false);
     expect(result.ranking.me).toBeNull();
+    expect(result.totalBefore).toBeNull();
     expect(apply).not.toHaveBeenCalled();
+  });
+});
+
+describe('RoundController: 結果の累計', () => {
+  it('この回をもう数えてあれば(戻ったとき)、報酬を引いた値を、足す前の累計にする', async () => {
+    const { w, me } = await playedUntilEnd();
+    const awardedOf = () => me.view()!.result!.awarded;
+    vi.spyOn(me.store, 'loadStats').mockResolvedValueOnce({
+      plays: 3,
+      successes: 2,
+      perfects: 0,
+      totalPoints: 500,
+      lastCountedRound: ROUND,
+    });
+    w.clock.advance(GRACE_END - w.clock.now());
+    await settle();
+    expect(me.view()!.result!.totalBefore).toBe(500 - awardedOf());
+  });
+
+  it('累計を読めなければ(StoreError)、null にして結果は出す', async () => {
+    const { w, me } = await playedUntilEnd();
+    vi.spyOn(me.store, 'loadStats').mockRejectedValueOnce(
+      new StoreError('offline', '切れた')
+    );
+    w.clock.advance(GRACE_END - w.clock.now());
+    await settle();
+    expect(me.view()!.result!.totalBefore).toBeNull();
+    expect(w.onError).not.toHaveBeenCalled();
+  });
+
+  it('累計の読み込みの想定外の例外は onError に伝える', async () => {
+    const { w, me } = await playedUntilEnd();
+    vi.spyOn(me.store, 'loadStats').mockRejectedValueOnce(new Error('想定外'));
+    w.clock.advance(GRACE_END - w.clock.now());
+    await settle();
+    expect(me.view()!.result!.totalBefore).toBeNull();
+    expect(w.onError).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('RoundController: statsOf(実績カード)', () => {
+  it('参加者の実績を読む。StoreError なら null、想定外の例外は onError に伝えて null', async () => {
+    const w = sessionWorld();
+    const me = await w.player();
+    expect(await me.round.statsOf(me.uid)).toMatchObject({ plays: 0 });
+
+    vi.spyOn(me.store, 'loadStats')
+      .mockRejectedValueOnce(new StoreError('offline', '切れた'))
+      .mockRejectedValueOnce(new Error('想定外'));
+    expect(await me.round.statsOf(me.uid)).toBeNull();
+    expect(w.onError).not.toHaveBeenCalled();
+    expect(await me.round.statsOf(me.uid)).toBeNull();
+    expect(w.onError).toHaveBeenCalledTimes(1);
   });
 });
 
