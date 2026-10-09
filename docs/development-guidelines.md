@@ -531,9 +531,12 @@ cp .env.example .env.local
 # 5. 1つ目の端末で、Emulator Suite を起動する
 npm run emulators
 
-# 6. 2つ目の端末で、開発サーバーを起動する(エミュレータにつなぐ)
-VITE_USE_EMULATOR=true npm run dev
+# 6. 2つ目の端末で、開発サーバーを起動する(.env.local の設定で、エミュレータにつなぐ)
+npm run dev
 ```
+
+- `.env.local` がない(`VITE_FIREBASE_DATABASE_URL` がない)とき、または `VITE_STORE=memory` のときは、**ローカルモード**(メモリ上のサーバー。Firebase もエミュレータも要らない。1人でAIと遊べる。ページを閉じるとデータは消える)で動く
+- `VITE_QUICK_CYCLE=1` を付けると、短い周期(1周10秒。`src/domain/config/quickConfig.ts`)で動く。エミュレータにつなぐときは、ルールの時刻の数値も、同じ値に置き換えて読み込ませる(`tests/support/testCycle.ts` の `scaledRules`)
 
 - 本番の Firebase プロジェクトを作る手順(プロジェクトの作成、データベースの場所の選択、匿名認証、ルールの反映、環境変数)は、`docs/firebase-setup.md` に書く。**これは、ユーザー(開発者)が自分で行う作業**
 - Firebase の接続の設定(`VITE_FIREBASE_*`)は、公開される前提で、秘密ではない。ただし、環境ごとに切り替えるため、`.env.local`(Git 管理外)に置く。サービスアカウントの鍵など、本当の秘密情報は、リポジトリにも、コンテナにも、置かない

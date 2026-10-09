@@ -13,6 +13,11 @@ export default defineConfig({
         'src/infra/memory/**/*.ts',
         'src/infra/timer/**/*.ts',
         'src/infra/prefs.ts',
+        // Firebase の部分は、純粋な関数だけ(ほかは、結合テストで確かめる)
+        'src/infra/firebase/paths.ts',
+        'src/infra/firebase/parse.ts',
+        'src/infra/firebase/errors.ts',
+        'src/infra/firebase/TrafficMeter.ts',
         'src/app/**/*.ts',
       ],
       exclude: ['src/domain/**/types.ts'],

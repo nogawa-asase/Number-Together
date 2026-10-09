@@ -15,6 +15,8 @@ export interface MyPageDeps {
   readonly profile: Profile;
   readonly config: GameConfig;
   readonly reduceMotion: boolean;
+  /** ブラウザに記録を保存できるか(できなければ、知らせる。docs/architecture.md「匿名認証の保持」) */
+  readonly canSaveRecords: boolean;
   readonly onReduceMotion: (on: boolean) => void;
   readonly onEdit: () => void; // 名前・キャラをかえる
   readonly onClose: () => void;
@@ -57,10 +59,12 @@ export class MyPageScreen implements Screen {
       </div>
     </div>
     <div class="spacer"></div>
+    <div class="setup-warning not-saved" data-ref="notSaved" data-i18n="me.notSaved"></div>
     <div class="setup-warning" data-i18n="setup.warning"></div>
   </div>
 </div>`);
     translate(this.element);
+    ref(this.element, 'notSaved').hidden = deps.canSaveRecords;
     text(ref(this.element, 'name'), deps.profile.name);
     ref(this.element, 'close').setAttribute('aria-label', t('me.close'));
     ref(this.element, 'close').addEventListener('click', deps.onClose);

@@ -144,6 +144,7 @@ export const ja = {
   'me.settings': 'せってい',
   'me.reduceMotion': '動きをへらす',
   'me.reduceMotionNote': '跳ねたり、光ったりが、おとなしくなるよ',
+  'me.notSaved': 'このブラウザでは、記録を保存できません',
 
   'error.title': 'エラーが起きました',
   'error.lead': 'ページを再読み込みしてください',

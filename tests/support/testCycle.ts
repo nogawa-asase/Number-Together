@@ -1,26 +1,11 @@
 import { readFileSync } from 'node:fs';
-import { DEFAULT_CONFIG } from '../../src/domain/config/defaultConfig';
+import { QUICK_CONFIG } from '../../src/domain/config/quickConfig';
 import type { GameConfig } from '../../src/domain/config/types';
 import { roundClockAt, roundId } from '../../src/domain/schedule/roundClockAt';
 import type { Phase } from '../../src/domain/types';
 
-/**
- * エミュレータを使うテスト(ルール・結合・E2E)の、短い周期の設定値。
- *
- * ルールは、サーバーの時刻で段階を決めるので、本物の周期(6分)のままでは、段階を待つのに数分かかる。
- * 1周を10秒にして、ルールの時刻の数値も、同じ値に置き換えて読み込ませる(式は、そのまま)。
- */
-export const TEST_CONFIG: GameConfig = {
-  ...DEFAULT_CONFIG,
-  gatherMs: 2_000,
-  playMs: 6_000,
-  resultMs: 2_000,
-  pointsGraceMs: 500,
-  joinCutoffMs: 1_000,
-  bonusDurationMs: 2_000,
-  startCountdownMs: 1_000,
-  finalCountdownMs: 1_000,
-};
+/** エミュレータを使うテストの設定値(1周10秒。src/domain/config/quickConfig.ts) */
+export const TEST_CONFIG: GameConfig = QUICK_CONFIG;
 
 const CYCLE = TEST_CONFIG.gatherMs + TEST_CONFIG.playMs + TEST_CONFIG.resultMs;
 

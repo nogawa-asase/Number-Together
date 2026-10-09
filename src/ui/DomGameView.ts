@@ -22,6 +22,7 @@ export interface DomGameViewDeps {
   readonly config: GameConfig;
   readonly now: () => number; // サーバー時刻
   readonly motion: Motion; // 「動きをへらす」
+  readonly canSaveRecords: boolean; // ブラウザに記録を保存できるか
 }
 
 /**
@@ -101,6 +102,7 @@ export class DomGameView {
         profile,
         config,
         reduceMotion: motion.switchOn(),
+        canSaveRecords: this.deps.canSaveRecords,
         onReduceMotion: (on) => motion.setSwitch(on),
         onEdit: () => this.openOverlay('edit'),
         onClose: () => this.closeOverlay(),

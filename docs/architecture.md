@@ -132,6 +132,17 @@ UI / アプリケーション → firebase の import    (NG。Firebaseは、イ
 | エミュレータ | `VITE_USE_EMULATOR=true` のとき、認証(ポート9099)とデータベース(ポート9000)のエミュレータにつなぐ。Emulator Suite の画面は、ポート4000 |
 | 作る作業 | プロジェクトの作成、データベースの場所の選択、匿名認証をオンにすること、セキュリティルールが意図どおりかの確認は、ユーザー(開発者)が自分で行う。手順は `docs/firebase-setup.md` に書く |
 
+### 手元とテストでの動かし方
+
+| 環境変数 | 意味 |
+|------|------|
+| `VITE_FIREBASE_DATABASE_URL` などがない、または `VITE_STORE=memory` | ローカルモード(メモリ上のサーバー。Firebase なしで、1人でAIと遊べる) |
+| `VITE_USE_EMULATOR=true` | 認証とデータベースのエミュレータにつなぐ |
+| `VITE_QUICK_CYCLE=1` | 短い周期(1周10秒)。エミュレータのルールも、同じ値に置き換えて読み込ませる(テストの補助 `scaledRules`) |
+| `VITE_TRAFFIC_METER=1` | 通信量の計測(テストプレイ用) |
+
+- 結合テスト(`npm run test:int`)は、Node.js で、1人ごとに別の FirebaseApp を作ってエミュレータにつなぎ、`SessionController`(と `AiHost`)を本物の時計とタイマーで動かす。周期とルールは、短い周期にする
+
 ### 時計の同期
 
 - `ServerClock` が、データベースの `.info/serverTimeOffset` を購読し、`now() = Date.now() + offset` を返す(端末の時計のずれを補正する)

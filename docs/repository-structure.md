@@ -83,7 +83,8 @@ number-together/
 **役割**: アプリの起動。`FirebaseGameStore` と `ServerClock` を作り、アプリケーション層の `SessionController`・`RoundController` と、UI層の `DomGameView` を結びつけて、起動する。
 
 - 各層を組み立てるのはこのファイルだけ。ここ以外で、層をまたいだ組み立てをしない
-- いまは「ローカルモード」だけ: `InMemoryServer`・`InMemoryGameStore`・`SystemClock`・`SystemScheduler` で組み立てる(1人で、AIと遊べる。ページを閉じるとデータは消える)。`FirebaseGameStore` ができたら、Firebase の設定があれば、そちらを使う
+- `VITE_FIREBASE_DATABASE_URL` があれば `FirebaseGameStore`・`FirebaseServerClock`、なければ(または `VITE_STORE=memory`)「ローカルモード」: `InMemoryServer`・`InMemoryGameStore`・`SystemClock`(1人で、AIと遊べる。ページを閉じるとデータは消える)
+- `VITE_QUICK_CYCLE=1` のときは、短い周期(`QUICK_CONFIG`。1周10秒)で動かす(E2E と、手元の動作確認用)
 - Firebase の設定は、環境変数(`VITE_FIREBASE_*`)から読む。`VITE_USE_EMULATOR=true` のときは、エミュレータにつなぐ
 - `VITE_TRAFFIC_METER=1` のときは、通信量の計測(`TrafficMeter`)を有効にする。テストプレイ用のビルドのときだけ、コマンドの前に付けて渡す(例: `VITE_TRAFFIC_METER=1 npm run build`)。`.env.local` には書かない(公開用のビルドに混ざらないようにするため)
 
@@ -112,7 +113,8 @@ domain/
 ├── errors.ts
 ├── config/
 │   ├── types.ts                # GameConfig
-│   └── defaultConfig.ts        # 仮の値の既定(進行の長さ、1人あたりの目標、倍率、人数の上限など)
+│   ├── defaultConfig.ts        # 仮の値の既定(進行の長さ、1人あたりの目標、倍率、人数の上限など)
+│   └── quickConfig.ts          # 短い周期(1周10秒)の設定。エミュレータを使うテストと、手元の動作確認用
 ├── schedule/
 │   ├── types.ts                # RoundClock・JoinVerdict
 │   ├── roundClockAt.ts         # サーバー時刻から、回・段階・開始と終了の時刻を計算する
@@ -191,12 +193,12 @@ infra/
 │   ├── Scheduler.ts           # タイマーのインターフェース(アプリケーション層は setTimeout を直接使わない)
 │   └── StoreError.ts          # ストアの失敗(offline・permissionDenied・notSignedIn)
 ├── firebase/
-│   ├── firebaseApp.ts         # 初期化(環境変数から設定を読む。エミュレータへの接続の切り替え)
-│   ├── auth.ts                # 匿名認証と、IDの保持(保存できないときは、メモリ上に切り替える)
-│   ├── connection.ts          # 接続の状態(オンライン・オフライン)の検知
+│   ├── firebaseApp.ts         # 初期化(接続の設定を受け取る。エミュレータへの接続の切り替え。匿名認証は、保存できなければメモリ上)
 │   ├── serverClock.ts         # .info/serverTimeOffset を使った ServerClock の実装
 │   ├── paths.ts               # データベースのパスを作る関数(配置を、ここ1か所に集める)
-│   ├── FirebaseGameStore.ts   # GameStore の実装(部屋・回・数字・合図・ポイント)
+│   ├── parse.ts               # 読んだ値の検証(他の人が書いた値は信用しない。壊れた値は除くか、既定の値)
+│   ├── errors.ts              # Firebase の例外 → StoreError、拒否されたかの判定
+│   ├── FirebaseGameStore.ts   # GameStore の実装(認証・接続・部屋・回・数字・合図・ポイント)
 │   └── TrafficMeter.ts        # 通信量の計測(テスト用。VITE_TRAFFIC_METER=1 のときだけ有効)
 ├── timer/
 │   ├── SystemScheduler.ts     # 本物のタイマー(setTimeout・setInterval)を使う Scheduler
@@ -418,11 +420,14 @@ tests/rules/
 **構造**:
 ```
 tests/int/
+├── world.ts                      # 端末(別々の FirebaseApp)をつなぐ・片付ける、短い周期のルールの読み込み、待つ補助
 ├── concurrentPress.int.test.ts   # 同時に押しても取りこぼさない
 ├── roomAssignment.int.test.ts    # 25人が同時に入る
 ├── aiHost.int.test.ts            # AI担当の決まり方と引き継ぎ
 └── reconnect.int.test.ts         # 切断と、60秒以内の再接続
 ```
+
+- ルールと設定値は、ルールのテストと同じ短い周期(`tests/support/testCycle.ts`)。ルールは、エミュレータの REST(`PUT /.settings/rules.json`)で読み込ませる
 
 **命名規則**: `[シナリオ].int.test.ts`
 

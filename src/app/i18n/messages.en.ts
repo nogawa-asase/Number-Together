@@ -145,6 +145,7 @@ export const en: Messages = {
   'me.settings': 'Settings',
   'me.reduceMotion': 'Reduce motion',
   'me.reduceMotionNote': 'Calms the bouncing and glowing',
+  'me.notSaved': "This browser can't save your records",
 
   'error.title': 'Something went wrong',
   'error.lead': 'Please reload the page',
