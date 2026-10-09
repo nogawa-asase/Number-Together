@@ -16,6 +16,10 @@ const layerImports = (patterns) => [
   { patterns: [FIREBASE_IMPORTS, ...patterns] },
 ];
 
+// 相対パスで、決めたディレクトリを指す import だけに合わせる正規表現
+// (group の '**/app' は、パッケージ名の 'firebase/app' にも合ってしまうため)
+const relativeTo = (...dirs) => `^(\\.\\./)+(${dirs.join('|')})(/|$)`;
+
 export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
@@ -47,11 +51,11 @@ export default tseslint.config(
     rules: {
       'no-restricted-imports': layerImports([
         {
-          group: ['**/app', '**/app/**', '**/ui', '**/ui/**'],
+          regex: relativeTo('app', 'ui'),
           message: 'ドメイン層から、アプリケーション層・UI層は使えません',
         },
         {
-          group: ['**/infra', '**/infra/**'],
+          regex: relativeTo('infra'),
           message: 'ドメイン層から、インフラ層は使えません',
         },
       ]),
@@ -96,11 +100,11 @@ export default tseslint.config(
     rules: {
       'no-restricted-imports': layerImports([
         {
-          group: ['**/ui', '**/ui/**'],
+          regex: relativeTo('ui'),
           message: 'アプリケーション層から UI層は使えません(GameView を通す)',
         },
         {
-          group: ['**/infra/firebase/**', '**/infra/memory/**'],
+          regex: relativeTo('infra/firebase', 'infra/memory'),
           message:
             'インフラ層の実装ではなく、インターフェース(infra/store)を使ってください',
         },
@@ -113,7 +117,7 @@ export default tseslint.config(
     rules: {
       'no-restricted-imports': layerImports([
         {
-          group: ['**/infra', '**/infra/**'],
+          regex: relativeTo('infra'),
           message: 'UI層から、インフラ層は使えません',
         },
       ]),
@@ -126,7 +130,7 @@ export default tseslint.config(
     rules: {
       'no-restricted-imports': layerImports([
         {
-          group: ['**/app', '**/app/**', '**/ui', '**/ui/**'],
+          regex: relativeTo('app', 'ui'),
           message: 'インフラ層から、アプリケーション層・UI層は使えません',
         },
       ]),
@@ -140,7 +144,7 @@ export default tseslint.config(
         {
           patterns: [
             {
-              group: ['**/app', '**/app/**', '**/ui', '**/ui/**'],
+              regex: relativeTo('app', 'ui'),
               message: 'インフラ層から、アプリケーション層・UI層は使えません',
             },
           ],
@@ -157,7 +161,7 @@ export default tseslint.config(
         {
           patterns: [
             {
-              group: ['**/src', '**/src/**'],
+              regex: relativeTo('src'),
               message: 'スクリプトから src/ は使えません',
             },
           ],
