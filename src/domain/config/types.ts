@@ -20,6 +20,8 @@ export interface GameConfig {
   readonly resultMs: number; // 結果発表の長さ
   readonly joinCutoffMs: number; // 終了の何ミリ秒前から途中参加できないか
   readonly pointsGraceMs: number; // 終了のあと、ポイントを書き込める猶予
+  readonly startCountdownMs: number; // ゲーム開始の何ミリ秒前から「3・2・1」を出すか
+  readonly finalCountdownMs: number; // 終了の何ミリ秒前に「終了10秒前」を出すか
 
   // 目標と範囲
   readonly perPlayerTarget: number; // 1人あたりの目標

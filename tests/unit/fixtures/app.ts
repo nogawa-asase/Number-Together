@@ -2,6 +2,11 @@ import { vi } from 'vitest';
 import { AiHost } from '../../../src/app/AiHost';
 import { PressBatcher } from '../../../src/app/PressBatcher';
 import {
+  RoundController,
+  type RoundEvent,
+  type RoundView,
+} from '../../../src/app/RoundController';
+import {
   SessionController,
   type SessionState,
 } from '../../../src/app/SessionController';
@@ -167,7 +172,17 @@ export function sessionWorld(
     });
     const states: SessionState[] = [];
     session.onState((state) => states.push(state));
-    return { store, session, states };
+    const round = new RoundController(
+      { store, clock: world.clock, scheduler: world.clock, config, onError },
+      session
+    );
+    const views: (RoundView | null)[] = [];
+    const events: RoundEvent[] = [];
+    round.onView((view) => views.push(view));
+    round.onEvent((event) => events.push(event));
+    /** いまの view(部屋にいなければ null) */
+    const view = () => views.at(-1) ?? null;
+    return { store, session, states, round, views, events, view };
   }
 
   /** 登録済みの人の端末(プロフィールを先に保存しておく)。start して、入室まで進める */
@@ -183,5 +198,19 @@ export function sessionWorld(
     return { ...d, uid };
   }
 
-  return { ...world, onError, device, registered };
+  /** 登録済みの人が、RoundController もつないで遊ぶ(start して、入室まで進める) */
+  async function player(name = 'ねこ') {
+    const d = device();
+    const { uid } = await d.store.signIn();
+    await d.store.saveProfile(uid, {
+      name,
+      character: { hair: 'short', shirtColor: 'red', accessory: 'none' },
+    });
+    d.round.start();
+    d.session.start();
+    await settle();
+    return { ...d, uid };
+  }
+
+  return { ...world, onError, device, registered, player };
 }

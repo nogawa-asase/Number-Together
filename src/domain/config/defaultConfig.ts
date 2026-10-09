@@ -14,6 +14,8 @@ export const DEFAULT_CONFIG: GameConfig = {
   resultMs: 30_000,
   joinCutoffMs: 60_000, // 終了の1分前から途中参加できない(PRD「開催の流れ」)
   pointsGraceMs: 3_000, // ポイントの猶予(architecture.md「3秒の猶予」)
+  startCountdownMs: 3_000, // 「3」「2」「1」を1秒ずつ出し、開始の時刻に「スタート!」(画面の見本 04)
+  finalCountdownMs: 10_000, // 終了10秒前の演出(画面の見本 08)
 
   // 目標と範囲(PRD「準備」。仮置き)
   perPlayerTarget: 200,

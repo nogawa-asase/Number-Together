@@ -115,6 +115,8 @@ interface GameConfig {
   resultMs: number;            // 結果発表の長さ。30_000
   joinCutoffMs: number;        // 終了の何ミリ秒前から途中参加できないか。60_000
   pointsGraceMs: number;       // 終了のあと、ポイントを書き込める猶予。3_000(結果発表は、この時間のあとに出す)
+  startCountdownMs: number;    // ゲーム開始の何ミリ秒前から「3・2・1」を出すか。3_000(1秒ずつ。開始の時刻に「スタート!」)
+  finalCountdownMs: number;    // 終了の何ミリ秒前に「終了10秒前」の演出を出すか。10_000
 
   // 目標と範囲
   perPlayerTarget: number;     // 1人あたりの目標。200
@@ -282,16 +284,31 @@ function pulsePowerFor(pressCount: number, config: GameConfig): 0 | 1 | 2 | 3;
 
 ```typescript
 interface RoundView {
-  clock: RoundClock;
+  roomId: number;
+  roundId: string;
+  clock: RoundClock;           // 組み立てた時刻の回の時計(段階は clock.phase)
   number: number;              // サーバーの値 + まだ送っていない自分の分
   players: Player[];           // 入った順
-  playerCount: number;
+  playerCount: number;         // 集合中は displayPlayerCount(人間の数)、それ以外は players の数
   target: number;              // targetFor(playerCount)
   lower: number;
   upper: number;
   inRange: boolean;
   myPoints: number;
   bonusActive: boolean;        // 倍増タイム中か
+  pulses: Record<string, Pulse>; // 小人の跳ね方に使う
+  samples: GraphSample[];      // グラフの標本(pastWindowMs より前は、最後の1つだけ残す)
+  result: ResultView | null;   // 終了の pointsGraceMs 後から
+}
+
+interface ResultView {
+  outcome: Outcome;
+  missBy: number | null;
+  finalNumber: number;
+  target: number;
+  myPoints: number;            // 貯めたポイント(失敗のときも見せる)
+  awarded: number;             // 報酬ポイント
+  ranking: RankingView;
 }
 ```
 
@@ -659,14 +676,32 @@ interface TrafficReport { roundId: string; playerCount: number; inCount: number;
 - 結果が出たら、`judge` と `settle` を計算して、実績を保存し、結果発表の画面を出す
 
 ```typescript
-interface RoundController {
-  start(): Promise<void>;
-  onPress(kind: '+1' | '-1'): void;          // ボタンが押された
-  onPlayerTapped(playerId: string): void;    // 小人がタップされた(実績カード)
-  openMyPage(): void;
-  setLang(lang: Lang): void;
+type RoundEvent =
+  | { kind: 'cue'; cue: 'start' | 'x3' | 'tenSeconds' | 'end' }   // 合図(start は開始の startCountdownMs 前)
+  | { kind: 'summon'; player: Player; targetFrom: number; targetTo: number } // ゲーム中に人間が加わった
+  | { kind: 'fadeIn'; player: Player }                              // AIが加わった
+  | { kind: 'myPress'; press: '+1' | '-1'; gain: number };          // 自分が押した(跳ねる・吹き出し・ポイントを弾ませる)
+
+class RoundController {
+  constructor(
+    deps: { store: GameStore; clock: ServerClock; scheduler: Scheduler; config: GameConfig; onError: (error: unknown) => void },
+    session: { onState(listener: (state: SessionState) => void): () => void; uid(): string | null }
+  );
+  start(): void;
+  stop(): void;
+  press(kind: '+1' | '-1'): void;                                   // ボタンが押された
+  onView(listener: (view: RoundView | null) => void): () => void;   // 部屋にいないときは null。登録したときにも1回
+  onEvent(listener: (event: RoundEvent) => void): () => void;
 }
 ```
+
+- 画面を持たない。UI層は、`RoundView` と `RoundEvent` だけを見て描く。小人のタップ(実績カード)・自分の画面・言語の切り替えは、UI層を作るときに足す
+- `SessionController` の `inRoom` の回が変わったら、前の回(購読・`PressBatcher`・タイマー)を止めて、新しい回を始める
+- 押す操作は、ゲーム中(開始〜終了)で、つながっているときだけ受け付ける
+- 参加者の変化: 最初に届いた一覧は演出なし。そのあと、AIは `fadeIn`、ゲーム中に入った人間は `summon`(加わる前と後の目標)
+- 結果: 終了の `pointsGraceMs` 後に `readPoints` → `judge`・`settle`・`buildRanking`。自分が参加者の一覧にいれば `applyStats`。読み込み・保存の `StoreError` は、`retryMs` ごとに、次の回の始めまでやり直す。保存の失敗は、結果の表示に影響させない
+- 時刻が飛んだとき(`onOffsetChange`)は、合図・結果のタイマーを組み直す。過ぎた合図は出さない。結果の時刻を過ぎていたら、すぐ結果を出す
+- 途中から戻ったとき(新しく回を始めたとき)は、`readPoints` で自分のポイントを読み直す(0に戻さない)
 
 ### UI層(画面の描画)
 

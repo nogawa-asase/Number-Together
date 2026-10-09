@@ -21,6 +21,8 @@ describe('DEFAULT_CONFIG', () => {
       resultMs: 30_000,
       joinCutoffMs: 60_000,
       pointsGraceMs: 3_000,
+      startCountdownMs: 3_000,
+      finalCountdownMs: 10_000,
       perPlayerTarget: 200,
       rangeRatio: 0.1,
       bonusDurationMs: 60_000,
