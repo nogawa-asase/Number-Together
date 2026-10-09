@@ -1,0 +1,319 @@
+/* 02・03 集合中 */
+.lobby {
+  gap: 10px;
+}
+
+.lobby .label {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 800;
+}
+
+.lobby .row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lobby-countdown {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lobby-countdown .count {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.lobby-countdown .unit {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.lobby-countdown .num {
+  font-family: var(--font-display);
+  font-size: 46px;
+  line-height: 1;
+}
+
+.chip-dark {
+  background: var(--ink);
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 2px 12px;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 800;
+  margin-bottom: 6px;
+  white-space: nowrap;
+}
+
+.lobby-bar {
+  height: 16px;
+  box-sizing: border-box;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  background: var(--cream);
+  overflow: hidden;
+}
+
+.lobby-bar > div {
+  height: 100%;
+  background: var(--pink);
+}
+
+.lobby-people {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+
+.lobby-people .row {
+  align-items: baseline;
+}
+
+.lobby-people .label {
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.lobby-people .count {
+  font-family: var(--font-display);
+  font-size: 18px;
+  line-height: 22px;
+}
+
+.lobby-people .count .unit {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.ai-banner {
+  background: var(--ink);
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 800;
+}
+
+.robot-badge {
+  display: block;
+  width: 18px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.cells {
+  display: flex;
+  gap: 8px;
+}
+
+.cells.grid {
+  flex-wrap: wrap;
+}
+
+.cell {
+  box-sizing: border-box;
+  border: 3px solid var(--ink);
+  border-radius: 14px;
+  background: var(--cream);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  padding: 4px 2px;
+}
+
+.cells.few .cell {
+  flex: 1;
+  padding: 6px 2px;
+  gap: 3px;
+}
+
+.cells.grid .cell {
+  width: calc(25% - 6px);
+}
+
+.cell svg {
+  display: block;
+  width: 30px;
+  height: 44px;
+  transform-origin: 50% 100%;
+}
+
+.cells.few .cell svg {
+  width: 32px;
+  height: 46px;
+}
+
+.cell .name {
+  font-size: 12px;
+  line-height: 14px;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.cells.few .cell .name {
+  font-size: 11px;
+}
+
+.cell.me {
+  border-color: var(--red);
+  background: var(--pink-pale);
+}
+
+.cell.ai {
+  border-style: dashed;
+  background: #e8eef2;
+  animation: land 3s ease-out both;
+}
+
+.cell.empty {
+  height: 89px;
+  border: 3px dashed rgba(17, 17, 17, 0.35);
+  background: transparent;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--gray-text);
+}
+
+@keyframes land {
+  0% {
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.title-chip {
+  border-radius: 999px;
+  padding: 0 6px;
+  font-size: 10px;
+  line-height: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+.title-chip.king {
+  background: #ffc400;
+}
+
+.title-chip.regular {
+  background: #d5dce4;
+}
+
+.title-chip.hoarder {
+  background: #ff8fa3;
+}
+
+.title-chip.rookie {
+  background: #ffffff;
+  border: 1.5px dashed var(--ink);
+  padding: 0 5px;
+  line-height: 12px;
+}
+
+.title-chip.ai {
+  background: var(--ink);
+  color: #ffffff;
+}
+
+.seats-open {
+  text-align: center;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 800;
+  color: var(--gray-text);
+}
+
+.lobby-target {
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.lobby-target .value {
+  font-family: var(--font-display);
+  font-size: 32px;
+  line-height: 38px;
+}
+
+.lobby-target .side {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: right;
+}
+
+.lobby-target .formula {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 800;
+}
+
+.lobby-target .range {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 800;
+}
+
+.lobby-target .note {
+  font-size: 11px;
+  line-height: 15px;
+  font-weight: 800;
+  color: var(--gray-text);
+}
+
+.lobby-hint {
+  text-align: center;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 800;
+}
+
+/* 小人がゆっくり上下に揺れる(集合中) */
+.lobby .bob {
+  animation: lobby-bob 1.8s ease-in-out infinite;
+}
+
+.cell:nth-child(2n) .bob {
+  animation-delay: 0.4s;
+}
+
+.cell:nth-child(3n) .bob {
+  animation-delay: 0.9s;
+}
+
+@keyframes lobby-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}

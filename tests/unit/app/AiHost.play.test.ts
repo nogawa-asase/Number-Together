@@ -84,7 +84,7 @@ describe('AiHost: AIの手の送信', () => {
     expect(b.sentAt).toEqual(a.sentAt);
     const c = await playOneRound(8);
     expect(c.sentAt).not.toEqual(a.sentAt);
-  });
+  }, 20_000); // 1回を3つ動かすので、カバレッジを測るときは5秒を超えることがある
 
   it('次の回にも続けて、AIを足して動かす', async () => {
     const { w } = await playOneRound();

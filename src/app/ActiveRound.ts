@@ -10,7 +10,8 @@ import type { RoundClock } from '../domain/schedule/types';
 import { displayPlayerCount } from '../domain/targets/displayPlayerCount';
 import { isWithinRange, rangeFor } from '../domain/targets/rangeFor';
 import { targetFor } from '../domain/targets/targetFor';
-import type { Player, Pulse } from '../domain/types';
+import { titleOf } from '../domain/titles/titleOf';
+import type { Player, Pulse, TitleId } from '../domain/types';
 import type { GameStore, Unsubscribe } from '../infra/store/GameStore';
 import type { Cancel, Scheduler } from '../infra/store/Scheduler';
 import type { ServerClock } from '../infra/store/ServerClock';
@@ -47,6 +48,8 @@ export class ActiveRound {
   private readonly retries: Cancel[] = []; // やり直し
   private readonly batcher: PressBatcher;
   private players: readonly Player[] = [];
+  private titles: Readonly<Record<string, TitleId>> = {};
+  private readonly titleRequested = new Set<string>(); // 実績を読みにいった人
   private playersLoaded = false;
   private serverNumber = 0;
   private samples: GraphSample[] = [];
@@ -130,6 +133,7 @@ export class ActiveRound {
         roundClock.bonusStartsAt <= now && now < roundClock.playEndsAt,
       pulses: this.pulses,
       samples: this.samples,
+      titles: this.titles,
       result: this.result,
     };
   }
@@ -150,7 +154,28 @@ export class ActiveRound {
     }
     this.players = sorted;
     this.playersLoaded = true;
+    this.loadTitles(sorted);
     this.render();
+  }
+
+  /** 新しく来た人間の実績を読んで、称号を決める(1人につき1回。読めなければ出さない) */
+  private loadTitles(players: readonly Player[]): void {
+    for (const player of players) {
+      if (player.kind !== 'human' || this.titleRequested.has(player.id)) {
+        continue;
+      }
+      this.titleRequested.add(player.id);
+      void this.deps.store
+        .loadStats(player.id)
+        .then((stats) => {
+          if (!this.closed) {
+            const title = titleOf(stats, this.deps.config);
+            this.titles = { ...this.titles, [player.id]: title };
+            this.render();
+          }
+        })
+        .catch((error: unknown) => this.report(error));
+    }
   }
 
   /** 新しく加わった人の演出(最初の一覧は、演出なし) */

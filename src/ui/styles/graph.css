@@ -1,0 +1,181 @@
+/* グラフ(見本 05) */
+.graph-row {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+  min-height: 0;
+}
+
+.graph {
+  flex: 1;
+  min-width: 0;
+  border: 3px solid var(--ink);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--cream);
+  position: relative;
+}
+
+.graph svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.graph > div {
+  position: absolute;
+  pointer-events: none;
+}
+
+.bonus-band {
+  top: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(255, 59, 92, 0.3) 0 9px,
+    rgba(255, 59, 92, 0.08) 9px 18px
+  );
+}
+
+.after-end {
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(17, 17, 17, 0.14);
+}
+
+.now-line {
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 3px dashed var(--ink);
+  transform: translateX(-1.5px);
+}
+
+.now-dot {
+  width: 14px;
+  height: 14px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  background: var(--pink);
+  border: 3px solid var(--ink);
+  transform: translate(-50%, -50%);
+}
+
+.remaining {
+  left: 8px;
+  top: 6px;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  background: #ffffff;
+  border: 3px solid var(--ink);
+  border-radius: 10px;
+  padding: 1px 8px;
+  transform-origin: 0% 0%;
+}
+
+.remaining .label {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.remaining .time {
+  font-family: var(--font-display);
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+/* 終了10秒前(見本 08): 赤い背景・白い文字・黒い枠と影で、脈動する */
+.remaining.urgent {
+  gap: 5px;
+  background: var(--red);
+  box-shadow: 3px 3px 0 var(--ink);
+  padding: 1px 9px 2px 8px;
+  color: #ffffff;
+  animation: urgent 0.8s ease-in-out infinite;
+}
+
+.remaining.urgent .label {
+  font-size: 14px;
+}
+
+.remaining.urgent .time {
+  font-size: 29px;
+}
+
+@keyframes urgent {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.end-label {
+  top: 6px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  background: var(--ink);
+  color: #ffffff;
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  padding: 1px 7px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.end-line {
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 4px solid var(--ink);
+  transform: translateX(-2px);
+}
+
+.bonus-tag-wrap {
+  bottom: 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.bonus-tag {
+  background: var(--red);
+  border: 3px solid var(--ink);
+  border-radius: 8px;
+  padding: 2px 3px 3px 3px;
+  text-align: center;
+}
+
+.bonus-tag .x3 {
+  color: #ffffff;
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 22px;
+}
+
+.bonus-tag .word {
+  white-space: nowrap;
+  color: var(--ink);
+  font-size: 10px;
+  line-height: 13px;
+  font-weight: 800;
+}
+
+.axis {
+  width: 34px;
+  position: relative;
+}
+
+.axis > div {
+  position: absolute;
+  right: -6px;
+  transform: translateY(-50%);
+  font-family: var(--font-display);
+  font-size: 11px;
+}

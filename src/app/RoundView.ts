@@ -2,7 +2,7 @@ import type { GraphSample } from '../domain/layout/graphGeometry';
 import type { PressKind } from '../domain/points/types';
 import type { RankingView } from '../domain/ranking/types';
 import type { RoundClock } from '../domain/schedule/types';
-import type { Outcome, Player, Pulse } from '../domain/types';
+import type { Outcome, Player, Pulse, TitleId } from '../domain/types';
 
 /** 結果発表に出すもの */
 export interface ResultView {
@@ -31,6 +31,7 @@ export interface RoundView {
   readonly bonusActive: boolean;
   readonly pulses: Readonly<Record<string, Pulse>>;
   readonly samples: readonly GraphSample[]; // グラフの標本(時刻の順)
+  readonly titles: Readonly<Record<string, TitleId>>; // 人間の参加者の称号(実績を読めた人だけ)
   readonly result: ResultView | null; // 終了の pointsGraceMs 後から
 }
 

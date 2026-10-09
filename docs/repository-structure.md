@@ -279,15 +279,17 @@ ui/
 │   ├── robotSvg.ts             # AIのロボット(胸のランプの色で性格が分かる)のSVGを作る
 │   └── nameBubble.ts           # 名前の吹き出し(タップしたとき・少人数のとき)
 ├── graph/
-│   └── GraphView.ts            # 線・範囲の帯・目標の点線・「いま」・未来の斜線・終了の線・残り時間
+│   └── GraphView.ts            # 線・範囲の帯・目標の点線・「いま」・未来の斜線・終了の線・残り時間・縦軸の数字
 ├── overlays/
-│   ├── cues.ts                 # 合図(3・2・1・スタート、×3タイム、終了10秒前、終了)
+│   ├── cues.ts                 # 合図(3・2・1・スタート、×3タイム、終了10秒前、終了)。CueLayer
 │   ├── summon.ts               # 途中参加の召喚(光の柱、降りてくる小人、「目標UP!」の吹き出し、称号の帯)
 │   └── fadeIn.ts               # 集合中に入る人・AIの、フェードイン
 ├── screens/
 │   ├── SetupScreen.ts          # 名前とキャラクター選び
+│   ├── RoomScreen.ts           # 部屋の中: 段階で集合中・プレイ中・結果発表を出し分け、合図を重ねる
+│   ├── RoomPart.ts             # 部屋の中の画面のインターフェース(update(view, now))
 │   ├── LobbyScreen.ts          # 集合中(AIが加わる場面を含む)
-│   ├── PlayScreen.ts           # プレイ中
+│   ├── PlayScreen.ts           # プレイ中(舞台・いまの数字・グラフ・あなたのポイント・ボタン・「いま押すと ×3!!」)
 │   ├── ResultScreen.ts         # 結果発表(ぴったり・成功・失敗)
 │   ├── AchievementCard.ts      # 実績カード
 │   ├── WaitScreen.ts           # 待機(満員・終了間際・結果発表中・通信が戻ったあと)
@@ -301,7 +303,9 @@ ui/
     ├── stage.css               # 小人の舞台と、跳ねる・弾むなどの動き
     ├── graph.css
     ├── overlays.css            # 合図・召喚・吹き出しの動き
-    ├── screens.css             # 各画面
+    ├── screens.css             # 各画面の共通部品と、簡単な画面
+    ├── lobby.css               # 集合中
+    ├── play.css                # プレイ中
     └── motion.css              # 「動きを減らす」設定(prefers-reduced-motion)のときの上書き
 ```
 

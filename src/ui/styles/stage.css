@@ -1,0 +1,157 @@
+/* 小人の舞台(見本 05) */
+.stage {
+  position: relative;
+  height: 88px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  border: 3px solid var(--ink);
+  border-radius: 12px;
+  background: var(--cream);
+}
+
+.stage .ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 12px;
+  height: 14px;
+  box-sizing: border-box;
+  background: var(--sand);
+  border-top: 3px solid var(--ink);
+}
+
+.stage-people {
+  position: absolute;
+  inset: 0;
+}
+
+.stage-count {
+  position: absolute;
+  right: 8px;
+  bottom: 0;
+  font-size: 11px;
+  line-height: 13px;
+  font-weight: 800;
+  z-index: 4;
+}
+
+.avatar {
+  position: absolute;
+  width: 22px;
+  height: 32px;
+  transform-origin: 50% 100%;
+}
+
+.avatar svg {
+  display: block;
+  width: 22px;
+  height: 32px;
+}
+
+/* 合図で跳ねる(高さ --h、速さは animation-duration) */
+.avatar.act {
+  animation-name: hop;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+}
+
+/* 自分が押したときは、1回だけ跳ねる */
+.avatar.hop-once {
+  animation-name: hop;
+  animation-iteration-count: 1;
+  animation-timing-function: ease-in-out;
+}
+
+@keyframes hop {
+  0%,
+  100% {
+    transform: translateY(0) scale(1.1, 0.88);
+  }
+  20% {
+    transform: translateY(0) scale(0.94, 1.08);
+  }
+  50% {
+    transform: translateY(calc(var(--h) * -1)) scale(1, 1);
+  }
+  80% {
+    transform: translateY(0) scale(0.94, 1.08);
+  }
+}
+
+/* ゲーム開始のときに加わったAI */
+.avatar.fade-in {
+  animation: avatar-fade 0.8s ease-out both;
+}
+
+@keyframes avatar-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 自分の頭の上の「あなた」(舞台の上にはみ出して出す) */
+.you-label {
+  position: absolute;
+  top: -12px;
+  transform: translateX(-50%);
+  z-index: 6;
+  pointer-events: none;
+}
+
+.you-label span {
+  display: block;
+  background: var(--red);
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  padding: 0 7px;
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.you-label::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  margin-left: -5px;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid var(--ink);
+}
+
+/* 自分が押したときの「+1」(ふわっと浮かんで消える) */
+.press-floater {
+  position: absolute;
+  top: 22px;
+  background: #ffffff;
+  color: var(--ink);
+  border: 2px solid var(--ink);
+  border-radius: 999px;
+  padding: 0 6px;
+  font-family: var(--font-display);
+  font-size: 13px;
+  line-height: 16px;
+  z-index: 6;
+  pointer-events: none;
+  animation: floater 0.6s ease-out both;
+}
+
+@keyframes floater {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-16px);
+    opacity: 0;
+  }
+}

@@ -14,6 +14,11 @@ import { DomGameView } from './ui/DomGameView';
 import './ui/styles/theme.css';
 import './ui/styles/layout.css';
 import './ui/styles/screens.css';
+import './ui/styles/lobby.css';
+import './ui/styles/stage.css';
+import './ui/styles/graph.css';
+import './ui/styles/play.css';
+import './ui/styles/overlays.css';
 import './ui/styles/motion.css';
 
 /**

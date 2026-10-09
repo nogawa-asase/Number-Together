@@ -47,3 +47,21 @@ export interface Screen {
   readonly element: HTMLElement;
   dispose(): void;
 }
+
+/** 数字を「2,400」の形にする(言語によらず、桁区切りはカンマ) */
+export function formatNumber(value: number): string {
+  return value.toLocaleString('en-US');
+}
+
+/**
+ * 引数の位置で、文言を3つに分ける(引数の部分だけ、別の大きさで出すため)。
+ * 例: 'あと{s}秒' → ['あと', '22', '秒']
+ */
+export function splitAround(
+  message: (marker: string) => string,
+  value: string
+): [string, string, string] {
+  const marker = '\u0000';
+  const [before = '', after = ''] = message(marker).split(marker);
+  return [before, value, after];
+}

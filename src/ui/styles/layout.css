@@ -1,4 +1,9 @@
 /* 幅390pxの縦画面。PCでは中央に、同じ幅で出す */
+/* hidden 属性は、要素の display の指定より優先する */
+[hidden] {
+  display: none !important;
+}
+
 html,
 body {
   margin: 0;

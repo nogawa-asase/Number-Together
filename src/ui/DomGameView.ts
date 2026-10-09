@@ -8,8 +8,8 @@ import { createLanguageSwitch } from './LanguageSwitch';
 import { BusyScreen } from './screens/BusyScreen';
 import { MessageScreen } from './screens/MessageScreen';
 import { OfflineScreen } from './screens/OfflineScreen';
+import { RoomScreen } from './screens/RoomScreen';
 import { SetupScreen } from './screens/SetupScreen';
-import { TempRoomScreen } from './screens/TempRoomScreen';
 import { WaitScreen } from './screens/WaitScreen';
 
 /** DomGameView が使うもの */
@@ -96,7 +96,7 @@ export class DomGameView {
       case 'waiting':
         return new WaitScreen(state.reason, state.until, now);
       case 'inRoom':
-        return new TempRoomScreen(round);
+        return new RoomScreen(round, session.uid()!, config, now);
     }
   }
 }

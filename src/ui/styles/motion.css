@@ -3,7 +3,47 @@
   .bob,
   .dot,
   .jig,
-  .offline-icon {
+  .offline-icon,
+  .lobby .bob,
+  .cell.ai,
+  .avatar.fade-in,
+  .bump.bumping,
+  .remaining.urgent,
+  .cue .tw,
+  .cue.warn,
+  .slam {
     animation: none;
+  }
+
+  /* 跳ねる代わりに、光らせる(見本 05) */
+  .avatar.act,
+  .avatar.hop-once {
+    animation: none;
+    filter: drop-shadow(0 0 3px #ff3b5c);
+  }
+
+  .press-floater {
+    animation: none;
+    opacity: 0;
+  }
+
+  .beat {
+    animation: none;
+    transform: rotate(-3deg);
+  }
+
+  .slam {
+    transform: rotate(-6deg);
+  }
+
+  /* 3・2・1 は出さず、「スタート!」だけを静止して出す */
+  .cd {
+    animation: none;
+    opacity: 0;
+    transform: none;
+  }
+
+  .cd.go {
+    opacity: 1;
   }
 }

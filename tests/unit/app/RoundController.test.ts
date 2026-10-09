@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { RoundEvent } from '../../../src/app/RoundController';
+import { StoreError } from '../../../src/infra/store/StoreError';
 import { sessionWorld, settle } from '../fixtures/app';
 import {
   NEXT_START,
@@ -196,5 +197,90 @@ describe('RoundController: 回の切り替え', () => {
     const count = me.events.length;
     w.clock.advance(PLAY_END - START);
     expect(me.events).toHaveLength(count);
+  });
+});
+
+describe('RoundController: 称号', () => {
+  it('人間の参加者の実績を読んで、称号を出す。AIには出さない', async () => {
+    // Given: ぴったり成功を5回した人と、初めての人
+    const w = sessionWorld();
+    const veteran = await w.player('a');
+    for (let i = 0; i < 5; i++) {
+      w.server.applyStats(veteran.uid, veteran.uid, `old-${i}`, {
+        plays: 1,
+        successes: 1,
+        perfects: 1,
+        totalPoints: 10,
+      });
+    }
+    const rookie = await w.player('b');
+
+    // When: ゲームが始まり、AIも加わる
+    w.clock.advance(PLAY_START - START);
+    await settle();
+
+    // Then
+    const view = rookie.view()!;
+    expect(view.titles).toEqual({
+      [veteran.uid]: 'perfectKing',
+      [rookie.uid]: 'rookie',
+    });
+  });
+
+  it('実績を読めなければ(StoreError)、その人の称号は出さない。想定外の例外は onError', async () => {
+    const w = sessionWorld();
+    const d = w.device();
+    const { uid } = await d.store.signIn();
+    await d.store.saveProfile(uid, {
+      name: 'a',
+      character: { hair: 'short', shirtColor: 'red', accessory: 'none' },
+    });
+    vi.spyOn(d.store, 'loadStats')
+      .mockResolvedValueOnce({
+        plays: 0,
+        successes: 0,
+        perfects: 0,
+        totalPoints: 0,
+        lastCountedRound: null,
+      }) // セッションの起動
+      .mockRejectedValueOnce(new StoreError('offline', '切れた')) // 1回目の回
+      .mockRejectedValueOnce(new Error('想定外')); // 次の回
+    d.round.start();
+    d.session.start();
+    await settle();
+    expect(d.view()!.titles).toEqual({});
+    expect(w.onError).not.toHaveBeenCalled();
+
+    w.clock.advance(NEXT_START - START);
+    await settle();
+    expect(w.onError).toHaveBeenCalledTimes(1);
+  });
+
+  it('実績を読んでいる途中で止めたら、知らせない', async () => {
+    const w = sessionWorld();
+    const d = w.device();
+    const { uid } = await d.store.signIn();
+    await d.store.saveProfile(uid, {
+      name: 'a',
+      character: { hair: 'short', shirtColor: 'red', accessory: 'none' },
+    });
+    let release: () => void = () => {};
+    const original = d.store.loadStats.bind(d.store);
+    vi.spyOn(d.store, 'loadStats')
+      .mockImplementationOnce(original) // セッションの起動
+      .mockImplementationOnce(
+        (id) =>
+          new Promise((resolve) => {
+            release = () => void original(id).then(resolve);
+          })
+      );
+    d.round.start();
+    d.session.start();
+    await settle();
+    d.round.stop();
+    const count = d.views.length;
+    release();
+    await settle();
+    expect(d.views).toHaveLength(count);
   });
 });
