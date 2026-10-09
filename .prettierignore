@@ -14,6 +14,7 @@ package-lock.json
 
 # ビルド成果物・出力
 dist/
+dist-e2e/
 release/
 coverage/
 emulator-data/
