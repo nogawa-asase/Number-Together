@@ -79,7 +79,10 @@ export class RoundController {
     }
   }
 
-  /** view が変わったら知らせる。部屋にいないときは null。登録したときにも1回知らせる */
+  /**
+   * view が変わったら知らせる。部屋にいないとき・回の参加者の一覧がまだ届いていないときは null。
+   * 登録したときにも1回知らせる
+   */
   onView(listener: (view: RoundView | null) => void): Unsubscribe {
     this.viewListeners.add(listener);
     listener(this.active?.view() ?? null);

@@ -1,5 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { RoundEvent } from '../../../src/app/RoundController';
+import {
+  RoundController,
+  type RoundEvent,
+  type RoundView,
+} from '../../../src/app/RoundController';
+import type { SessionState } from '../../../src/app/SessionController';
+import { DEFAULT_CONFIG } from '../../../src/domain/config/defaultConfig';
+import type { Player } from '../../../src/domain/types';
 import { StoreError } from '../../../src/infra/store/StoreError';
 import { sessionWorld, settle } from '../fixtures/app';
 import {
@@ -8,7 +15,9 @@ import {
   PLAY_START,
   ROUND,
   START,
+  memoryWorld,
 } from '../fixtures/memoryStore';
+import { humanOf } from '../fixtures/players';
 
 describe('RoundController: view', () => {
   it('集合中は、人間が足りなくても、AIが加わる前提の人数(5人)で目標を出す', async () => {
@@ -61,6 +70,63 @@ describe('RoundController: view', () => {
     const me = await w.player();
     expect(me.session.state().kind).toBe('waiting');
     expect(me.view()).toBeNull();
+  });
+
+  it('参加者の一覧が届くまでは、view が null(ゲーム中に入ると、目標が0になってしまうため)', async () => {
+    // Given: ゲーム中に、自分を参加者に足した。参加者の一覧は、まだ届かない
+    const world = memoryWorld(PLAY_START + 1_000);
+    const { store, uid } = await world.connect();
+    const roomId = await store.createRoom(uid);
+    await store.addPlayer(roomId, ROUND, humanOf(uid));
+    let deliver = () => {};
+    const slowStore = Object.assign(Object.create(store) as typeof store, {
+      onPlayers: (
+        room: number,
+        round: string,
+        listener: (players: Player[]) => void
+      ) => {
+        deliver = () => {
+          store.onPlayers(room, round, listener);
+        };
+        return () => {};
+      },
+    });
+    let emitState = (_state: SessionState) => {};
+    const controller = new RoundController(
+      {
+        store: slowStore,
+        clock: world.clock,
+        scheduler: world.clock,
+        config: DEFAULT_CONFIG,
+        onError: vi.fn(),
+      },
+      {
+        onState: (listener) => {
+          emitState = listener;
+          return () => {};
+        },
+        uid: () => uid,
+      }
+    );
+    const views: (RoundView | null)[] = [];
+    controller.onView((view) => views.push(view));
+    controller.start();
+
+    // When: 部屋に入った
+    emitState({
+      kind: 'inRoom',
+      roomId,
+      roundId: ROUND,
+      joinedDuring: 'playing',
+    });
+    world.clock.advance(1_000); // 時間で描き直しても
+    await settle();
+
+    // Then: 一覧が届くまでは null。届いたら、参加者の数で目標を出す
+    expect(views.every((view) => view === null)).toBe(true);
+    deliver();
+    expect(views.at(-1)).toMatchObject({ playerCount: 1, target: 200 });
+    controller.stop();
   });
 
   it('onView は、登録したときにも、いまの view を1回知らせる。解除のあとは知らせない', async () => {

@@ -703,7 +703,7 @@ class RoundController {
   stop(): void;
   press(kind: '+1' | '-1'): void;                                   // ボタンが押された
   statsOf(playerId: string): Promise<Stats | null>;                 // 実績カード。読めなければ null
-  onView(listener: (view: RoundView | null) => void): () => void;   // 部屋にいないときは null。登録したときにも1回
+  onView(listener: (view: RoundView | null) => void): () => void;   // 部屋にいないとき・回の参加者の一覧が届く前は null。登録したときにも1回
   onEvent(listener: (event: RoundEvent) => void): () => void;
 }
 ```

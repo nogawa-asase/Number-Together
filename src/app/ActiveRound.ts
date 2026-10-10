@@ -103,7 +103,14 @@ export class ActiveRound {
 
   // ---- view ----
 
-  view(): RoundView {
+  /**
+   * いまの view。参加者の一覧が届くまでは null(プレイ中の目標は、参加者の数で決まるため。
+   * 届く前に描くと、目標が0になる)
+   */
+  view(): RoundView | null {
+    if (!this.playersLoaded) {
+      return null;
+    }
     const { config, clock } = this.deps;
     const now = clock.now();
     const roundClock = roundClockAt(now, config);
@@ -139,7 +146,10 @@ export class ActiveRound {
   }
 
   private render(): void {
-    this.out.view(this.view());
+    const view = this.view();
+    if (view !== null) {
+      this.out.view(view);
+    }
   }
 
   // ---- 購読した値 ----
