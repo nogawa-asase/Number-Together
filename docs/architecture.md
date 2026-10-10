@@ -139,6 +139,7 @@ UI / アプリケーション → firebase の import    (NG。Firebaseは、イ
 | `VITE_FIREBASE_DATABASE_URL` などがない、または `VITE_STORE=memory` | ローカルモード(メモリ上のサーバー。Firebase なしで、1人でAIと遊べる) |
 | `VITE_USE_EMULATOR=true` | 認証とデータベースのエミュレータにつなぐ |
 | `VITE_QUICK_CYCLE=1` | 短い周期(1周10秒)。エミュレータのルールも、同じ値に置き換えて読み込ませる(テストの補助 `scaledRules`) |
+| `VITE_EMULATOR_HOST=page` | エミュレータのつなぎ先を、開いたページのホストにする(同じ Wi-Fi の実機で試すとき。`.env.lan`。既定は 127.0.0.1) |
 | `VITE_TRAFFIC_METER=1` | 通信量の計測(テストプレイ用) |
 
 - 結合テスト(`npm run test:int`)は、Node.js で、1人ごとに別の FirebaseApp を作ってエミュレータにつなぎ、`SessionController`(と `AiHost`)を本物の時計とタイマーで動かす。周期とルールは、短い周期にする
@@ -551,6 +552,7 @@ PRDの機能9。数える仕組みは、機能設計書の `TrafficMeter`。こ�
 | `test:sim` | `vitest run --config vitest.sim.config.ts` |
 | `test:rules` | `firebase emulators:exec --only database "vitest run --config vitest.rules.config.ts"` |
 | `test:int` | `firebase emulators:exec --only auth,database "vitest run --config vitest.int.config.ts"` |
-| `test:e2e` | `npm run build && firebase emulators:exec --only auth,database "playwright test"` |
+| `test:e2e` | `npm run build:e2e && firebase emulators:exec --only auth,database "playwright test"` |
+| `dev:lan` / `dev:lan:quick` | 同じ Wi-Fi の実機で試す(`firebase.lan.json` のエミュレータと、`vite --mode lan --host 0.0.0.0`。docs/development-guidelines.md「同じ Wi-Fi の実機で試す」) |
 
 開発中は、1つ目の端末で `npm run emulators`、2つ目の端末で、`VITE_USE_EMULATOR=true npm run dev` を動かす。

@@ -9,6 +9,8 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "emulators": "firebase emulators:start --only auth,database",
+    "dev:lan": "firebase --config firebase.lan.json emulators:exec --only auth,database --ui \"vite --mode lan --host 0.0.0.0\"",
+    "dev:lan:quick": "firebase --config firebase.lan.json emulators:exec --only auth,database --ui \"tsx tests/support/loadQuickRules.ts && VITE_QUICK_CYCLE=1 vite --mode lan --host 0.0.0.0\"",
     "check:size": "tsx scripts/check-dist-size.ts",
     "package:itch": "tsx scripts/package-itch.ts",
     "lint": "eslint .",

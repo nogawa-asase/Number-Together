@@ -64,6 +64,9 @@ function createBackend(config: GameConfig): Backend {
     projectId: env.VITE_FIREBASE_PROJECT_ID ?? '',
     appId: env.VITE_FIREBASE_APP_ID ?? '',
     useEmulator: env.VITE_USE_EMULATOR === 'true',
+    // VITE_EMULATOR_HOST=page: 同じ Wi-Fi の実機で試すとき(npm run dev:lan)。開いたページの PC につなぐ
+    emulatorHost:
+      env.VITE_EMULATOR_HOST === 'page' ? location.hostname : undefined,
   });
   return {
     store: new FirebaseGameStore(fb, config, meter),

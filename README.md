@@ -23,16 +23,17 @@ VITE_USE_EMULATOR=true npm run dev   # 2つ目の端末: 開発サーバー
 
 ## コマンド
 
-| コマンド | 内容 |
-|----------|------|
-| `npm run dev` | 開発サーバー |
-| `npm run build` | 型チェックと、`dist/` へのビルド |
-| `npm run check:size` | 配信サイズの確認 |
-| `npm run package:itch` | itch.io 用の zip(`release/`)を作る |
-| `npm run lint` / `npm run typecheck` | 静的解析 / 型チェック |
-| `npm test` | ユニットテスト |
-| `npm run test:coverage` | カバレッジ付きのユニットテスト(ドメイン層80%以上) |
-| `npm run test:rules` | セキュリティルールのテスト(Java が必要) |
-| `npm run test:int` | Emulator Suite を使った結合テスト(Java が必要) |
-| `npm run test:sim` | AIだけの回のシミュレーション |
-| `npm run test:e2e` | E2Eテスト(Playwright。Java が必要) |
+| コマンド                             | 内容                                                                                         |
+| ------------------------------------ | -------------------------------------------------------------------------------------------- |
+| `npm run dev`                        | 開発サーバー                                                                                 |
+| `npm run dev:lan` / `dev:lan:quick`  | 同じ Wi-Fi の実機で試す(エミュレータと開発サーバー。手順は `docs/development-guidelines.md`) |
+| `npm run build`                      | 型チェックと、`dist/` へのビルド                                                             |
+| `npm run check:size`                 | 配信サイズの確認                                                                             |
+| `npm run package:itch`               | itch.io 用の zip(`release/`)を作る                                                           |
+| `npm run lint` / `npm run typecheck` | 静的解析 / 型チェック                                                                        |
+| `npm test`                           | ユニットテスト                                                                               |
+| `npm run test:coverage`              | カバレッジ付きのユニットテスト(ドメイン層80%以上)                                            |
+| `npm run test:rules`                 | セキュリティルールのテスト(Java が必要)                                                      |
+| `npm run test:int`                   | Emulator Suite を使った結合テスト(Java が必要)                                               |
+| `npm run test:sim`                   | AIだけの回のシミュレーション                                                                 |
+| `npm run test:e2e`                   | E2Eテスト(Playwright。Java が必要)                                                           |

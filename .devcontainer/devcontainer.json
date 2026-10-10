@@ -13,5 +13,14 @@
     },
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
+  // 同じ Wi-Fi の実機で試すとき(npm run dev:lan)に、ほかの端末から届くようにするポート。
+  // VS Code の設定 remote.localPortHost を allInterfaces にすると、PC の LAN 側でも開く
+  "forwardPorts": [5173, 9000, 9099, 4000],
+  "portsAttributes": {
+    "5173": { "label": "開発サーバー" },
+    "9000": { "label": "データベースのエミュレータ" },
+    "9099": { "label": "認証のエミュレータ" },
+    "4000": { "label": "Emulator Suite の画面" }
+  },
   "postCreateCommand": "npm install && npx playwright install --with-deps chromium firefox webkit"
 }

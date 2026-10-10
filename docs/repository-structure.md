@@ -55,9 +55,11 @@ number-together/
 ├── .husky/                    # コミット前チェック
 ├── .github/                   # GitHub Actions(CI)
 ├── firebase.json              # Firebase の設定(エミュレータのポートなど)
+├── firebase.lan.json          # 同じ Wi-Fi の実機で試すときのエミュレータの設定(npm run dev:lan)
 ├── .firebaserc                # Firebase のプロジェクトの指定
 ├── database.rules.json        # Realtime Database のセキュリティルール
 ├── .env.example               # 環境変数のひな形(本物の .env.local は Git 管理外)
+├── .env.e2e / .env.lan        # E2E・同じ Wi-Fi の実機で試すときの設定(エミュレータだけ。秘密の値なし)
 ├── vite.config.ts             # Vite の設定
 ├── vitest.config.ts           # Vitest の設定(ユニットテスト)
 ├── vitest.sim.config.ts       # Vitest の設定(シミュレーション)
@@ -409,10 +411,11 @@ tests/rules/
 
 #### support/
 
-**役割**: エミュレータを使うテスト(ルール・結合・E2E)で共有する補助。
+**役割**: エミュレータを使うテスト(ルール・結合・E2E)と、実機での試験(`npm run dev:lan:quick`)で共有する補助。
 
 - `testCycle.ts`: 短い周期の設定値(`TEST_CONFIG` = `QUICK_CONFIG`)、ルールの時刻の数値の置き換え(`scaledRules`)、段階を待つ(`waitFor`)、いまの回の id(`currentRoundId`)
 - `emulator.ts`: エミュレータを空にして短い周期のルールを読み込ませる(`resetEmulator`)、ルールを通さずに読み書きする(`readAsOwner`・`writeAsOwner`)
+- `loadQuickRules.ts`: `resetEmulator` を1回動かす。同じ Wi-Fi の実機を短い周期で試すとき(`npm run dev:lan:quick`)に、起動したエミュレータに読み込ませる
 
 #### int/
 
@@ -520,8 +523,8 @@ tests/e2e/
 |------------|--------|---------|
 | ツールの設定 | プロジェクトルート | `[ツール名].config.ts`(既存の `eslint.config.js` と `.prettierrc` はそのままの名前で使う) |
 | TypeScript の設定 | プロジェクトルート | `tsconfig.json` |
-| Firebase の設定 | プロジェクトルート | `firebase.json`・`.firebaserc`・`database.rules.json` |
-| 環境変数 | プロジェクトルート | `.env.example`(ひな形。Git 管理)・`.env.local`(本物。Git 管理外) |
+| Firebase の設定 | プロジェクトルート | `firebase.json`・`firebase.lan.json`(同じ Wi-Fi の実機で試すとき)・`.firebaserc`・`database.rules.json` |
+| 環境変数 | プロジェクトルート | `.env.example`(ひな形。Git 管理)・`.env.local`(本物。Git 管理外)・`.env.e2e`・`.env.lan`(エミュレータだけの設定。Git 管理) |
 | 仮の値(目標・倍率・時間・人数など) | `src/domain/config/defaultConfig.ts` | 1か所にまとめる(コードに直接書かない) |
 
 - データベースのルールの中の数値(1周の長さ、ゲームの開始と終了、ポイントの猶予、20人、±50など)は、設定ファイルと同じ値にそろえる(ルールのファイルは、設定ファイルを読めないため)。値の対応は、`architecture.md` の「データベースの配置とセキュリティルール」にある
