@@ -4,7 +4,11 @@ import type { RoundEvent, RoundView } from '../../app/RoundView';
 import type { GameConfig } from '../../domain/config/types';
 import type { Profile } from '../../domain/types';
 import { html, type Screen } from '../dom';
-import { AchievementCard, TITLE_CLASS } from '../overlays/AchievementCard';
+import {
+  AchievementCard,
+  SHOW_TITLES,
+  TITLE_CLASS,
+} from '../overlays/AchievementCard';
 import { CueLayer } from '../overlays/cues';
 import { LobbyScreen } from './LobbyScreen';
 import { PlayScreen } from './PlayScreen';
@@ -152,7 +156,11 @@ export class RoomScreen implements Screen {
         this.awaitingBanner.delete(id);
       } else if (title !== undefined && player !== undefined) {
         this.awaitingBanner.delete(id);
-        if (title !== 'rookie' && this.part instanceof PlayScreen) {
+        if (
+          SHOW_TITLES &&
+          title !== 'rookie' &&
+          this.part instanceof PlayScreen
+        ) {
           this.part.banner(
             `title.${title}` as MessageKey,
             TITLE_CLASS[title],

@@ -3,7 +3,11 @@ import type { GameConfig } from '../../domain/config/types';
 import { titleOf } from '../../domain/titles/titleOf';
 import type { Profile, Stats } from '../../domain/types';
 import { html, ref, type Screen, text, translate } from '../dom';
-import { statTiles, TITLE_CLASS } from '../overlays/AchievementCard';
+import {
+  SHOW_TITLES,
+  statTiles,
+  TITLE_CLASS,
+} from '../overlays/AchievementCard';
 import { playerSvg } from '../stage/characterSvg';
 
 const CLOSE_ICON =
@@ -87,8 +91,8 @@ export class MyPageScreen implements Screen {
   setStats(stats: Stats | null): void {
     ref(this.element, 'stats').replaceChildren(...statTiles(stats));
     const chip = ref(this.element, 'title');
-    chip.hidden = stats === null;
-    if (stats !== null) {
+    chip.hidden = !SHOW_TITLES || stats === null;
+    if (SHOW_TITLES && stats !== null) {
       const title = titleOf(stats, this.config);
       chip.className = `title-chip big ${TITLE_CLASS[title]}`;
       text(chip, t(`title.${title}` as MessageKey));

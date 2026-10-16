@@ -143,8 +143,12 @@
   gap: 3px;
 }
 
-.cells.grid .cell {
+/* 複数の段に並べるときは、人・AI・空きの席を、同じ大きさにそろえる */
+.cells.grid .cell,
+.cells.grid .cell.empty {
   width: calc(25% - 6px);
+  height: 76px;
+  justify-content: center;
 }
 
 .cell svg {

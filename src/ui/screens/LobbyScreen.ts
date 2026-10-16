@@ -5,7 +5,7 @@ import type { GameConfig } from '../../domain/config/types';
 import type { AiPersonality, Player } from '../../domain/types';
 import { formatNumber, html, ref, splitAround, text, translate } from '../dom';
 import { playerSvg } from '../stage/characterSvg';
-import { TITLE_CLASS } from '../overlays/AchievementCard';
+import { SHOW_TITLES, TITLE_CLASS } from '../overlays/AchievementCard';
 import { robotBadgeSvg, robotSvg } from '../stage/robotSvg';
 import type { RoomPart } from './RoomPart';
 
@@ -154,7 +154,7 @@ export class LobbyScreen implements RoomPart {
     cell.classList.add('tappable');
     cell.addEventListener('click', () => this.onTap(player.id));
     const title = view.titles[player.id];
-    if (title !== undefined) {
+    if (SHOW_TITLES && title !== undefined) {
       const chip = cell.querySelector<HTMLElement>('.title-chip')!;
       chip.hidden = false;
       chip.classList.add(TITLE_CLASS[title]);

@@ -3,6 +3,12 @@ import type { Player, Stats, TitleId } from '../../domain/types';
 import { formatNumber, html, ref, text } from '../dom';
 import { playerSvg } from '../stage/characterSvg';
 
+/**
+ * 称号を画面に出すか。いまは出さない(集合中の席・自分の画面・実績カード・途中参加の帯)。
+ * 称号の計算と記録は残すので、true に戻せば、また出る
+ */
+export const SHOW_TITLES: boolean = false;
+
 /** 称号の札の色のクラス */
 export const TITLE_CLASS: Readonly<Record<TitleId, string>> = {
   rookie: 'rookie',
@@ -41,7 +47,7 @@ export class AchievementCard {
       );
     }
     text(ref(this.element, 'name'), player.name);
-    if (title !== null) {
+    if (SHOW_TITLES && title !== null) {
       const chip = ref(this.element, 'title');
       chip.hidden = false;
       chip.classList.add(TITLE_CLASS[title]);
