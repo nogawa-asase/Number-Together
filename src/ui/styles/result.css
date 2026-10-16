@@ -194,8 +194,26 @@
   gap: 8px;
 }
 
+/* ぴったりのときは2行(ResultScreen が perfect を付ける) */
+.result-points .line.perfect {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+
+.result-points .line .sub {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.result-points .line .sub.sum {
+  justify-content: flex-end;
+}
+
 .result-points .pts {
   font-family: var(--font-display);
+  white-space: nowrap;
 }
 
 .result-points .pts.small {

@@ -100,8 +100,9 @@
 
 .me-profile .edit {
   align-self: flex-start;
-  height: 36px;
-  padding: 0 14px;
+  min-height: 36px; /* 1行に収まらない端末では、2行にして縦に伸びる */
+  padding: 4px 14px;
+  line-height: 16px;
   border: 3px solid var(--ink);
   background: #ffffff;
   color: var(--ink);

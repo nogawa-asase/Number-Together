@@ -200,11 +200,12 @@ export class ResultScreen implements RoomPart {
     }
     const unit = t('play.pointUnit');
     const line = ref(el, 'pointsLine');
+    line.classList.toggle('perfect', result.outcome === 'perfect');
     const points = (value: number, className: string) => {
       const span = html(
         `<div class="pts ${className}"><span></span><span class="unit"></span></div>`
       );
-      text(span.firstElementChild!, String(value));
+      text(span.firstElementChild!, formatNumber(value));
       text(span.lastElementChild!, unit);
       return span;
     };
@@ -214,14 +215,21 @@ export class ResultScreen implements RoomPart {
       return element;
     };
     switch (result.outcome) {
-      case 'perfect':
-        line.append(
+      case 'perfect': {
+        // 2行に分ける(1行目: 元のポイントとボーナスの札、2行目: 右に寄せた「= 448p」)。5桁でも収まる
+        const first = html('<div class="sub"></div>');
+        first.append(
           points(result.myPoints, 'small'),
-          chip('result.bonus', 'gold', { n: this.config.perfectMultiplier }),
+          chip('result.bonus', 'gold', { n: this.config.perfectMultiplier })
+        );
+        const second = html('<div class="sub sum"></div>');
+        second.append(
           html('<div class="eq">=</div>'),
           points(result.awarded, 'big')
         );
+        line.append(first, second);
         break;
+      }
       case 'success':
         line.append(
           points(result.awarded, 'big'),
@@ -273,7 +281,7 @@ export class ResultScreen implements RoomPart {
       element.querySelector('.name')!,
       row.isMe ? t('result.you', { name }) : name
     );
-    text(element.querySelector('.pts span')!, String(row.points));
+    text(element.querySelector('.pts span')!, formatNumber(row.points));
     text(element.querySelector('.pts .unit')!, t('play.pointUnit'));
     return element;
   }

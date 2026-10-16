@@ -152,6 +152,12 @@
   white-space: nowrap;
 }
 
+/* 英語の「FINISH!」など長い文言は、傾いた帯の中で、左右とも画面に収まる大きさに(CueLayer が付ける) */
+.slam > div.long {
+  font-size: min(64px, 11.5vw);
+  letter-spacing: 3px;
+}
+
 @keyframes slam {
   0% {
     transform: translateX(-500px) rotate(-6deg);

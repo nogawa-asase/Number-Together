@@ -80,6 +80,7 @@ export const ja = {
   'play.current': 'いまの数字',
   'play.inRange': '範囲内!',
   'play.outOfRange': '範囲の外',
+  'play.perfect': 'ぴったり!',
   'play.remaining': '残り',
   'play.end': '終了',
   'play.x3': '×3p',

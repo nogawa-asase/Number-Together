@@ -98,16 +98,24 @@
 }
 
 .number-row .range-chip .out,
-.number-row .range-chip.out .in {
+.number-row .range-chip .perfect,
+.number-row .range-chip.out .in,
+.number-row .range-chip.perfect .in {
   visibility: hidden;
 }
 
-.number-row .range-chip.out .out {
+.number-row .range-chip.out .out,
+.number-row .range-chip.perfect .perfect {
   visibility: visible;
 }
 
 .number-row .range-chip.out {
   background: #ffffff;
+}
+
+/* 目標とぴったり同じ(結果発表のぴったりの札と同じ金色) */
+.number-row .range-chip.perfect {
+  background: #ffc400;
 }
 
 /*
@@ -219,10 +227,10 @@
 /* 倍増タイム中の「いま押すと ×3p!!」(グラフの枠の左下の角に乗せる) */
 .x3-bubble {
   position: absolute;
-  left: -22px;
-  bottom: -18px; /* 下のボタンの段に、かからないように */
-  width: 140px;
-  height: 99px;
+  left: -24px;
+  bottom: 0; /* 下のボタンの段に、かからないように */
+  width: 182px;
+  height: 129px;
   z-index: 5;
   transform: rotate(-5deg);
   pointer-events: none;

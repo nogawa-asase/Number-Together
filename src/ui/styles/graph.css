@@ -80,6 +80,7 @@
   border-radius: 10px;
   padding: 1px 8px;
   transform-origin: 0% 0%;
+  z-index: 3; /* 終了間際に大きくなっても、終了の線・「いま」の線・札より上に出す */
 }
 
 .remaining .label {

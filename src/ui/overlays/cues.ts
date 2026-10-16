@@ -6,6 +6,9 @@ import { SPIKY_BURST, sparkleSvg } from '../shapes';
 /** 「×3p タイム!」を出しておく長さ */
 const X3_MS = 2_500;
 
+/** 終了の合図の文言が、これより長いと、文字を小さくする(「終了!」は3文字、「FINISH!」は7文字) */
+const LONG_END_WORD = 4;
+
 /**
  * 合図の演出(見本 07・08・09)。部屋の画面の上に重ねる。
  *
@@ -99,7 +102,10 @@ export class CueLayer {
     <div class="label" data-ref="judging"></div>
   </div>
 </div>`);
-    text(ref(element, 'word'), t('cue.end'));
+    const word = t('cue.end');
+    text(ref(element, 'word'), word);
+    // 英語の「FINISH!」のように長い文言は、画面の幅に収まる大きさにする(日本語の「終了!」は大きいまま)
+    ref(element, 'word').classList.toggle('long', word.length > LONG_END_WORD);
     text(ref(element, 'judging'), t('cue.judging'));
     return element;
   }

@@ -37,6 +37,7 @@ export class PlayScreen implements RoomPart {
       <div class="range-chip" data-ref="range">
         <span class="in">${CHECK_SVG}<span data-ref="inText"></span></span>
         <span class="out" data-ref="outText"></span>
+        <span class="perfect">${CHECK_SVG}<span data-ref="perfectText"></span></span>
       </div>
     </div>
   </div>
@@ -80,10 +81,13 @@ export class PlayScreen implements RoomPart {
     const chars = String(view.number).length;
     ref(el, 'number').classList.toggle('n4', chars === 4);
     ref(el, 'number').classList.toggle('n5', chars >= 5);
-    // 札には両方の文言を重ねて置き、見せるほうを切り替える(幅は広いほうに決まり、動かない)
+    // 札には3つの文言を重ねて置き、見せるほうを切り替える(幅は広いほうに決まり、動かない)
+    const perfect = view.number === view.target;
     ref(el, 'range').classList.toggle('out', !view.inRange);
+    ref(el, 'range').classList.toggle('perfect', perfect);
     text(ref(el, 'inText'), t('play.inRange'));
     text(ref(el, 'outText'), t('play.outOfRange'));
+    text(ref(el, 'perfectText'), t('play.perfect'));
 
     text(ref(el, 'pointsLabel'), t('play.myPoints'));
     text(ref(el, 'points'), String(view.myPoints));
