@@ -546,6 +546,7 @@ npm run dev
 npm run dev:lan          # 本物の周期(1周6分)
 npm run dev:lan:quick    # 短い周期(1周10秒)。ルールも短い周期に置き換えて読み込ませる
 VITE_TRAFFIC_METER=1 npm run dev:lan   # 通信量も見る(画面の右下)
+VITE_AI_FILL_TO=20 npm run dev:lan     # 人間が20人に足りない分を、AIで埋める(20人の様子を試す。いつもは5人)
 ```
 
 - エミュレータ(`firebase.lan.json`。認証9099・データベース9000)と開発サーバー(5173)を、すべての接続口(`0.0.0.0`)で起動する。Ctrl+C で、両方とも止まる

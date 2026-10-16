@@ -10,9 +10,12 @@ export interface StageMetrics {
   readonly maxPitchPx: number; // 人数が少ないときの間隔の上限(重ならない)
   readonly backBottomPx: number; // 奥(偶数番目)の小人の、舞台の下からの高さ
   readonly frontBottomPx: number; // 手前(奇数番目)の小人の、舞台の下からの高さ
+  readonly bodyHeightPx: number; // 1人分の小人の高さ(「あなた」の吹き出しの位置)
   readonly jumpFreshMs: number; // この時間より新しい合図だけ、跳ねる
-  readonly jumpHeightsPx: readonly [number, number, number]; // power 1・2・3 の跳ねる高さ
-  readonly jumpDurationsMs: readonly [number, number, number]; // power 1・2・3 の1回の跳ねる時間
+  readonly hopHeightPx: number; // 1回の跳ねる高さ(だれでも同じ)
+  readonly hopDurationMs: number; // 1回の跳ねる時間(だれでも同じ)
+  /** power 1・2・3 のとき、跳ねる動きを最初からやり直す間隔。hopDurationMs より短いと、途中で切られてピクピク動く */
+  readonly hopIntervalsMs: readonly [number, number, number];
 }
 
 /** 舞台の寸法の既定 */
@@ -22,7 +25,11 @@ export const DEFAULT_STAGE_METRICS: StageMetrics = {
   maxPitchPx: 28, // 体の幅 + 6px(仮)
   backBottomPx: 22,
   frontBottomPx: 15,
+  bodyHeightPx: 32,
   jumpFreshMs: 1_500, // functional-design.md「10. 小人の舞台」
-  jumpHeightsPx: [14, 20, 26], // 最大26px(仮。見本は 12〜26px)
-  jumpDurationsMs: [900, 700, 500], // 強いほど速い(仮。見本は 0.45〜1秒)
+  hopHeightPx: 20, // 自分の小人が押したときと同じ
+  hopDurationMs: 600,
+  // power は直近1秒に押した回数(1〜2回・3〜5回・6回以上)なので、おおよそ押す間隔に合わせる(仮)。
+  // power 1 は最後まで跳ね、2・3 は途中で切られる(実機で試して、自分の連打のピクピクが面白かったため)
+  hopIntervalsMs: [700, 250, 140],
 };

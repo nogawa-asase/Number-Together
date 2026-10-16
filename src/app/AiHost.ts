@@ -3,7 +3,7 @@ import type { AiParams } from '../domain/ai/aiParams';
 import { decide } from '../domain/ai/decide';
 import {
   AI_PERSONALITIES,
-  pickPersonalities,
+  roundPersonalities,
 } from '../domain/ai/pickPersonalities';
 import type { Random } from '../domain/ai/random';
 import { tempoFor, withTempo } from '../domain/ai/tempo';
@@ -26,7 +26,7 @@ export interface AiHostDeps {
   readonly scheduler: Scheduler;
   readonly config: GameConfig;
   readonly aiParams: AiParams;
-  readonly random: Random; // AIの性格・反応の遅れ・手の選択に使う
+  readonly random: Random; // AIの反応の遅れ・手の選択に使う(性格は、部屋と回で決まる)
   /** 想定外のエラー(StoreError 以外)を、上に伝える */
   readonly onError: (error: unknown) => void;
 }
@@ -244,7 +244,12 @@ class AiRound {
       return;
     }
     const joinedDuring = this.fromGathering ? 'gathering' : 'playing';
-    const personalities = pickPersonalities(count, this.deps.random);
+    // 部屋と回で決まる並び(集合中の画面が、同じ色を先に出す)
+    const personalities = roundPersonalities(
+      this.seat.roomId,
+      this.roundId,
+      count
+    );
     personalities.forEach((personality, i) => {
       const player: Player = {
         id: `ai-${i + 1}`,

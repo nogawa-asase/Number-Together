@@ -116,7 +116,8 @@ domain/
 ├── config/
 │   ├── types.ts                # GameConfig
 │   ├── defaultConfig.ts        # 仮の値の既定(進行の長さ、1人あたりの目標、倍率、人数の上限など)
-│   └── quickConfig.ts          # 短い周期(1周10秒)の設定。エミュレータを使うテストと、手元の動作確認用
+│   ├── quickConfig.ts          # 短い周期(1周10秒)の設定。エミュレータを使うテストと、手元の動作確認用
+│   └── withAiFillTo.ts         # AIで埋める人数を変える(VITE_AI_FILL_TO。試験用)
 ├── schedule/
 │   ├── types.ts                # RoundClock・JoinVerdict
 │   ├── roundClockAt.ts         # サーバー時刻から、回・段階・開始と終了の時刻を計算する

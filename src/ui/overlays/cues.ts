@@ -3,16 +3,14 @@ import { t } from '../../app/i18n/i18n';
 import { html, ref, text } from '../dom';
 import { SPIKY_BURST, sparkleSvg } from '../shapes';
 
-/** 「3・2・1・スタート!」の長さ(1秒ずつ。最後の「スタート!」も1秒) */
-const START_MS = 4_000;
-/** 「×3 タイム!」を出しておく長さ */
+/** 「×3p タイム!」を出しておく長さ */
 const X3_MS = 2_500;
 
 /**
- * 合図の演出(見本 04・07・08・09)。部屋の画面の上に重ねる。
+ * 合図の演出(見本 07・08・09)。部屋の画面の上に重ねる。
  *
- * - start: 「3」「2」「1」「スタート!」を1秒ずつ
- * - x3: 暗くして、赤いトゲトゲの「×3 タイム!」と札
+ * - start: 何も出さない(実機で試して、全画面のカウントダウンは、なくした)
+ * - x3: 暗くして、赤いトゲトゲの「×3p タイム!」と札
  * - tenSeconds: 画面のふちを赤く点滅(終了まで)
  * - end: 暗くして、「終了!」の帯と「判定しています」(結果が出るまで)
  */
@@ -27,7 +25,6 @@ export class CueLayer {
   show(cue: Cue): void {
     switch (cue) {
       case 'start':
-        this.temporary(this.startCountdown(), START_MS);
         break;
       case 'x3':
         this.temporary(this.x3(), X3_MS);
@@ -68,18 +65,6 @@ export class CueLayer {
       element.remove();
     }, ms);
     this.timers.add(timer);
-  }
-
-  private startCountdown(): HTMLElement {
-    const element = html(`
-<div class="cue" data-cue="start">
-  <div class="cd" style="animation-delay: 0s">3</div>
-  <div class="cd" style="animation-delay: 1s">2</div>
-  <div class="cd" style="animation-delay: 2s">1</div>
-  <div class="cd go" style="animation-delay: 3s" data-ref="go"></div>
-</div>`);
-    text(ref(element, 'go'), t('cue.go'));
-    return element;
   }
 
   private x3(): HTMLElement {

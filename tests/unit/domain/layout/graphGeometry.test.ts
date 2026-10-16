@@ -156,7 +156,9 @@ describe('graphMarkers', () => {
   }
 
   it('倍増タイムが未来の窓より先なら、帯も終了の線も出さない', () => {
-    expect(markersAt(PLAY_START)).toEqual({ bonusBand: null, endLineX: null });
+    const markers = markersAt(PLAY_START);
+    expect(markers.bonusBand).toBeNull();
+    expect(markers.endLineX).toBeNull();
   });
 
   it('倍増タイムの開始が窓に入ったら、そこから右端まで帯を出す', () => {
@@ -171,6 +173,8 @@ describe('graphMarkers', () => {
     expect(markersAt(BONUS_START)).toEqual({
       bonusBand: { fromX: NOW_X, toX: 100 },
       endLineX: 100,
+      bonusTagX: (NOW_X + 100) / 2,
+      endTagX: 100,
     });
   });
 
@@ -182,7 +186,41 @@ describe('graphMarkers', () => {
     expect(markers.endLineX).toBeCloseTo(endX, 10);
   });
 
-  it('終了ちょうどからは、帯も終了の線も出さない', () => {
-    expect(markersAt(PLAY_END)).toEqual({ bonusBand: null, endLineX: null });
+  it('終了ちょうどからは、帯も終了の線も札も出さない', () => {
+    expect(markersAt(PLAY_END)).toEqual({
+      bonusBand: null,
+      endLineX: null,
+      bonusTagX: null,
+      endTagX: null,
+    });
+  });
+
+  it('札は、窓の外でも位置を返す(右の外から流れてくる)', () => {
+    // 残り1分30秒: 倍増タイムは30秒後〜90秒後。終了は窓の外
+    const markers = markersAt(PLAY_END - 90_000);
+    const step = (100 - NOW_X) / 60_000; // 1ミリ秒あたり
+    const bonusFromX = NOW_X + 30_000 * step;
+    const endX = NOW_X + 90_000 * step;
+    expect(markers.endTagX).toBeCloseTo(endX, 10);
+    expect(markers.endTagX).toBeGreaterThan(100);
+    expect(markers.bonusTagX).toBeCloseTo((bonusFromX + endX) / 2, 10);
+  });
+
+  it('札は、時間とともに左へ流れる(急に現れない)', () => {
+    const before = markersAt(BONUS_START - 1_000);
+    const after = markersAt(BONUS_START);
+    expect(before.endTagX! - after.endTagX!).toBeCloseTo(
+      (100 - NOW_X) / 60,
+      10
+    );
+    expect(before.bonusTagX! - after.bonusTagX!).toBeCloseTo(
+      (100 - NOW_X) / 60,
+      10
+    );
+  });
+
+  it('倍増タイム中は、ボーナスの札が、いまと終了の中央にある', () => {
+    const markers = markersAt(PLAY_END - 30_000);
+    expect(markers.bonusTagX).toBeCloseTo((NOW_X + markers.endTagX!) / 2, 10);
   });
 });

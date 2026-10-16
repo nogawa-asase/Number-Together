@@ -1,4 +1,4 @@
-/* 合図(見本 04・07・08・09) */
+/* 合図(見本 07・08・09) */
 .room {
   position: absolute;
   inset: 0;
@@ -24,50 +24,6 @@
 
 .cue .dim.dark {
   background: rgba(17, 17, 17, 0.55);
-}
-
-/* 04 3・2・1・スタート! */
-.cd {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  font-family: var(--font-display);
-  font-size: 240px;
-  line-height: 1;
-  color: #ffffff;
-  -webkit-text-stroke: 14px var(--ink);
-  paint-order: stroke fill;
-  animation: cd 4s linear both;
-}
-
-.cd.go {
-  font-size: 78px;
-  color: var(--red);
-  -webkit-text-stroke: 12px var(--ink);
-  white-space: nowrap;
-}
-
-@keyframes cd {
-  0% {
-    opacity: 0;
-    transform: scale(1.8);
-  }
-  6% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  22% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  25%,
-  100% {
-    opacity: 0;
-    transform: scale(0.7);
-  }
 }
 
 /* 07 ×3 タイム! */

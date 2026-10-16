@@ -1,7 +1,4 @@
 /* 05 プレイ中 */
-.play {
-  gap: 18px;
-}
 
 .play-card {
   padding: 14px;
@@ -10,6 +7,11 @@
   gap: 12px;
   flex: 1;
   min-height: 0;
+}
+
+/* グラフの上の枠にかかる「終了」の札が、いまの数字に近づきすぎないように */
+.play-card .graph-row {
+  margin-top: 10px;
 }
 
 .number-row {
@@ -25,11 +27,32 @@
   line-height: 1.2;
 }
 
+/* 数字は、どの数字も同じ幅(tabular-nums)。範囲の札を押し出さないよう、箱は縮む */
+.number-row .number-box {
+  flex: 1;
+  min-width: 0;
+}
+
 .number-row .number {
   font-family: var(--font-display);
-  font-size: 60px;
+  font-variant-numeric: tabular-nums;
+  font-size: min(60px, 15vw);
   line-height: 0.8;
   margin-top: -2px;
+  white-space: nowrap;
+  /* 小さくしても、行の高さは変えない(グラフが伸び縮みしないように)。下にそろえる */
+  display: flex;
+  align-items: flex-end;
+  height: calc(min(60px, 15vw) * 0.8);
+}
+
+/* 4文字・5文字(マイナスも数える)は、幅360pxでも「Out of range」と並ぶ大きさに(PlayScreen が付ける) */
+.number-row .number.n4 {
+  font-size: min(48px, 11vw);
+}
+
+.number-row .number.n5 {
+  font-size: min(38px, 9vw);
 }
 
 .range-chip {
@@ -56,42 +79,82 @@
   flex-shrink: 0;
 }
 
+/*
+ * いまの数字の札: 範囲内・範囲外の文言を同じマスに重ね、見せないほうを隠す。
+ * 札の幅は広いほうに決まるので、切り替わっても動かない
+ */
+.number-row .range-chip {
+  display: grid;
+  flex-shrink: 0;
+  padding: 3px 10px;
+}
+
+.number-row .range-chip > span {
+  grid-area: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.number-row .range-chip .out,
+.number-row .range-chip.out .in {
+  visibility: hidden;
+}
+
+.number-row .range-chip.out .out {
+  visibility: visible;
+}
+
 .number-row .range-chip.out {
   background: #ffffff;
-  padding-left: 10px;
 }
 
-.number-row .range-chip.out .check {
-  display: none;
-}
-
+/*
+ * −1と+1のボタンの間。幅は画面の幅だけで決まり、桁が変わっても、黒い背景は動かない。
+ * 4桁・5桁からは、数字を小さくする(PlayScreen が d4・d5 を付ける)
+ */
 .points-board {
-  flex-shrink: 0;
-  align-self: flex-start;
-  margin: 9.5px 0 0 15px;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 140px;
+  align-self: center;
+  box-sizing: border-box;
   background: var(--ink);
   border-radius: 10px;
-  padding: 7px 12px 8px 12px;
+  padding: 6px 4px 7px 4px;
   text-align: center;
   pointer-events: none;
+  transform: translateY(25%); /* ボタンとの中心から、枠の高さの 1/4 下げる */
 }
 
 .points-board .label {
   color: #ffffff;
-  font-size: 12px;
-  line-height: 16px;
+  font-size: 10px;
+  line-height: 14px;
   font-weight: 800;
+  white-space: nowrap;
 }
 
 .points-board .value {
   color: var(--yellow);
   font-family: var(--font-display);
-  font-size: 38px;
-  line-height: 44px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  font-size: 26px;
+  line-height: 34px;
+}
+
+.points-board .value.d4 {
+  font-size: 22px;
+}
+
+.points-board .value.d5 {
+  font-size: 18px;
 }
 
 .points-board .unit {
-  font-size: 20px;
+  font-size: 15px;
 }
 
 .bump {
@@ -113,17 +176,26 @@
   }
 }
 
+/* 丸いボタンを左右対称に並べ、その間に「あなたのポイント」 */
 .press-row {
   display: flex;
-  gap: 14px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
   height: 112px;
   flex-shrink: 0;
   padding-bottom: 6px;
 }
 
 .btn.press {
-  flex: 1;
-  border-radius: 20px;
+  flex: 0 0 auto;
+  height: min(
+    100%,
+    28vw
+  ); /* 幅の狭い画面では、少し小さく(間の「あなたのポイント」の幅をとる) */
+  aspect-ratio: 1;
+  padding: 0;
+  border-radius: 50%;
   box-shadow: 5px 5px 0 var(--ink);
   font-family: var(--font-display);
   font-size: 48px;
@@ -144,13 +216,14 @@
   background: var(--pink);
 }
 
-/* 倍増タイム中の「いま押すと ×3!!」(+1ボタンの上) */
+/* 倍増タイム中の「いま押すと ×3p!!」(グラフの枠の左下の角に乗せる) */
 .x3-bubble {
   position: absolute;
-  right: 6px;
-  bottom: 149px;
-  width: 216px;
-  height: 153px;
+  left: -22px;
+  bottom: -18px; /* 下のボタンの段に、かからないように */
+  width: 140px;
+  height: 99px;
+  z-index: 5;
   transform: rotate(-5deg);
   pointer-events: none;
 }
@@ -170,7 +243,7 @@
 
 .x3-bubble .press-x3 {
   font-family: var(--font-display);
-  font-size: 54px;
+  font-size: 48px;
   fill: var(--red);
   stroke: var(--ink);
   stroke-width: 9px;
@@ -178,13 +251,14 @@
   paint-order: stroke;
 }
 
-/* 途中参加の「目標UP! 3800 → 4000」(見本 05) */
+/* 途中参加の「プレーヤーが増えたので 目標UP!! 3800 → 4000」(見本 05) */
 .target-up {
   position: absolute;
-  left: 105px;
-  top: 322px;
-  width: 170px;
-  height: 106px;
+  left: 50%;
+  top: 316px;
+  width: 200px;
+  height: 125px;
+  margin-left: -100px;
   z-index: 18;
   pointer-events: none;
   transform-origin: 50% 0%;
@@ -198,9 +272,15 @@
   overflow: visible;
 }
 
+.target-up .why {
+  font-size: 13px;
+  font-weight: 800;
+  fill: var(--ink);
+}
+
 .target-up .up {
   font-family: var(--font-display);
-  font-size: 32px;
+  font-size: 27px;
   fill: var(--red);
   stroke: var(--ink);
   stroke-width: 8px;

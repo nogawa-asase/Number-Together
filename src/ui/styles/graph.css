@@ -1,19 +1,26 @@
 /* グラフ(見本 05) */
 .graph-row {
+  position: relative;
   display: flex;
   gap: 6px;
   flex: 1;
   min-height: 0;
 }
 
-.graph {
+/* グラフと札の層を重ねる箱 */
+.graph-box {
   flex: 1;
   min-width: 0;
+  position: relative;
+}
+
+.graph {
+  position: absolute;
+  inset: 0;
   border: 3px solid var(--ink);
   border-radius: 12px;
   overflow: hidden;
   background: var(--cream);
-  position: relative;
 }
 
 .graph svg {
@@ -114,11 +121,28 @@
   }
 }
 
-.end-label {
-  top: 6px;
+/*
+ * 札の層: 横はグラフの内側(枠線の内側)で切り、上は枠線より少し外まで出す。
+ * 札は、右の外から流れてきて、少しずつ見えてくる
+ */
+.graph-labels {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  top: -12px;
+  bottom: 3px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.graph-labels > div {
+  position: absolute;
   transform: translateX(-50%);
-  display: flex;
-  gap: 10px;
+}
+
+/* 「終了」の札(高さ22px)は、上の枠線(箱の上から 0〜3px)に、縦の半分がかかる。中心が枠線の中央 */
+.end-label {
+  top: 2.5px;
   background: var(--ink);
   color: #ffffff;
   border: 2px solid var(--ink);
@@ -130,6 +154,12 @@
   white-space: nowrap;
 }
 
+/* 日本語は「終 了」と字の間を空ける(見本 09)。字の後ろにも空くので、右の余白はなくし、左右をそろえる */
+.end-label:lang(ja) {
+  letter-spacing: 10px;
+  padding: 1px 0 1px 10px;
+}
+
 .end-line {
   top: 0;
   bottom: 0;
@@ -138,13 +168,8 @@
   transform: translateX(-2px);
 }
 
-.bonus-tag-wrap {
-  bottom: 8px;
-  display: flex;
-  justify-content: center;
-}
-
 .bonus-tag {
+  bottom: 8px;
   background: var(--red);
   border: 3px solid var(--ink);
   border-radius: 8px;

@@ -49,7 +49,14 @@ export class DomGameView {
     const buttons = html('<div class="top-buttons"></div>');
     buttons.append(this.meButton, createLanguageSwitch());
     root.append(buttons);
-    this.meButton.addEventListener('click', () => this.openOverlay('me'));
+    // 自分の画面(と変更の画面)を開いている間は「もどる」で、押すと元の画面に戻る
+    this.meButton.addEventListener('click', () => {
+      if (this.overlayKind === null) {
+        this.openOverlay('me');
+      } else {
+        this.closeOverlay();
+      }
+    });
     session.onState((state) => {
       this.state = state;
       this.render();
@@ -81,10 +88,15 @@ export class DomGameView {
     const kind = this.state?.kind;
     this.meButton.hidden =
       this.fatal || (kind !== 'inRoom' && kind !== 'waiting');
-    text(this.meButton, t('me.open'));
     if (this.meButton.hidden) {
       this.closeOverlay();
     }
+    this.labelMeButton();
+  }
+
+  /** 右上のボタン: 重ねた画面がなければ「じぶん」、あれば「もどる」 */
+  private labelMeButton(): void {
+    text(this.meButton, t(this.overlayKind === null ? 'me.open' : 'me.back'));
   }
 
   /** 18 自分の画面と、そこから開く「名前・キャラをかえる」 */
@@ -136,6 +148,7 @@ export class DomGameView {
     }
     this.overlayKind = kind;
     root.append(this.overlay.element);
+    this.labelMeButton();
   }
 
   private closeOverlay(): void {
@@ -143,6 +156,7 @@ export class DomGameView {
     this.overlay?.element.remove();
     this.overlay = null;
     this.overlayKind = null;
+    this.labelMeButton();
   }
 
   private create(): Screen {
@@ -179,7 +193,9 @@ export class DomGameView {
       case 'waiting':
         return new WaitScreen(state.reason, state.until, now);
       case 'inRoom':
-        return new RoomScreen(round, session.uid()!, config, now);
+        return new RoomScreen(round, session.uid()!, config, now, () =>
+          session.profile()
+        );
     }
   }
 }

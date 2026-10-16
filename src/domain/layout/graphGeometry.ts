@@ -20,10 +20,14 @@ export interface GraphPoint {
   readonly y: number;
 }
 
-/** 倍増タイムの帯と、終了の線の位置 */
+/** 倍増タイムの帯と、終了の線と、それぞれの札の位置 */
 export interface GraphMarkers {
   readonly bonusBand: { readonly fromX: number; readonly toX: number } | null;
   readonly endLineX: number | null;
+  /** 「×3p ボーナス」の札の中心。窓の外(100%より右)でも返す。終了からは null */
+  readonly bonusTagX: number | null;
+  /** 「終了」の札の中心。窓の外(100%より右)でも返す。終了からは null */
+  readonly endTagX: number | null;
 }
 
 /**
@@ -109,6 +113,8 @@ export function graphPoints(
  * - 帯: 倍増タイム(bonusStartsAt〜playEndsAt)のうち、いまより後の部分。倍増タイム中は、いまから始まる。
  *   右端(100%)を超える分は切る。見えなければ null
  * - 終了の線: playEndsAt が未来の窓(いま〜futureWindowMs 後)に入ったときだけ
+ * - 札: 窓で切らない位置を返す(描画側で、グラフの範囲で切る)。右の外から流れてきて、少しずつ見えてくるように。
+ *   「×3p ボーナス」は、残りの倍増タイム(いま以降)の中央、「終了」は終了の時刻
  *
  * @param nowMs - いまのサーバー時刻
  * @param clock - nowMs から計算した、いまの回
@@ -130,5 +136,8 @@ export function graphMarkers(
     nowMs < clock.playEndsAt && clock.playEndsAt <= windowEnd
       ? graphX(clock.playEndsAt, nowMs, config)
       : null;
-  return { bonusBand, endLineX };
+  const ended = nowMs >= clock.playEndsAt;
+  const endX = graphX(clock.playEndsAt, nowMs, config);
+  const bonusTagX = ended ? null : (graphX(from, nowMs, config) + endX) / 2;
+  return { bonusBand, endLineX, bonusTagX, endTagX: ended ? null : endX };
 }

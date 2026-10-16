@@ -2,6 +2,7 @@ import type { MessageKey } from '../../app/i18n/i18n';
 import type { RoundController } from '../../app/RoundController';
 import type { RoundEvent, RoundView } from '../../app/RoundView';
 import type { GameConfig } from '../../domain/config/types';
+import type { Profile } from '../../domain/types';
 import { html, type Screen } from '../dom';
 import { AchievementCard, TITLE_CLASS } from '../overlays/AchievementCard';
 import { CueLayer } from '../overlays/cues';
@@ -40,7 +41,9 @@ export class RoomScreen implements Screen {
     private readonly round: RoundController,
     private readonly myId: string,
     private readonly config: GameConfig,
-    private readonly now: () => number
+    private readonly now: () => number,
+    /** いまの自分のプロフィール(回の途中で変えたら、自分の画面にだけ、すぐ反映する) */
+    private readonly myProfile: () => Profile | null = () => null
   ) {
     this.element = html('<div class="room"></div>');
     this.element.append(this.cues.element);
@@ -73,7 +76,7 @@ export class RoomScreen implements Screen {
         break;
       case 'myPress':
         if (this.part instanceof PlayScreen) {
-          this.part.myPress(event.press);
+          this.part.myPress();
         }
         break;
       case 'summon':
@@ -117,8 +120,27 @@ export class RoomScreen implements Screen {
         this.cues.clear('tenSeconds', 'end');
       }
     }
-    this.part!.update(view, this.now());
+    this.part!.update(this.withMyProfile(view), this.now());
     this.showBanners(view);
+  }
+
+  /**
+   * 参加者のうち、自分の名前とキャラを、いまのプロフィールにする。
+   * 参加者の記録は、回の途中では書き換えない(ほかの人には、次の回から)。自分の画面では、すぐ見せる
+   */
+  private withMyProfile(view: RoundView): RoundView {
+    const profile = this.myProfile();
+    if (profile === null) {
+      return view;
+    }
+    return {
+      ...view,
+      players: view.players.map((player) =>
+        player.id === this.myId
+          ? { ...player, name: profile.name, character: profile.character }
+          : player
+      ),
+    };
   }
 
   /** 称号(新人以外)が届いた途中参加の人の帯を出す(見本 06) */

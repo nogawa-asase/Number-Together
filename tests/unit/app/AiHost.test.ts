@@ -1,5 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
-import { AI_PERSONALITIES } from '../../../src/domain/ai/pickPersonalities';
+import {
+  AI_PERSONALITIES,
+  roundPersonalities,
+} from '../../../src/domain/ai/pickPersonalities';
 import { advanceSettled, aiHostWorld, settle } from '../fixtures/app';
 import {
   GRACE_END,
@@ -133,6 +136,10 @@ describe('AiHost: AIの追加', () => {
     const ais = w.ais();
     expect(ais.map((ai) => ai.id)).toEqual(['ai-1', 'ai-2', 'ai-3']);
     expect(new Set(ais.map((ai) => ai.personality)).size).toBe(3);
+    // 性格は、部屋と回で決まる並び(集合中の画面と同じ)
+    expect(ais.map((ai) => ai.personality)).toEqual(
+      roundPersonalities(w.roomId, ROUND, 3)
+    );
     for (const ai of ais) {
       expect(AI_PERSONALITIES).toContain(ai.personality);
       expect(ai.joinedDuring).toBe('gathering');

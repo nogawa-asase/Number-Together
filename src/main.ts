@@ -7,6 +7,7 @@ import { createRandom } from './domain/ai/random';
 import { DEFAULT_CONFIG } from './domain/config/defaultConfig';
 import { QUICK_CONFIG } from './domain/config/quickConfig';
 import type { GameConfig } from './domain/config/types';
+import { withAiFillTo } from './domain/config/withAiFillTo';
 import { connectFirebase } from './infra/firebase/firebaseApp';
 import { FirebaseGameStore } from './infra/firebase/FirebaseGameStore';
 import { FirebaseServerClock } from './infra/firebase/serverClock';
@@ -98,8 +99,7 @@ function main(): void {
     document.documentElement.lang = lang;
   });
 
-  const config =
-    import.meta.env.VITE_QUICK_CYCLE === '1' ? QUICK_CONFIG : DEFAULT_CONFIG;
+  const config = configFromEnv();
   const { store, clock, meter } = createBackend(config);
   const scheduler = new SystemScheduler();
 
@@ -184,3 +184,20 @@ function reportTraffic(
 }
 
 main();
+
+/**
+ * 設定値を選ぶ。VITE_QUICK_CYCLE=1 なら短い周期。VITE_AI_FILL_TO があれば、AIで埋める人数を変える
+ * (試験用。docs/development-guidelines.md「同じ Wi-Fi の実機で試す」)
+ */
+function configFromEnv(): GameConfig {
+  const env = import.meta.env;
+  const base = env.VITE_QUICK_CYCLE === '1' ? QUICK_CONFIG : DEFAULT_CONFIG;
+  const config = withAiFillTo(base, env.VITE_AI_FILL_TO);
+  if (config === null) {
+    console.warn(
+      `VITE_AI_FILL_TO は 0〜${base.roomCapacity} の整数にしてください(無視します): ${env.VITE_AI_FILL_TO}`
+    );
+    return base;
+  }
+  return config;
+}

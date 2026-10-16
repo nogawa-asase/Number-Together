@@ -69,10 +69,11 @@ describe('AiHost: AIの手の送信', () => {
     expect([...gains['+1']].every((g) => g === 1 || g === 3)).toBe(true);
     expect([...gains['-1']].every((g) => g === 0)).toBe(true);
 
+    // 0ポイントは書かない(PressBatcher は、増えたときだけ書く)
     const points = w.server.readPoints(w.host.uid, w.roomId, ROUND);
     const byValue = (a: number, b: number) => a - b;
     expect(Object.values(points).sort(byValue)).toEqual(
-      [...totals.values()].sort(byValue)
+      [...totals.values()].filter((total) => total > 0).sort(byValue)
     );
   });
 

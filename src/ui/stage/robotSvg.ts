@@ -9,7 +9,7 @@ export const LAMP_COLORS: Readonly<Record<AiPersonality, string>> = {
   lastSpurt: '#9B5DE5', // 見本にない(仮)
 };
 
-/** まだ性格の決まっていないAI(集合中の席)のランプ */
+/** 性格の分からないAI(届いた値が不正なとき)のランプ */
 const UNKNOWN_LAMP = '#D5DCE4';
 
 const BODY = '#9DB4C0';
@@ -17,7 +17,7 @@ const BODY = '#9DB4C0';
 /**
  * AIのロボットの SVG(viewBox 0 0 28 40。見本 03・05 の形)。
  *
- * @param personality - 性格。null なら、灰色のランプ(集合中の、まだ加わっていないAIの席)
+ * @param personality - 性格。null なら、灰色のランプ
  * @param className - svg に付けるクラス
  */
 export function robotSvg(

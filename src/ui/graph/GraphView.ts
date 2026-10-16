@@ -12,13 +12,15 @@ import { formatClock, html, ref, text } from '../dom';
 /** SVG の座標の大きさ(見本 05。縦横は、要素の大きさに引き伸ばす) */
 const W = 342;
 const H = 140;
-/** 「終了」の札を置ける、いちばん右の位置(%)。札の幅の半分だけ、右端から離す */
-const END_LABEL_MAX_X = 90;
+/** これより右(%)の札は、まだ見えないので隠す(札の幅の半分より十分に外) */
+const TAG_HIDE_X = 150;
 
 /**
  * グラフ(見本 05。docs/functional-design.md「9. グラフの描画」)。
  *
  * 線は「いま」まで。範囲の帯・目標の点線・×3ボーナスの帯・終了の線・残り時間・縦軸の数字を出す。
+ * 「×3p ボーナス」と「終了」の札は、グラフの横の範囲で切る別の層に置く。右の外から流れてきて、少しずつ見えてくる。
+ * 「終了」の札は、グラフの上の枠線に半分かかる。
  */
 export class GraphView {
   readonly element: HTMLElement;
@@ -26,6 +28,7 @@ export class GraphView {
   constructor(private readonly config: GameConfig) {
     this.element = html(`
 <div class="graph-row">
+  <div class="graph-box">
   <div class="graph">
     <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">
       <rect data-ref="band" x="0" width="${W}" fill="#2EC27E" fill-opacity="0.45"></rect>
@@ -37,9 +40,12 @@ export class GraphView {
     <div class="now-line" style="left: ${NOW_X}%"></div>
     <div class="now-dot" data-ref="nowDot" style="left: ${NOW_X}%"></div>
     <div class="remaining" data-ref="remaining"><span class="label" data-ref="remainingLabel"></span><span class="time" data-ref="remainingTime"></span></div>
-    <div class="end-label" data-ref="endLabel"><span data-ref="end1"></span><span data-ref="end2"></span></div>
     <div class="end-line" data-ref="endLine"></div>
-    <div class="bonus-tag-wrap" data-ref="bonusTag"><div class="bonus-tag"><div class="x3" data-ref="x3"></div><div class="word" data-ref="bonusWord"></div></div></div>
+  </div>
+  <div class="graph-labels">
+    <div class="bonus-tag" data-ref="bonusTag"><div class="x3" data-ref="x3"></div><div class="word" data-ref="bonusWord"></div></div>
+    <div class="end-label" data-ref="endLabel"></div>
+  </div>
   </div>
   <div class="axis">
     <div data-ref="axisUpper"></div>
@@ -79,26 +85,22 @@ export class GraphView {
     // ×3ボーナスの帯・終了の線
     const markers = graphMarkers(nowMs, view.clock, config);
     const bonusBand = ref(el, 'bonusBand');
-    const bonusTag = ref(el, 'bonusTag');
     bonusBand.hidden = markers.bonusBand === null;
-    bonusTag.hidden = markers.bonusBand === null;
     if (markers.bonusBand !== null) {
       const { fromX, toX } = markers.bonusBand;
-      for (const element of [bonusBand, bonusTag]) {
-        element.style.left = `${fromX}%`;
-        element.style.width = `${toX - fromX}%`;
-      }
+      bonusBand.style.left = `${fromX}%`;
+      bonusBand.style.width = `${toX - fromX}%`;
     }
     const endX = markers.endLineX;
-    for (const name of ['endLine', 'endLabel', 'afterEnd']) {
+    for (const name of ['endLine', 'afterEnd']) {
       const element = ref(el, name);
       element.hidden = endX === null;
       element.style.left = `${endX ?? 0}%`;
     }
-    // 「終了」の札は、右端からはみ出さないように止める(線は、そのまま)
-    ref(el, 'endLabel').style.left = `${Math.min(endX ?? 0, END_LABEL_MAX_X)}%`;
-    text(ref(el, 'end1'), t('play.end1'));
-    text(ref(el, 'end2'), t('play.end2'));
+    // 札は、窓の外にあっても置く(層の外は切れる)。右の外から流れてくる
+    placeTag(ref(el, 'bonusTag'), markers.bonusTagX);
+    placeTag(ref(el, 'endLabel'), markers.endTagX);
+    text(ref(el, 'endLabel'), t('play.end'));
     text(ref(el, 'x3'), t('play.x3'));
     text(ref(el, 'bonusWord'), t('play.bonus'));
 
@@ -122,6 +124,12 @@ export class GraphView {
       text(label, String(value));
     }
   }
+}
+
+/** 札を、中心の位置(%)に置く。null なら隠す。遠く右の外にあるときも隠す(描く手間をはぶく) */
+function placeTag(element: HTMLElement, x: number | null): void {
+  element.hidden = x === null || x > TAG_HIDE_X;
+  element.style.left = `${x ?? 0}%`;
 }
 
 function clamp(percent: number): number {

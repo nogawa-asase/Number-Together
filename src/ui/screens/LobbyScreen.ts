@@ -1,12 +1,16 @@
 import { type MessageKey, t } from '../../app/i18n/i18n';
 import type { RoundView } from '../../app/RoundView';
+import { roundPersonalities } from '../../domain/ai/pickPersonalities';
 import type { GameConfig } from '../../domain/config/types';
-import type { Player } from '../../domain/types';
+import type { AiPersonality, Player } from '../../domain/types';
 import { formatNumber, html, ref, splitAround, text, translate } from '../dom';
 import { playerSvg } from '../stage/characterSvg';
 import { TITLE_CLASS } from '../overlays/AchievementCard';
 import { robotBadgeSvg, robotSvg } from '../stage/robotSvg';
 import type { RoomPart } from './RoomPart';
+
+/** この人数までは、席を1列に並べる(見本 03)。AIで埋める人数(試験で変えられる)とは別に決める */
+const FEW_CELLS = 5;
 
 const TEMPLATE = `
 <div class="screen lobby">
@@ -103,15 +107,17 @@ export class LobbyScreen implements RoomPart {
     text(ref(el, 'note'), t(aiSeats > 0 ? 'lobby.noteAi' : 'lobby.noteMore'));
   }
 
-  /** 参加者の席。顔ぶれ・称号が変わったときだけ作り直す */
+  /** 参加者の席。顔ぶれ・名前とキャラ・称号が変わったときだけ作り直す */
   private renderCells(
     humans: readonly Player[],
     aiSeats: number,
     view: RoundView
   ): void {
     const key = JSON.stringify([
-      humans.map((p) => [p.id, view.titles[p.id] ?? null]),
+      humans.map((p) => [p.id, p.name, p.character, view.titles[p.id] ?? null]),
       aiSeats,
+      view.roomId,
+      view.roundId,
     ]);
     if (key === this.cellsKey) {
       return;
@@ -119,11 +125,13 @@ export class LobbyScreen implements RoomPart {
     this.cellsKey = key;
     const cells = ref(this.element, 'cells');
     const filled = humans.length + aiSeats;
-    const few = filled <= this.config.aiFillTo; // 5人以下は1列(見本 03)、それより多いときは4列(見本 02)
+    const few = filled <= FEW_CELLS; // 5人以下は1列(見本 03)、それより多いときは4列(見本 02)
     cells.className = few ? 'cells few' : 'cells grid';
     cells.replaceChildren(
       ...humans.map((player) => this.humanCell(player, view)),
-      ...Array.from({ length: aiSeats }, (_, i) => this.aiCell(i))
+      ...roundPersonalities(view.roomId, view.roundId, aiSeats).map(
+        (personality, i) => this.aiCell(personality, i)
+      )
     );
     const open = this.config.roomCapacity - filled;
     if (!few) {
@@ -155,11 +163,12 @@ export class LobbyScreen implements RoomPart {
     return cell;
   }
 
-  private aiCell(index: number): HTMLElement {
+  /** AIの席。ランプの色は、ゲーム開始のときに加わるAIの性格の色(部屋と回で決まる) */
+  private aiCell(personality: AiPersonality, index: number): HTMLElement {
     const cell = html(
-      `<div class="cell ai" style="animation-delay: ${index * 0.5}s">${robotSvg(null, 'bob')}<div class="title-chip ai"></div></div>`
+      `<div class="cell ai" style="animation-delay: ${index * 0.5}s">${robotSvg(personality, 'bob')}<div class="title-chip ai"></div></div>`
     );
-    // まだ性格が決まっていない(ゲーム開始のときに決まる)ので、名前は出さず、「AI」の札だけ
+    // 名前は、ゲーム開始のあとの舞台で分かるので、ここでは出さず、「AI」の札だけ
     text(cell.querySelector('.title-chip')!, t('ai.tag'));
     return cell;
   }

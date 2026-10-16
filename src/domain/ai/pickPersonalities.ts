@@ -1,6 +1,6 @@
 import { DomainError } from '../errors';
 import type { AiPersonality } from '../types';
-import type { Random } from './random';
+import { createRandom, type Random } from './random';
 
 /** AIの性格の一覧(docs/glossary.md「AIの性格」の順) */
 export const AI_PERSONALITIES: readonly AiPersonality[] = [
@@ -42,4 +42,36 @@ export function pickPersonalities(
     picked.push(...shuffled(random).slice(0, count - picked.length));
   }
   return picked;
+}
+
+/**
+ * その回のAIの性格を選ぶ(docs/functional-design.md「ゲーム開始時のAIの追加」)。
+ *
+ * 部屋と回から種を作るので、どの端末でも同じ並びになる。集合中の画面は、これで、加わるAIの色を先に出す。
+ * 同じ部屋と回なら、数を減らしても先頭はそろう(集合中に人が増えてAIの席が減っても、残る席の性格は変わらない)。
+ *
+ * @param roomId - 部屋の番号
+ * @param roundId - 回の id
+ * @param count - 足すAIの数(0以上の整数)
+ * @throws DomainError - count が0以上の整数でないとき
+ */
+export function roundPersonalities(
+  roomId: number,
+  roundId: string,
+  count: number
+): AiPersonality[] {
+  return pickPersonalities(
+    count,
+    createRandom(hashString(`${roomId}:${roundId}`))
+  );
+}
+
+/** 文字列から、32ビットの種を作る(FNV-1a) */
+function hashString(value: string): number {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < value.length; i++) {
+    hash ^= value.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return hash >>> 0;
 }

@@ -1,6 +1,5 @@
 import { t } from '../../app/i18n/i18n';
 import type { RoundView } from '../../app/RoundView';
-import type { PressKind } from '../../domain/points/types';
 import { jumpFor } from '../../domain/layout/jumpFor';
 import {
   DEFAULT_STAGE_METRICS as METRICS,
@@ -19,14 +18,22 @@ const DEFAULT_STAGE_WIDTH = 308;
 /** 召喚の長さ(CSS の summon・beam と同じ) */
 const SUMMON_MS = 4_500;
 
-/** 自分が押したときの跳ね方(押し方の強さ 2 と同じ) */
-const MY_JUMP = { heightPx: 20, durationMs: 600 };
+/** 「あなた」の吹き出しの矢印の高さ(CSS の .you-label::after と同じ) */
+const YOU_ARROW_PX = 6;
+
+/** あとから加わったAIが、ふわっと現れる長さ(CSS の avatar-fade と同じ) */
+const FADE_IN_MS = 800;
+
+/** ほかの人の跳ね直す間隔のゆらぎ(±15%。大勢がそろって跳ねないように) */
+const HOP_JITTER = 0.15;
 
 /**
  * 小人の舞台(見本 05 の上の部分。docs/functional-design.md「10. 小人の舞台」)。
  *
  * 参加者(AIも含む)を入った順に1列に並べ、合図に合わせて跳ねさせる。+1か−1かは見せない。
- * 自分の小人は、いちばん手前で、頭の上に「あなた」を出し、押したときに跳ねて「+1」を浮かべる。
+ * 跳ね方は、だれでも同じ(高さ・時間)。押すたびに最初からやり直すので、連打すると途中で切られてピクピク動く。
+ * 自分の小人は、いちばん手前で、頭の上に「あなた」を出し、押したときに跳ねる。
+ * ほかの人の1回ごとの押した合図は届かない(強さだけ)ので、強さに合わせた間隔で、跳ね直す。
  */
 export class StageView {
   readonly element: HTMLElement;
@@ -34,6 +41,11 @@ export class StageView {
   private playersKey = '';
   private myAvatar: HTMLElement | null = null;
   private readonly pendingSummons = new Set<string>(); // 小人がまだ並んでいない召喚
+  /** ほかの人の、跳ね直すタイマー(id → 間隔とタイマー) */
+  private readonly hoppers = new Map<
+    string,
+    { intervalMs: number; timer: ReturnType<typeof setInterval> }
+  >();
 
   /**
    * @param myId - 自分の id(「あなた」と、押したときに跳ねる)
@@ -61,37 +73,71 @@ export class StageView {
     );
     text(ref(this.element, 'youText'), t('play.you'));
     this.place(view.players);
+    const present = new Set<string>();
     for (const player of view.players) {
       if (player.id === this.myId) {
         continue; // 自分は、押したときに跳ねる(合図を待たない)
       }
-      const avatar = this.avatars.get(player.id)!;
+      present.add(player.id);
       const jump = jumpFor(view.pulses[player.id] ?? null, nowMs, this.metrics);
-      avatar.classList.toggle('act', jump !== null);
-      if (jump !== null) {
-        avatar.style.setProperty('--h', `${jump.heightPx}px`);
-        avatar.style.animationDuration = `${jump.durationMs}ms`;
+      this.setHopping(player.id, jump?.intervalMs ?? null);
+    }
+    for (const id of this.hoppers.keys()) {
+      if (!present.has(id)) {
+        this.setHopping(id, null);
       }
     }
   }
 
-  /** 自分が押した: 跳ねて、頭の横に「+1」(「−1」)を浮かべる */
-  myPress(kind: PressKind): void {
-    const avatar = this.myAvatar;
-    if (avatar === null) {
+  /** タイマーを止める(画面を閉じる) */
+  dispose(): void {
+    for (const id of [...this.hoppers.keys()]) {
+      this.setHopping(id, null);
+    }
+  }
+
+  /** 自分が押した: 跳ねる(+1か−1かは、数字とポイントで分かるので、文字は出さない) */
+  myPress(): void {
+    if (this.myAvatar !== null) {
+      this.hop(this.myAvatar);
+    }
+  }
+
+  /**
+   * ほかの人の小人を、intervalMs ごとに跳ね直させる。null なら止める(いまの跳ねは最後まで)。
+   * 間隔が変わったときだけ、タイマーを作り直す
+   */
+  private setHopping(id: string, intervalMs: number | null): void {
+    const current = this.hoppers.get(id);
+    if (current?.intervalMs === intervalMs) {
       return;
     }
-    avatar.classList.remove('hop-once');
-    void avatar.offsetWidth; // 動きを最初から始め直す
-    avatar.style.setProperty('--h', `${MY_JUMP.heightPx}px`);
-    avatar.style.animationDuration = `${MY_JUMP.durationMs}ms`;
-    avatar.classList.add('hop-once');
+    if (current !== undefined) {
+      clearInterval(current.timer);
+      this.hoppers.delete(id);
+    }
+    const avatar = this.avatars.get(id);
+    if (intervalMs === null || avatar === undefined) {
+      return;
+    }
+    const jitter = 1 + (Math.random() * 2 - 1) * HOP_JITTER;
+    this.hop(avatar);
+    this.hoppers.set(id, {
+      intervalMs,
+      timer: setInterval(() => this.hop(avatar), intervalMs * jitter),
+    });
+  }
 
-    const floater = html('<div class="press-floater"></div>');
-    text(floater, kind === '+1' ? '+1' : '−1');
-    floater.style.left = `${parseFloat(avatar.style.left) + 25}px`;
-    floater.addEventListener('animationend', () => floater.remove());
-    ref(this.element, 'people').append(floater);
+  /**
+   * 跳ねる動きを、最初からやり直す。同じ動きの2つの名前(hop-a・hop-b)を入れ替えると、
+   * 描き直しを待たずに、やり直せる(途中で切られると、ピクピク動く)
+   */
+  private hop(avatar: HTMLElement): void {
+    const next = avatar.classList.contains('hop-a') ? 'hop-b' : 'hop-a';
+    avatar.classList.remove('hop-a', 'hop-b');
+    avatar.style.setProperty('--h', `${this.metrics.hopHeightPx}px`);
+    avatar.style.animationDuration = `${this.metrics.hopDurationMs}ms`;
+    avatar.classList.add(next);
   }
 
   /**
@@ -147,9 +193,11 @@ export class StageView {
     }, SUMMON_MS);
   }
 
-  /** 顔ぶれが変わったときだけ、並べ直す。あとから加わったAIは、ふわっと現れる */
+  /**
+   * 顔ぶれか見た目(自分がキャラを変えた)が変わったときだけ、並べ直す。あとから加わったAIは、ふわっと現れる
+   */
   private place(players: readonly Player[]): void {
-    const key = players.map((p) => p.id).join('\n');
+    const key = players.map((p) => `${p.id} ${lookOf(p)}`).join('\n');
     if (key === this.playersKey) {
       return;
     }
@@ -171,14 +219,22 @@ export class StageView {
       if (avatar === undefined) {
         avatar = html(`<div class="avatar">${this.svgOf(player)}</div>`);
         if (!firstTime && player.kind === 'ai') {
-          avatar.classList.add('fade-in');
+          // 現れ終わったら外す(付けたままだと、跳ねる動きを打ち消す)。動きをへらしているときは終わりが来ないので、時間で
+          const fading = avatar;
+          fading.classList.add('fade-in');
+          setTimeout(() => fading.classList.remove('fade-in'), FADE_IN_MS);
         }
         if (player.kind === 'human') {
           avatar.classList.add('tappable');
           avatar.addEventListener('click', () => this.onTap(player.id));
         }
+        avatar.dataset.look = lookOf(player);
         this.avatars.set(player.id, avatar);
         people.append(avatar);
+      } else if (avatar.dataset.look !== lookOf(player)) {
+        avatar.dataset.look = lookOf(player);
+        avatar.querySelector(':scope > svg:not(.spk)')?.remove(); // 召喚のキラキラは残す
+        avatar.insertAdjacentHTML('afterbegin', this.svgOf(player));
       }
       const slot = slots[i]!;
       avatar.style.left = `${slot.leftPx}px`;
@@ -192,7 +248,10 @@ export class StageView {
     this.myAvatar = myIndex === -1 ? null : this.avatars.get(this.myId)!;
     you.hidden = myIndex === -1;
     if (myIndex !== -1) {
-      you.style.left = `${slots[myIndex]!.leftPx + this.metrics.bodyWidthPx / 2}px`;
+      const slot = slots[myIndex]!;
+      you.style.left = `${slot.leftPx + this.metrics.bodyWidthPx / 2}px`;
+      // 矢印(6px)の先が、止まっている頭の 1px 上。跳ねたときは、頭が少し重なってよい
+      you.style.bottom = `${slot.bottomPx + this.metrics.bodyHeightPx + YOU_ARROW_PX + 1}px`;
     }
   }
 
@@ -204,4 +263,9 @@ export class StageView {
       ? ''
       : playerSvg(player.id, player.character);
   }
+}
+
+/** 小人の見た目を表す文字列(変わったかを比べる) */
+function lookOf(player: Player): string {
+  return JSON.stringify([player.character, player.personality]);
 }

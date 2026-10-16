@@ -11,7 +11,7 @@ import type { RoomPart } from './RoomPart';
 /** 「目標UP!」と称号の帯を出しておく長さ(CSS の pop と同じ) */
 const OVERLAY_MS = 5_000;
 
-/** 05 プレイ中(舞台・いまの数字・グラフ・あなたのポイント・ボタン) */
+/** 05 プレイ中(舞台・いまの数字・グラフ・ボタンと、その間の「あなたのポイント」) */
 export class PlayScreen implements RoomPart {
   readonly element: HTMLElement;
   private readonly stage: StageView;
@@ -30,19 +30,22 @@ export class PlayScreen implements RoomPart {
 <div class="screen play">
   <div class="card play-card" data-ref="card">
     <div class="number-row">
-      <div>
+      <div class="number-box">
         <div class="label" data-ref="currentLabel"></div>
         <div class="number" data-ref="number"></div>
       </div>
-      <div class="range-chip" data-ref="range">${CHECK_SVG}<span data-ref="rangeText"></span></div>
+      <div class="range-chip" data-ref="range">
+        <span class="in">${CHECK_SVG}<span data-ref="inText"></span></span>
+        <span class="out" data-ref="outText"></span>
+      </div>
     </div>
-  </div>
-  <div class="points-board">
-    <div class="label" data-ref="pointsLabel"></div>
-    <div class="value"><span class="bump" data-ref="bump"><span data-ref="points"></span><span class="unit" data-ref="unit"></span></span></div>
   </div>
   <div class="press-row">
     <button type="button" class="btn press minus" data-ref="minus">−1</button>
+    <div class="points-board">
+      <div class="label" data-ref="pointsLabel"></div>
+      <div class="value" data-ref="value"><span class="bump" data-ref="bump"><span data-ref="points"></span><span class="unit" data-ref="unit"></span></span></div>
+    </div>
     <button type="button" class="btn press plus" data-ref="plus">+1</button>
   </div>
   <div class="x3-bubble" data-ref="x3Bubble" hidden>
@@ -57,11 +60,14 @@ export class PlayScreen implements RoomPart {
     const card = ref(this.element, 'card');
     card.prepend(this.stage.element);
     card.append(this.graph.element);
+    this.graph.element.append(ref(this.element, 'x3Bubble')); // グラフの枠の左下に重ねる
     ref(this.element, 'plus').addEventListener('click', () => onPress('+1'));
     ref(this.element, 'minus').addEventListener('click', () => onPress('-1'));
   }
 
-  dispose(): void {}
+  dispose(): void {
+    this.stage.dispose();
+  }
 
   update(view: RoundView, nowMs: number): void {
     const el = this.element;
@@ -70,14 +76,21 @@ export class PlayScreen implements RoomPart {
 
     text(ref(el, 'currentLabel'), t('play.current'));
     text(ref(el, 'number'), String(view.number));
+    // 4文字・5文字(マイナスも数える)からは、文字を小さくして、範囲の札を押し出さない
+    const chars = String(view.number).length;
+    ref(el, 'number').classList.toggle('n4', chars === 4);
+    ref(el, 'number').classList.toggle('n5', chars >= 5);
+    // 札には両方の文言を重ねて置き、見せるほうを切り替える(幅は広いほうに決まり、動かない)
     ref(el, 'range').classList.toggle('out', !view.inRange);
-    text(
-      ref(el, 'rangeText'),
-      t(view.inRange ? 'play.inRange' : 'play.outOfRange')
-    );
+    text(ref(el, 'inText'), t('play.inRange'));
+    text(ref(el, 'outText'), t('play.outOfRange'));
 
     text(ref(el, 'pointsLabel'), t('play.myPoints'));
     text(ref(el, 'points'), String(view.myPoints));
+    // 4桁・5桁からは、文字を小さくして、ボタンの間に収める(幅は変えない)
+    const digits = String(view.myPoints).length;
+    ref(el, 'value').classList.toggle('d4', digits === 4);
+    ref(el, 'value').classList.toggle('d5', digits >= 5);
     text(ref(el, 'unit'), t('play.pointUnit'));
     if (this.shownPoints !== null && view.myPoints > this.shownPoints) {
       restart(ref(el, 'bump'), 'bumping'); // 増えたら、ぽんと弾む
@@ -94,11 +107,11 @@ export class PlayScreen implements RoomPart {
   }
 
   /** 自分が押した */
-  myPress(kind: PressKind): void {
-    this.stage.myPress(kind);
+  myPress(): void {
+    this.stage.myPress();
   }
 
-  /** 途中参加: 小人が降りてきて、「目標UP! from → to」の吹き出しを出す(見本 05) */
+  /** 途中参加: 小人が降りてきて、「プレーヤーが増えたので 目標UP!! from → to」の吹き出しを出す(見本 05) */
   summon(playerId: string, targetFrom: number, targetTo: number): void {
     this.stage.summon(playerId);
     const bubble = html(`
@@ -108,10 +121,12 @@ export class PlayScreen implements RoomPart {
       <polygon points="${SPIKY_BUBBLE}" fill="#111111" transform="translate(5 -6)"></polygon>
       <polygon points="${SPIKY_BUBBLE}" fill="#FFFFFF" stroke="#111111" stroke-width="4" stroke-linejoin="round"></polygon>
     </g>
-    <text x="120" y="86" text-anchor="middle" class="up"></text>
-    <text x="120" y="112" text-anchor="middle" class="change"></text>
+    <text x="120" y="58" text-anchor="middle" class="why"></text>
+    <text x="120" y="92" text-anchor="middle" class="up"></text>
+    <text x="120" y="116" text-anchor="middle" class="change"></text>
   </svg>
 </div>`);
+    text(bubble.querySelector('.why')!, t('summon.morePlayers'));
     text(bubble.querySelector('.up')!, t('summon.targetUp'));
     text(bubble.querySelector('.change')!, `${targetFrom} → ${targetTo}`);
     this.element.append(bubble);

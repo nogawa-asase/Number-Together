@@ -141,6 +141,7 @@ UI / アプリケーション → firebase の import    (NG。Firebaseは、イ
 | `VITE_QUICK_CYCLE=1` | 短い周期(1周10秒)。エミュレータのルールも、同じ値に置き換えて読み込ませる(テストの補助 `scaledRules`) |
 | `VITE_EMULATOR_HOST=page` | エミュレータのつなぎ先を、開いたページのホストにする(同じ Wi-Fi の実機で試すとき。`.env.lan`。既定は 127.0.0.1) |
 | `VITE_TRAFFIC_METER=1` | 通信量の計測(テストプレイ用) |
+| `VITE_AI_FILL_TO=20` | 人間が足りない分を、AIでこの人数まで埋める(テストプレイ用。0〜定員の整数。いつもは5) |
 
 - 結合テスト(`npm run test:int`)は、Node.js で、1人ごとに別の FirebaseApp を作ってエミュレータにつなぎ、`SessionController`(と `AiHost`)を本物の時計とタイマーで動かす。周期とルールは、短い周期にする
 

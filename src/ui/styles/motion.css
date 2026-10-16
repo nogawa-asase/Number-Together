@@ -19,15 +19,10 @@
 }
 
 /* 跳ねる代わりに、光らせる(見本 05) */
-.reduce-motion .avatar.act,
-.reduce-motion .avatar.hop-once {
+.reduce-motion .avatar.hop-a,
+.reduce-motion .avatar.hop-b {
   animation: none;
   filter: drop-shadow(0 0 3px #ff3b5c);
-}
-
-.reduce-motion .press-floater {
-  animation: none;
-  opacity: 0;
 }
 
 .reduce-motion .beat {
@@ -55,15 +50,4 @@
 .reduce-motion .target-up,
 .reduce-motion .join-banner {
   animation: none;
-}
-
-/* 3・2・1 は出さず、「スタート!」だけを静止して出す */
-.reduce-motion .cd {
-  animation: none;
-  opacity: 0;
-  transform: none;
-}
-
-.reduce-motion .cd.go {
-  opacity: 1;
 }

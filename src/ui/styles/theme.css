@@ -16,7 +16,7 @@
 /* 言語の切り替えボタン(どの画面でも右上) */
 .lang-switch {
   position: absolute;
-  top: 2px;
+  top: 6px;
   right: 10px;
   z-index: 100;
   height: 17px;

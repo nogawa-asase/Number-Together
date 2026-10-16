@@ -7,11 +7,23 @@ const NOW = 1_000_000;
 
 describe('jumpFor', () => {
   it.each([
-    [1, { heightPx: 14, durationMs: 900 }],
-    [2, { heightPx: 20, durationMs: 700 }],
-    [3, { heightPx: 26, durationMs: 500 }],
-  ])('power %i なら、強いほど高く速く跳ねる', (power, expected) => {
-    expect(jumpFor({ t: NOW - 100, power }, NOW, METRICS)).toEqual(expected);
+    [1, 700],
+    [2, 250],
+    [3, 140],
+  ])(
+    'power %i なら、%i ミリ秒ごとに跳ね直す(強いほど短い)',
+    (power, intervalMs) => {
+      expect(jumpFor({ t: NOW - 100, power }, NOW, METRICS)).toEqual({
+        intervalMs,
+      });
+    }
+  );
+
+  it('power 1 は最後まで跳ね、2・3 は途中で切られる(1回の時間より短い間隔)', () => {
+    const [one, two, three] = METRICS.hopIntervalsMs;
+    expect(one).toBeGreaterThanOrEqual(METRICS.hopDurationMs);
+    expect(two).toBeLessThan(METRICS.hopDurationMs);
+    expect(three).toBeLessThan(two);
   });
 
   it('1.5秒前ちょうどの合図は、まだ跳ねる', () => {

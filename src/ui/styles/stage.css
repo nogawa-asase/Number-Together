@@ -48,21 +48,41 @@
   height: 32px;
 }
 
-/* 合図で跳ねる(高さ --h、速さは animation-duration) */
-.avatar.act {
-  animation-name: hop;
-  animation-iteration-count: infinite;
-  animation-timing-function: ease-in-out;
-}
-
-/* 自分が押したときは、1回だけ跳ねる */
-.avatar.hop-once {
-  animation-name: hop;
+/*
+ * 跳ねる(高さ --h、速さは animation-duration)。押すたびに、hop-a と hop-b を入れ替えて、最初からやり直す。
+ * 連打されると、途中で切られて、ピクピク動く
+ */
+.avatar.hop-a,
+.avatar.hop-b {
   animation-iteration-count: 1;
   animation-timing-function: ease-in-out;
 }
 
+.avatar.hop-a {
+  animation-name: hop;
+}
+
+.avatar.hop-b {
+  animation-name: hop-b;
+}
+
 @keyframes hop {
+  0%,
+  100% {
+    transform: translateY(0) scale(1.1, 0.88);
+  }
+  20% {
+    transform: translateY(0) scale(0.94, 1.08);
+  }
+  50% {
+    transform: translateY(calc(var(--h) * -1)) scale(1, 1);
+  }
+  80% {
+    transform: translateY(0) scale(0.94, 1.08);
+  }
+}
+
+@keyframes hop-b {
   0%,
   100% {
     transform: translateY(0) scale(1.1, 0.88);
@@ -92,10 +112,9 @@
   }
 }
 
-/* 自分の頭の上の「あなた」(舞台の上にはみ出して出す) */
+/* 自分の頭のすぐ上の「あなた」(位置は StageView が、小人の位置から決める) */
 .you-label {
   position: absolute;
-  top: -12px;
   transform: translateX(-50%);
   z-index: 6;
   pointer-events: none;
@@ -123,37 +142,6 @@
   border-left: 5px solid transparent;
   border-right: 5px solid transparent;
   border-top: 6px solid var(--ink);
-}
-
-/* 自分が押したときの「+1」(ふわっと浮かんで消える) */
-.press-floater {
-  position: absolute;
-  top: 22px;
-  background: #ffffff;
-  color: var(--ink);
-  border: 2px solid var(--ink);
-  border-radius: 999px;
-  padding: 0 6px;
-  font-family: var(--font-display);
-  font-size: 13px;
-  line-height: 16px;
-  z-index: 6;
-  pointer-events: none;
-  animation: floater 0.6s ease-out both;
-}
-
-@keyframes floater {
-  0% {
-    transform: translateY(0);
-    opacity: 0;
-  }
-  15% {
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(-16px);
-    opacity: 0;
-  }
 }
 
 .avatar.tappable {

@@ -10,6 +10,15 @@ body {
   height: 100%;
 }
 
+/*
+ * ダブルタップでの拡大を止める(終了間際の連打が、結果発表の画面でダブルタップになる)。
+ * 2本指の拡大とスクロールは残る。受け継がれないので、すべての要素に付ける
+ */
+html,
+html * {
+  touch-action: manipulation;
+}
+
 body {
   background: #e6e6e6;
   display: flex;
@@ -28,14 +37,24 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* 高さが足りない端末(スマホのブラウザなど)では、縦にスクロールする。プレイ中(.play)だけは1画面に収める */
 .screen {
   position: absolute;
   inset: 0;
   box-sizing: border-box;
-  padding: 20px;
+  /* 上は、右上のボタン(上から 6px・高さ 17px)の下に 6px 空ける */
+  padding: 29px 20px 20px;
   display: flex;
   flex-direction: column;
   gap: 14px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.screen.play {
+  overflow: hidden;
+  padding-bottom: 4px; /* ボタンの段の下の 6px と合わせ、ボタンの下は 10px(影は 5px) */
+  gap: 12px;
 }
 
 .spacer {
