@@ -80,16 +80,16 @@
         },
         "rounds": {
           "$round": {
-            ".write": "auth != null && root.child('rooms/' + $room + '/aiHost').val() === auth.uid && !newData.exists() && $round !== '' + (now - now % 360000) / 360000",
+            ".write": "auth != null && root.child('rooms/' + $room + '/aiHost').val() === auth.uid && !newData.exists() && $round !== '' + (now - now % 240000) / 240000",
             "number": {
               ".read": "auth != null",
-              ".write": "auth != null && $round === '' + (now - now % 360000) / 360000 && now % 360000 >= 30000 && now % 360000 < 330000",
+              ".write": "auth != null && $round === '' + (now - now % 240000) / 240000 && now % 240000 >= 30000 && now % 240000 < 210000",
               ".validate": "newData.isNumber() && newData.val() % 1 === 0 && newData.val() - (data.exists() ? data.val() : 0) <= 50 && newData.val() - (data.exists() ? data.val() : 0) >= -50"
             },
             "players": {
               ".read": "auth != null",
               "$playerId": {
-                ".write": "auth != null && !data.exists() && $round === '' + (now - now % 360000) / 360000 && ((newData.child('kind').val() === 'human' && $playerId === auth.uid && newData.child('uid').val() === auth.uid) || (newData.child('kind').val() === 'ai' && root.child('rooms/' + $room + '/aiHost').val() === auth.uid))",
+                ".write": "auth != null && !data.exists() && $round === '' + (now - now % 240000) / 240000 && ((newData.child('kind').val() === 'human' && $playerId === auth.uid && newData.child('uid').val() === auth.uid) || (newData.child('kind').val() === 'ai' && root.child('rooms/' + $room + '/aiHost').val() === auth.uid))",
                 ".validate": "newData.hasChildren(['id', 'kind', 'joinedAt', 'joinedDuring']) && newData.child('id').val() === $playerId && newData.child('joinedAt').val() === now && (newData.child('joinedDuring').val() === 'gathering' || newData.child('joinedDuring').val() === 'playing') && (newData.child('kind').val() === 'human' || (newData.child('personality').val() === 'greedy' || newData.child('personality').val() === 'balancer' || newData.child('personality').val() === 'perfectionist' || newData.child('personality').val() === 'moody' || newData.child('personality').val() === 'lastSpurt'))",
                 "id": {
                   ".validate": "newData.isString()"
@@ -135,7 +135,7 @@
             "pulses": {
               ".read": "auth != null",
               "$playerId": {
-                ".write": "auth != null && $round === '' + (now - now % 360000) / 360000 && now % 360000 >= 30000 && now % 360000 < 330000 && ($playerId === auth.uid || (root.child('rooms/' + $room + '/aiHost').val() === auth.uid && root.child('rooms/' + $room + '/rounds/' + $round + '/players/' + $playerId + '/kind').val() === 'ai'))",
+                ".write": "auth != null && $round === '' + (now - now % 240000) / 240000 && now % 240000 >= 30000 && now % 240000 < 210000 && ($playerId === auth.uid || (root.child('rooms/' + $room + '/aiHost').val() === auth.uid && root.child('rooms/' + $room + '/rounds/' + $round + '/players/' + $playerId + '/kind').val() === 'ai'))",
                 ".validate": "newData.hasChildren(['t', 'power']) && newData.child('t').val() === now && newData.child('power').isNumber() && newData.child('power').val() >= 0 && newData.child('power').val() <= 3 && newData.child('power').val() % 1 === 0",
                 "t": {
                   ".validate": "newData.isNumber()"
@@ -150,8 +150,8 @@
             },
             "points": {
               "$playerId": {
-                ".read": "auth != null && ($playerId === auth.uid || $round !== '' + (now - now % 360000) / 360000 || now % 360000 >= 333000)",
-                ".write": "auth != null && ($playerId === auth.uid || (root.child('rooms/' + $room + '/aiHost').val() === auth.uid && root.child('rooms/' + $room + '/rounds/' + $round + '/players/' + $playerId + '/kind').val() === 'ai')) && $round === '' + (now - now % 360000) / 360000 && now % 360000 >= 30000 && now % 360000 < 333000",
+                ".read": "auth != null && ($playerId === auth.uid || $round !== '' + (now - now % 240000) / 240000 || now % 240000 >= 213000)",
+                ".write": "auth != null && ($playerId === auth.uid || (root.child('rooms/' + $room + '/aiHost').val() === auth.uid && root.child('rooms/' + $room + '/rounds/' + $round + '/players/' + $playerId + '/kind').val() === 'ai')) && $round === '' + (now - now % 240000) / 240000 && now % 240000 >= 30000 && now % 240000 < 213000",
                 ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() % 1 === 0 && (!data.exists() || newData.val() >= data.val())"
               }
             }

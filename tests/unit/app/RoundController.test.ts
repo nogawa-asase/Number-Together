@@ -59,7 +59,8 @@ describe('RoundController: view', () => {
     await settle();
     const view = me.view()!;
     expect(view.number).toBe(w.server.numberOf(1, ROUND));
-    const windowStart = w.clock.now() - 120_000;
+    // 標本を切り詰めるのは、数字が変わったとき。最後の標本の時刻から、窓を数える
+    const windowStart = view.samples.at(-1)!.t - 120_000;
     const before = view.samples.filter((s) => s.t < windowStart);
     expect(before.length).toBeLessThanOrEqual(1);
     expect(view.samples.at(-1)!.value).toBe(view.number);

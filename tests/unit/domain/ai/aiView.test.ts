@@ -5,10 +5,10 @@ import { DEFAULT_CONFIG } from '../../../../src/domain/config/defaultConfig';
 import { roundClockAt } from '../../../../src/domain/schedule/roundClockAt';
 import { fixedRandom } from '../../fixtures/random';
 
-const START = 4_928_211 * 360_000; // ある回の集合が始まる時刻
+const START = 7_392_317 * 240_000; // ある回の集合が始まる時刻
 const PLAY_START = START + 30_000;
-const BONUS_START = START + 270_000;
-const PLAY_END = START + 330_000;
+const BONUS_START = START + 150_000;
+const PLAY_END = START + 210_000;
 
 function viewAt(nowMs: number, number = 950, target = 1_000) {
   return aiViewAt(
@@ -27,10 +27,10 @@ describe('aiViewAt', () => {
     });
   });
 
-  it('ゲーム開始ちょうどは、経過0、残り5分', () => {
+  it('ゲーム開始ちょうどは、経過0、残り3分', () => {
     expect(viewAt(PLAY_START)).toMatchObject({
       elapsedRatio: 0,
-      remainingMs: 300_000,
+      remainingMs: 180_000,
       bonusActive: false,
     });
   });
@@ -39,11 +39,11 @@ describe('aiViewAt', () => {
     expect(viewAt(BONUS_START - 1).bonusActive).toBe(false);
   });
 
-  it('倍増タイムの開始ちょうどから、倍増タイム。経過は0.8', () => {
+  it('倍増タイムの開始ちょうどから、倍増タイム。経過は2/3', () => {
     expect(viewAt(BONUS_START)).toMatchObject({
       bonusActive: true,
       remainingMs: 60_000,
-      elapsedRatio: 0.8,
+      elapsedRatio: 2 / 3,
     });
   });
 

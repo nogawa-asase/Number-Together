@@ -3,8 +3,8 @@ import { DEFAULT_CONFIG } from '../../../../src/domain/config/defaultConfig';
 import { canJoinNow } from '../../../../src/domain/schedule/canJoinNow';
 import { roundClockAt } from '../../../../src/domain/schedule/roundClockAt';
 
-const START = 4_928_211 * 360_000; // ある回の集合が始まる時刻
-const PLAY_END = START + 330_000; // その回のゲーム終了
+const START = 7_392_317 * 240_000; // ある回の集合が始まる時刻
+const PLAY_END = START + 210_000; // その回のゲーム終了
 
 function verdictAt(serverMs: number) {
   return canJoinNow(
@@ -44,7 +44,7 @@ describe('canJoinNow', () => {
 
   it('結果発表中は、参加できない(次の回の集合を待つ)', () => {
     expect(verdictAt(PLAY_END)).toEqual({ ok: false, reason: 'lastMinute' });
-    expect(verdictAt(START + 359_999)).toEqual({
+    expect(verdictAt(START + 239_999)).toEqual({
       ok: false,
       reason: 'lastMinute',
     });

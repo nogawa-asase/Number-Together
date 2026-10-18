@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs';
+import { DEFAULT_CONFIG } from '../../src/domain/config/defaultConfig';
 import { QUICK_CONFIG } from '../../src/domain/config/quickConfig';
 import type { GameConfig } from '../../src/domain/config/types';
 import { roundClockAt, roundId } from '../../src/domain/schedule/roundClockAt';
@@ -10,27 +11,28 @@ export const TEST_CONFIG: GameConfig = QUICK_CONFIG;
 const CYCLE = TEST_CONFIG.gatherMs + TEST_CONFIG.playMs + TEST_CONFIG.resultMs;
 
 /**
- * ルールの中の時刻の数値と、それぞれが出てくる回数(docs/architecture.md「データベースの配置とセキュリティルール」)。
+ * ルールの中の時刻の数値(本物の周期。DEFAULT_CONFIG から計算する)と、それぞれが出てくる回数(docs/architecture.md「データベースの配置とセキュリティルール」)。
  * 回数が変わったら(ルールを書き足したら)、置き換え漏れがないか、ここも直す
  */
+const D = DEFAULT_CONFIG;
 const TIME_CONSTANTS = [
   {
-    value: 360_000,
+    value: D.gatherMs + D.playMs + D.resultMs,
     count: 19,
     replace: CYCLE,
   },
   {
-    value: 333_000,
+    value: D.gatherMs + D.playMs + D.pointsGraceMs,
     count: 2,
     replace:
       TEST_CONFIG.gatherMs + TEST_CONFIG.playMs + TEST_CONFIG.pointsGraceMs,
   },
   {
-    value: 330_000,
+    value: D.gatherMs + D.playMs,
     count: 2,
     replace: TEST_CONFIG.gatherMs + TEST_CONFIG.playMs,
   },
-  { value: 30_000, count: 3, replace: TEST_CONFIG.gatherMs },
+  { value: D.gatherMs, count: 3, replace: TEST_CONFIG.gatherMs },
 ] as const;
 
 /** 前後が数字でない、その数値だけに合う正規表現 */

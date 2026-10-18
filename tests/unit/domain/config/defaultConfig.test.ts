@@ -17,7 +17,7 @@ describe('DEFAULT_CONFIG', () => {
     expect(titleRules).toHaveLength(4);
     expect(values).toEqual({
       gatherMs: 30_000,
-      playMs: 300_000,
+      playMs: 180_000,
       resultMs: 30_000,
       joinCutoffMs: 60_000,
       pointsGraceMs: 3_000,
@@ -47,9 +47,9 @@ describe('DEFAULT_CONFIG', () => {
     });
   });
 
-  it('1周は360秒になる', () => {
+  it('1周は240秒になる', () => {
     const { gatherMs, playMs, resultMs } = DEFAULT_CONFIG;
-    expect(gatherMs + playMs + resultMs).toBe(360_000);
+    expect(gatherMs + playMs + resultMs).toBe(240_000);
   });
 
   it('ポイントの猶予は、結果発表より短い(猶予が次の回にかからない)', () => {

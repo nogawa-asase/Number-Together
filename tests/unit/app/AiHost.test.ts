@@ -57,7 +57,10 @@ describe('AiHost: 担当の追従', () => {
     await advanceSettled(w.clock, 60_000);
     expect(w.ais()).toHaveLength(3); // 足さない
     const after = w.server.pulsesOf(w.roomId, ROUND);
-    const resent = w.ais().filter((ai) => after[ai.id]!.t > before[ai.id]!.t);
+    // 引き継ぐ前に、まだ合図を送っていないAIもいる(性格による)
+    const resent = w
+      .ais()
+      .filter((ai) => (after[ai.id]?.t ?? 0) > (before[ai.id]?.t ?? 0));
     expect(resent.length).toBeGreaterThan(0);
   });
 
@@ -178,7 +181,7 @@ describe('AiHost: AIの追加', () => {
     expect(aiHost.isActive()).toBe(true);
     expect(w.ais(ROUND)).toEqual([]);
 
-    w.clock.advance(START + 360_000 + 30_000 - (PLAY_END + 5_000));
+    w.clock.advance(START + 240_000 + 30_000 - (PLAY_END + 5_000));
     expect(w.ais(NEXT_ROUND)).toHaveLength(4);
     expect(w.ais(NEXT_ROUND)[0]!.joinedDuring).toBe('gathering');
   });
@@ -219,12 +222,12 @@ describe('AiHost: 古い回の削除', () => {
     w.aiHostOf(w.host).start();
     expect(del).toHaveBeenLastCalledWith(w.roomId, OLD_ROUND);
 
-    w.clock.advance(360_000); // 次の回の始め
+    w.clock.advance(240_000); // 次の回の始め
     await w.join(w.host);
     expect(del).toHaveBeenLastCalledWith(w.roomId, String(Number(ROUND) - 1));
     expect(w.players(ROUND)).toHaveLength(5); // 1つ前の回は残る
 
-    w.clock.advance(360_000); // その次の回の始め
+    w.clock.advance(240_000); // その次の回の始め
     expect(del).toHaveBeenLastCalledWith(w.roomId, ROUND);
     expect(w.players(ROUND)).toEqual([]);
     expect(w.players(NEXT_ROUND)).toHaveLength(5);

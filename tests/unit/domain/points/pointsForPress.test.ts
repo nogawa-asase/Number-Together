@@ -6,10 +6,10 @@ import { pointsForPress } from '../../../../src/domain/points/pointsForPress';
 import type { PressInput } from '../../../../src/domain/points/types';
 import { roundClockAt } from '../../../../src/domain/schedule/roundClockAt';
 
-const START = 4_928_211 * 360_000; // ある回の集合が始まる時刻
+const START = 7_392_317 * 240_000; // ある回の集合が始まる時刻
 const PLAY_START = START + 30_000;
-const BONUS_START = START + 270_000; // 終了の1分前
-const PLAY_END = START + 330_000;
+const BONUS_START = START + 150_000; // 終了の1分前
+const PLAY_END = START + 210_000;
 
 /** 目標1,000(範囲 900〜1,100)で、+1を押した入力。指定しなかった項目は、倍増タイムの前・範囲の中 */
 function press(

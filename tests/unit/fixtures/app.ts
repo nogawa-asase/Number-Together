@@ -112,7 +112,7 @@ export async function aiHostWorld(
   }
 
   function currentRound() {
-    return String(Math.floor(world.clock.now() / 360_000));
+    return String(Math.floor(world.clock.now() / 240_000));
   }
 
   const players = (round = currentRound()) =>

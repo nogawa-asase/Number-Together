@@ -6,8 +6,8 @@ import {
   roundId,
 } from '../../../../src/domain/schedule/roundClockAt';
 
-const CYCLE = 360_000; // 30秒 + 5分 + 30秒
-const ROUND = 4_928_211; // 2026年ごろの回の番号
+const CYCLE = 240_000; // 30秒 + 3分 + 30秒
+const ROUND = 7_392_317; // 2026年ごろの回の番号
 const START = ROUND * CYCLE; // この回の集合が始まる時刻
 
 describe('roundClockAt', () => {
@@ -22,8 +22,8 @@ describe('roundClockAt', () => {
       phaseStartsAt: START,
       phaseEndsAt: START + 30_000,
       playStartsAt: START + 30_000,
-      playEndsAt: START + 330_000,
-      bonusStartsAt: START + 270_000,
+      playEndsAt: START + 210_000,
+      bonusStartsAt: START + 150_000,
       nextRoundStartsAt: START + CYCLE,
     });
   });
@@ -38,17 +38,17 @@ describe('roundClockAt', () => {
     const clock = roundClockAt(START + 30_000, DEFAULT_CONFIG);
     expect(clock.phase).toBe('playing');
     expect(clock.phaseStartsAt).toBe(START + 30_000);
-    expect(clock.phaseEndsAt).toBe(START + 330_000);
+    expect(clock.phaseEndsAt).toBe(START + 210_000);
   });
 
   it('ゲーム終了の1ミリ秒前は、まだゲーム中', () => {
-    expect(roundClockAt(START + 329_999, DEFAULT_CONFIG).phase).toBe('playing');
+    expect(roundClockAt(START + 209_999, DEFAULT_CONFIG).phase).toBe('playing');
   });
 
   it('ゲーム終了ちょうどは、結果発表', () => {
-    const clock = roundClockAt(START + 330_000, DEFAULT_CONFIG);
+    const clock = roundClockAt(START + 210_000, DEFAULT_CONFIG);
     expect(clock.phase).toBe('result');
-    expect(clock.phaseStartsAt).toBe(START + 330_000);
+    expect(clock.phaseStartsAt).toBe(START + 210_000);
     expect(clock.phaseEndsAt).toBe(START + CYCLE);
   });
 
@@ -66,20 +66,20 @@ describe('roundClockAt', () => {
 
   it('倍増タイムは、ゲーム終了の bonusDurationMs 前から', () => {
     const config = { ...DEFAULT_CONFIG, bonusDurationMs: 30_000 };
-    expect(roundClockAt(START, config).bonusStartsAt).toBe(START + 300_000);
+    expect(roundClockAt(START, config).bonusStartsAt).toBe(START + 180_000);
   });
 
   it('設定で長さを変えると、段階の切り替わりも変わる', () => {
-    // Given: ゲームを3分にした設定(1周 = 30秒 + 3分 + 30秒 = 240秒)
-    const config = { ...DEFAULT_CONFIG, playMs: 180_000 };
+    // Given: ゲームを5分にした設定(1周 = 30秒 + 5分 + 30秒 = 360秒)
+    const config = { ...DEFAULT_CONFIG, playMs: 300_000 };
 
     // When
-    const clock = roundClockAt(240_000 + 210_000, config);
+    const clock = roundClockAt(360_000 + 330_000, config);
 
     // Then: 2回目(番号1)の、ゲーム終了ちょうど
     expect(clock.roundIndex).toBe(1);
     expect(clock.phase).toBe('result');
-    expect(clock.playEndsAt).toBe(240_000 + 210_000);
+    expect(clock.playEndsAt).toBe(360_000 + 330_000);
   });
 
   it('時刻の基準(0)は、第0回の集合の始まり', () => {
@@ -98,12 +98,12 @@ describe('roundClockAt', () => {
 
 describe('roundId', () => {
   it('回の番号を、10進の文字列にする', () => {
-    expect(roundId(ROUND)).toBe('4928211');
+    expect(roundId(ROUND)).toBe('7392317');
     expect(roundId(0)).toBe('0');
   });
 
   it('セキュリティルールの式と同じ文字列になる', () => {
-    // ルールは `'' + (now - now % 360000) / 360000` で、いまの回の roundId を作る
+    // ルールは `'' + (now - now % 240000) / 240000` で、いまの回の roundId を作る
     const now = START + 123_456;
     const fromRules = '' + (now - (now % CYCLE)) / CYCLE;
     expect(roundId(roundClockAt(now, DEFAULT_CONFIG).roundIndex)).toBe(

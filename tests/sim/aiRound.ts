@@ -29,7 +29,7 @@ export interface RoundResult {
   readonly rejections: number; // ルールに拒否された書き込みの数
 }
 
-const START = 4_928_211 * 360_000; // ある回の、集合の始め
+const START = 7_392_317 * 240_000; // ある回の、集合の始め
 
 /**
  * AIだけの回を、集合の始めから、ポイントの猶予の終わりまで動かす。

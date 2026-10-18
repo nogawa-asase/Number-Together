@@ -10,10 +10,10 @@ import {
 } from '../../../../src/domain/layout/graphGeometry';
 import { roundClockAt } from '../../../../src/domain/schedule/roundClockAt';
 
-const START = 4_928_211 * 360_000; // ある回の集合が始まる時刻
+const START = 7_392_317 * 240_000; // ある回の集合が始まる時刻
 const PLAY_START = START + 30_000;
-const BONUS_START = START + 270_000;
-const PLAY_END = START + 330_000;
+const BONUS_START = START + 150_000;
+const PLAY_END = START + 210_000;
 
 describe('graphY', () => {
   it.each([

@@ -10,7 +10,7 @@ import type { GameConfig } from './types';
 export const DEFAULT_CONFIG: GameConfig = {
   // 進行(PRD「開催の流れ」。どれも仮置き)
   gatherMs: 30_000,
-  playMs: 300_000,
+  playMs: 180_000,
   resultMs: 30_000,
   joinCutoffMs: 60_000, // 終了の1分前から途中参加できない(PRD「開催の流れ」)
   pointsGraceMs: 3_000, // ポイントの猶予(architecture.md「3秒の猶予」)

@@ -405,7 +405,7 @@ tests/rules/
 └── round.rules.test.ts        # players(追加だけ、AIはAI担当)・pulses・points(猶予まで本人だけ読める、減らない)・古い回の削除
 ```
 
-- ルールは、サーバーの時刻(`now`)で段階を決める。本物の周期(6分)では、段階を待つのに数分かかるので、`tests/support/testCycle.ts` の `scaledRules()` で、ルールの時刻の数値を短い周期(1周10秒。`TEST_CONFIG`)に置き換えて読み込ませる。式は、そのまま
+- ルールは、サーバーの時刻(`now`)で段階を決める。本物の周期(4分)では、段階を待つのに数分かかるので、`tests/support/testCycle.ts` の `scaledRules()` で、ルールの時刻の数値を短い周期(1周10秒。`TEST_CONFIG`)に置き換えて読み込ませる。式は、そのまま
 - 段階は、`waitFor(phase)` で待つ(エミュレータも、同じ機械の時計を使う)
 
 **命名規則**: `[対象].rules.test.ts`

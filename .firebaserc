@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "demo-number-together"
-  }
+    "default": "demo-number-together",
+    "prod": "number-together"
+  },
+  "targets": {},
+  "etags": {}
 }

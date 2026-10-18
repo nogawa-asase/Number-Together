@@ -171,10 +171,10 @@ UI / アプリケーション → firebase の import    (NG。Firebaseは、イ
 
 | ルールの中の式 | 意味(既定の設定値のとき) |
 |------|------|
-| `now % 360000` | いまの回の中の経過(`offset`)。1周 = `gatherMs + playMs + resultMs` = 360000 |
-| `'' + (now - now % 360000) / 360000` | いまの回の `roundId`(`roundIndex` を10進の文字列にしたもの) |
-| `now % 360000 >= 30000 && now % 360000 < 330000` | ゲーム中(`gatherMs` 〜 `gatherMs + playMs`) |
-| `now % 360000 < 333000` | 終了の3秒後(`gatherMs + playMs + pointsGraceMs`)より前 |
+| `now % 240000` | いまの回の中の経過(`offset`)。1周 = `gatherMs + playMs + resultMs` = 240000 |
+| `'' + (now - now % 240000) / 240000` | いまの回の `roundId`(`roundIndex` を10進の文字列にしたもの) |
+| `now % 240000 >= 30000 && now % 240000 < 210000` | ゲーム中(`gatherMs` 〜 `gatherMs + playMs`) |
+| `now % 240000 < 213000` | 終了の3秒後(`gatherMs + playMs + pointsGraceMs`)より前 |
 
 - `$round` が、いまの回の `roundId` と一致しない書き込みは、拒否する(終わった回の数字やポイントを、あとから書き換えられないようにする)
 - `pointsGraceMs` は、`resultMs` より短くする(猶予が、次の回にかからないようにする)
@@ -202,10 +202,10 @@ UI / アプリケーション → firebase の import    (NG。Firebaseは、イ
 
 | ルールの中の値 | 設定値(`GameConfig`) |
 |------|------|
-| 360000(1周) | `gatherMs + playMs + resultMs` |
+| 240000(1周) | `gatherMs + playMs + resultMs` |
 | 30000(ゲーム開始) | `gatherMs` |
-| 330000(ゲーム終了) | `gatherMs + playMs` |
-| 333000(ポイントの猶予の終わり) | `gatherMs + playMs + pointsGraceMs` |
+| 210000(ゲーム終了) | `gatherMs + playMs` |
+| 213000(ポイントの猶予の終わり) | `gatherMs + playMs + pointsGraceMs` |
 | 20(1部屋の人数) | `roomCapacity` |
 | 50(1回の変化の上限) | `maxDeltaPerWrite` |
 | 12(名前の長さの粗い上限) | `nameMaxUnits` |
@@ -242,16 +242,16 @@ UI / アプリケーション → firebase の import    (NG。Firebaseは、イ
         },
         "rounds": {
           "$round": {
-            ".write": "auth != null && root.child('rooms/' + $room + '/aiHost').val() === auth.uid && !newData.exists() && $round !== '' + (now - now % 360000) / 360000",
+            ".write": "auth != null && root.child('rooms/' + $room + '/aiHost').val() === auth.uid && !newData.exists() && $round !== '' + (now - now % 240000) / 240000",
             "number": {
               ".read": "auth != null",
-              ".write": "auth != null && $round === '' + (now - now % 360000) / 360000 && now % 360000 >= 30000 && now % 360000 < 330000",
+              ".write": "auth != null && $round === '' + (now - now % 240000) / 240000 && now % 240000 >= 30000 && now % 240000 < 210000",
               ".validate": "newData.isNumber() && newData.val() - (data.exists() ? data.val() : 0) <= 50 && newData.val() - (data.exists() ? data.val() : 0) >= -50"
             },
             "points": {
               "$playerId": {
-                ".read": "auth != null && ($playerId === auth.uid || $round !== '' + (now - now % 360000) / 360000 || now % 360000 >= 333000)",
-                ".write": "auth != null && $playerId === auth.uid && $round === '' + (now - now % 360000) / 360000 && now % 360000 >= 30000 && now % 360000 < 333000",
+                ".read": "auth != null && ($playerId === auth.uid || $round !== '' + (now - now % 240000) / 240000 || now % 240000 >= 213000)",
+                ".write": "auth != null && $playerId === auth.uid && $round === '' + (now - now % 240000) / 240000 && now % 240000 >= 30000 && now % 240000 < 213000",
                 ".validate": "newData.isNumber() && newData.val() >= 0 && (!data.exists() || newData.val() >= data.val())"
               }
             }
@@ -265,7 +265,7 @@ UI / アプリケーション → firebase の import    (NG。Firebaseは、イ
 
 ### ルールのテスト(`@firebase/rules-unit-testing`)
 
-- テストでは、ルールの時刻の数値(360000・333000・330000・30000)を、短い周期(1周10秒)の値に置き換えて、エミュレータに読み込ませる(`tests/support/testCycle.ts`)。式は同じなので、時刻の判定の形を、そのまま確かめられる。数値が出てくる回数を数え、ルールを書き足して置き換え漏れが起きたら、テストが失敗する
+- テストでは、ルールの時刻の数値(240000・213000・210000・30000)を、短い周期(1周10秒)の値に置き換えて、エミュレータに読み込ませる(`tests/support/testCycle.ts`)。式は同じなので、時刻の判定の形を、そのまま確かめられる。数値が出てくる回数を数え、ルールを書き足して置き換え漏れが起きたら、テストが失敗する
 - **確かめた**: ルールの中の `'' + 数値` は、10進の文字列になり、`$round` と一致する(いまの回への書き込みが通る)
 
 - 他人のポイントは、終了の3秒後まで読めず、その後は読める
@@ -388,7 +388,7 @@ PRDの機能9。数える仕組みは、機能設計書の `TrafficMeter`。こ�
 | リソース | 上限(仮) | 理由 | 測定方法 |
 |---------|------|------|---------|
 | 配信サイズ | `dist/` の合計 1MB 以内、JavaScript は gzip 後 300KB 以内(どちらも、最初のビルドで測って、確定する) | 初回表示のため。Firebase の SDK が、大きな部分を占める | CIの build ジョブで `scripts/check-dist-size.ts` が合計を計算し、超えたら失敗させる。上限は、スクリプトの中に定数で持つ。最初のビルドで測ったあと、この表とスクリプトの定数を、同じコミットで確定する(測った値に、2割ほどの余裕を足す) |
-| メモリ(JSヒープ) | 50MB 以内(仮) | 20人の小人、グラフの履歴(約5分ぶん)、Firebase の接続を含めて | 公開前に Chrome DevTools の Memory パネルで、1回のゲーム後のJSヒープサイズを手動で確認する |
+| メモリ(JSヒープ) | 50MB 以内(仮) | 20人の小人、グラフの履歴(約3分ぶん)、Firebase の接続を含めて | 公開前に Chrome DevTools の Memory パネルで、1回のゲーム後のJSヒープサイズを手動で確認する |
 
 ## デプロイ(itch.io)
 

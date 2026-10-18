@@ -13,7 +13,7 @@ describe('PressBatcher: まとめ送り', () => {
     await settle();
 
     expect(add).toHaveBeenCalledTimes(1);
-    expect(add).toHaveBeenCalledWith(w.roomId, '4928211', 5);
+    expect(add).toHaveBeenCalledWith(w.roomId, '7392317', 5);
     expect(w.number()).toBe(5);
   });
 
