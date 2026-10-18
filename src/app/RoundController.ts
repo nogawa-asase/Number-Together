@@ -13,6 +13,8 @@ export type { Cue, ResultView, RoundEvent, RoundView } from './RoundView';
 export interface SessionSource {
   onState(listener: (state: SessionState) => void): Unsubscribe;
   uid(): string | null;
+  /** 押されたことを伝える(押さなかった回のあと、おやすみにするため) */
+  notePress(): void;
 }
 
 /**
@@ -59,8 +61,9 @@ export class RoundController {
 
   /** +1・−1が押された。ゲーム中で、つながっているときだけ受け付ける */
   press(kind: PressKind): void {
-    if (this.online) {
-      this.active?.press(kind);
+    if (this.online && this.active !== null) {
+      this.active.press(kind);
+      this.session.notePress();
     }
   }
 

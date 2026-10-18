@@ -153,6 +153,12 @@ function main(): void {
   round.start();
   session.start();
 
+  // 画面が見えないまま1分たったら、接続を切る(寝落ちの対策。SessionController.setVisible)
+  const followVisibility = () =>
+    session.setVisible(document.visibilityState === 'visible');
+  document.addEventListener('visibilitychange', followVisibility);
+  followVisibility();
+
   if (meter !== NO_TRAFFIC_METER) {
     reportTraffic(round, meter, root);
   }

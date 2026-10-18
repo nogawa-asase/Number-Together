@@ -2,8 +2,9 @@ import type { MessageKey } from '../../app/i18n/i18n';
 import { html, ref, type Screen, translate } from '../dom';
 
 /**
- * 見出しだけの画面(つないでいる途中・想定外のエラー)。
- * ボタンを渡すと、下に出す(エラーのときの「再読み込み」)
+ * 見出しだけの画面(つないでいる途中・想定外のエラー・おやすみ)。
+ * ボタンを渡すと、下に出す(エラーのときの「再読み込み」、おやすみの「もどる」)。
+ * dots が false なら、待っている点の動きを出さない
  */
 export class MessageScreen implements Screen {
   readonly element: HTMLElement;
@@ -11,7 +12,8 @@ export class MessageScreen implements Screen {
   constructor(
     title: MessageKey,
     lead: MessageKey | null,
-    button: { label: MessageKey; onClick: () => void } | null = null
+    button: { label: MessageKey; onClick: () => void } | null = null,
+    dots = true
   ) {
     this.element = html(`
 <div class="screen">
@@ -19,7 +21,7 @@ export class MessageScreen implements Screen {
     <div class="title" data-i18n="${title}"></div>
     ${lead === null ? '' : `<div class="lead" data-i18n="${lead}"></div>`}
   </div>
-  <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+  ${dots ? '<div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>' : ''}
   <div class="spacer"></div>
   ${button === null ? '' : `<button type="button" class="btn btn-big" data-ref="button" data-i18n="${button.label}"></button>`}
 </div>`);

@@ -23,11 +23,21 @@ describe('部屋の割り振り', () => {
     for (const client of clients) {
       client.session.start();
     }
-    await until(
-      () => clients.every((c) => c.session.state().kind === 'inRoom'),
-      30_000, // 集合中に作れなかった人は、次の回の集合で入る
-      '全員の入室'
-    );
+    // 全員、遊んでいる(押さなかった回のあとは、おやすみになって部屋を出るため)
+    const pressing = setInterval(() => {
+      for (const client of clients) {
+        client.session.notePress();
+      }
+    }, 100);
+    try {
+      await until(
+        () => clients.every((c) => c.session.state().kind === 'inRoom'),
+        30_000, // 集合中に作れなかった人は、次の回の集合で入る
+        '全員の入室'
+      );
+    } finally {
+      clearInterval(pressing);
+    }
 
     // Then: 部屋ごとの人数(参加中の印と、人数の数え)が20人以下で、合計25人
     const rooms = new Map<number, number>();

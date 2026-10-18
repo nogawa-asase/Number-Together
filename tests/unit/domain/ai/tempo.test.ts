@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_AI_PARAMS as PARAMS } from '../../../../src/domain/ai/aiParams';
-import { tempoFor, withTempo } from '../../../../src/domain/ai/tempo';
+import { paceFor, tempoFor, withTempo } from '../../../../src/domain/ai/tempo';
+import { DEFAULT_CONFIG } from '../../../../src/domain/config/defaultConfig';
 import { DomainError } from '../../../../src/domain/errors';
 import { fixedRandom } from '../../fixtures/random';
 
@@ -67,4 +68,20 @@ describe('withTempo', () => {
       expect(() => withTempo(PARAMS, tempo)).toThrow(DomainError);
     }
   );
+});
+
+describe('paceFor', () => {
+  it('3分のゲーム(倍増タイムの前は2分)は、5分のゲーム(4分)の2倍', () => {
+    expect(paceFor(DEFAULT_CONFIG)).toBe(2);
+  });
+
+  it('5分のゲームは、1倍(頻度を調整したときの長さ)', () => {
+    expect(paceFor({ ...DEFAULT_CONFIG, playMs: 300_000 })).toBe(1);
+  });
+
+  it('倍増タイムの前の長さが0以下なら、例外になる', () => {
+    expect(() =>
+      paceFor({ ...DEFAULT_CONFIG, playMs: 60_000, bonusDurationMs: 60_000 })
+    ).toThrow(DomainError);
+  });
 });

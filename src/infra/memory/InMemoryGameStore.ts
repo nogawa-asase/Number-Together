@@ -41,6 +41,14 @@ export class InMemoryGameStore implements GameStore {
     this.emitConnection();
   }
 
+  goOffline(): void {
+    this.disconnect();
+  }
+
+  goOnline(): void {
+    this.reconnect();
+  }
+
   private emitConnection(): void {
     const state = this.online ? 'online' : 'offline';
     for (const listener of [...this.connectionListeners]) {

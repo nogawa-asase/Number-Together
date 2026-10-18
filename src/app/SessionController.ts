@@ -17,6 +17,9 @@ import { StoreError } from '../infra/store/StoreError';
 /** 待機の理由 */
 export type WaitReason = 'full' | 'lastMinute' | 'afterOffline';
 
+/** おやすみの理由(idle: ゲーム中に一度も押さなかった、hidden: 画面が見えないまま hiddenRestMs たった) */
+export type RestReason = 'idle' | 'hidden';
+
 /** いまの状態(画面の切り替えに使う) */
 export type SessionState =
   | { readonly kind: 'connecting' } // 起動中
@@ -39,7 +42,8 @@ export type SessionState =
       readonly kind: 'reconnecting'; // 部屋にいるあいだに切れた
       readonly roomId: number;
       readonly attempts: number;
-    };
+    }
+  | { readonly kind: 'resting'; readonly reason: RestReason }; // おやすみ(自分から接続を切った)
 
 /** AiHost のうち、SessionController が使う部分 */
 export interface AiHostHandle {
@@ -77,6 +81,8 @@ interface LostRoom {
  * - 初回の登録(register)のあと、または2回目以降は、すぐ入室する(planRoom → tryEnterRoom / createRoom / 待機)
  * - 部屋にいるあいだ: 回ごとに参加者になり、AI担当がいなければ取りにいき、AiHost を動かす
  * - 部屋にいるあいだに切れたら、再接続中にし、つながったら、続きから(または次の回から)参加する
+ * - 寝落ちの対策: ゲーム中に一度も押さなかった回のあと、または画面が見えないまま hiddenRestMs たったら、
+ *   部屋を出て、接続を切る(おやすみ)。wake で、つなぎ直して参加する
  */
 export class SessionController {
   private current: SessionState = { kind: 'connecting' };
@@ -102,6 +108,13 @@ export class SessionController {
     roundId: string;
     joinedDuring: Player['joinedDuring'];
   } | null = null; // 最後に参加者になった回
+  private pressedRoundId: string | null = null; // 最後に押した回
+
+  private resting: RestReason | null = null; // おやすみの理由。起きているときは null
+  private wentOffline = false; // おやすみで、接続を切った
+  private restRoomId: number | null = null; // おやすみの前にいた部屋
+  private resume: { readonly roomId: number | null } | null = null; // つながったら、おやすみから戻る
+  private cancelHidden: Cancel | null = null;
 
   constructor(private readonly deps: SessionDeps) {}
 
@@ -277,7 +290,7 @@ export class SessionController {
   // ---- 入室と待機 ----
 
   private async enterRoom(): Promise<void> {
-    if (this.stopped) {
+    if (this.stopped || this.resting !== null) {
       return;
     }
     this.setState({ kind: 'entering' });
@@ -329,12 +342,36 @@ export class SessionController {
 
   private joinRoom(roomId: number): void {
     const uid = this.myUid!;
-    if (this.stopped) {
-      void this.leave(roomId); // 入室の途中で止められた: 入った部屋を出る
+    if (this.stopped || this.resting !== null) {
+      void this.leave(roomId); // 入室の途中で止められた(おやすみになった): 入った部屋を出る
       return;
     }
-    this.room = new RoomSeat(this.deps, roomId, uid, () => this.joinRound());
+    this.room = new RoomSeat(this.deps, roomId, uid, () => this.onNewRound());
     void this.joinRound();
+  }
+
+  /** 次の回の始め。前の回に参加していたのに、一度も押さなかったら、おやすみにする */
+  private onNewRound(): void {
+    const { joined, room } = this;
+    if (room === null) {
+      return;
+    }
+    if (
+      joined !== null &&
+      joined.roomId === room.roomId &&
+      this.pressedRoundId !== joined.roundId
+    ) {
+      this.rest('idle');
+      return;
+    }
+    void this.joinRound();
+  }
+
+  /** +1・−1が押された(いまの回で、押したことを覚える) */
+  notePress(): void {
+    if (this.joined !== null) {
+      this.pressedRoundId = this.joined.roundId;
+    }
   }
 
   /** いまの回の参加者になる(同じ回に2回は足さない) */
@@ -382,8 +419,15 @@ export class SessionController {
   // ---- 接続の切断と再接続 ----
 
   private handleConnection(state: ConnectionState): void {
+    if (this.resting !== null) {
+      return; // おやすみ中: 自分から切った
+    }
     if (state === 'online') {
-      if (!this.connected) {
+      const { resume } = this;
+      if (resume !== null) {
+        this.resume = null;
+        void this.resumeFrom(resume.roomId);
+      } else if (!this.connected) {
         void this.connect();
       } else if (this.lost !== null) {
         void this.recover(this.lost);
@@ -453,6 +497,106 @@ export class SessionController {
     }
   }
 
+  // ---- おやすみ ----
+
+  /** 画面が見えるか(ブラウザでは document.visibilityState)。見えないまま hiddenRestMs たったら、おやすみ */
+  setVisible(visible: boolean): void {
+    this.cancelHidden?.();
+    this.cancelHidden = null;
+    if (visible) {
+      if (this.resting === 'hidden') {
+        this.wake();
+      }
+      return;
+    }
+    if (this.resting === null) {
+      this.cancelHidden = this.deps.scheduler.after(
+        this.deps.config.hiddenRestMs,
+        () => {
+          this.cancelHidden = null;
+          this.rest('hidden');
+        }
+      );
+    }
+  }
+
+  /** 部屋を出て、接続を切る。登録が済んでいないとき(起動中・混雑中・初回の登録)は、何もしない */
+  private rest(reason: RestReason): void {
+    if (
+      this.stopped ||
+      this.resting !== null ||
+      !this.connected ||
+      this.myProfile === null
+    ) {
+      return;
+    }
+    this.resting = reason;
+    this.resume = null;
+    cancelAll(this.offlineTimers);
+    this.cancelWait?.();
+    this.cancelWait = null;
+    const room = this.room;
+    this.room = null;
+    this.restRoomId = room?.roomId ?? this.lost?.roomId ?? null;
+    this.lost = null;
+    this.setState({ kind: 'resting', reason });
+    let leaving: Promise<void> = Promise.resolve();
+    if (room !== null) {
+      room.close();
+      leaving = this.leave(room.roomId);
+    }
+    void leaving.then(() => {
+      if (this.resting !== null && !this.stopped) {
+        this.wentOffline = true;
+        this.deps.store.goOffline();
+      }
+    });
+  }
+
+  /** おやすみから戻る(「もどる」、または画面が見えるようになった)。つないで、参加する */
+  wake(): void {
+    if (this.resting === null || this.stopped) {
+      return;
+    }
+    this.resting = null;
+    const roomId = this.restRoomId;
+    this.restRoomId = null;
+    this.setState({ kind: 'entering' });
+    if (!this.wentOffline) {
+      void this.resumeFrom(roomId); // まだ切る前だった
+      return;
+    }
+    this.wentOffline = false;
+    this.resume = { roomId };
+    this.deps.store.goOnline(); // つながったら handleConnection から resumeFrom
+  }
+
+  /** おやすみの前と同じ回に、まだ途中参加できるなら、同じ部屋に戻る。それ以外は、ふつうに入室する */
+  private async resumeFrom(roomId: number | null): Promise<void> {
+    const { store, clock, config } = this.deps;
+    const now = clock.now();
+    const round = roundClockAt(now, config);
+    const { joined } = this;
+    if (
+      roomId !== null &&
+      joined?.roomId === roomId &&
+      joined.roundId === roundId(round.roundIndex) &&
+      canJoinNow(round, now, config).ok
+    ) {
+      try {
+        if (
+          await store.tryEnterRoom(roomId, this.myUid!, config.roomCapacity)
+        ) {
+          this.joinRoom(roomId);
+          return;
+        }
+      } catch (error) {
+        this.report(error);
+      }
+    }
+    void this.enterRoom();
+  }
+
   // ---- 止める ----
 
   /** 部屋を出て、すべて止める */
@@ -462,6 +606,7 @@ export class SessionController {
     }
     this.stopped = true;
     this.unsubscribeConnection?.();
+    this.cancelHidden?.();
     cancelAll(this.connectTimers);
     cancelAll(this.offlineTimers);
     this.cancelWait?.();
@@ -492,6 +637,7 @@ class RoomSeat {
   private readonly unsubscribes: Unsubscribe[] = [];
   private readonly aiHost: AiHostHandle;
   private cancelNextRound: Cancel | null = null;
+  private closed = false;
   private members: Readonly<Record<string, Presence>> | null = null;
   private host: string | null | undefined = undefined; // 届くまでは undefined
 
@@ -518,6 +664,7 @@ class RoomSeat {
   }
 
   close(): void {
+    this.closed = true;
     for (const unsubscribe of this.unsubscribes) {
       unsubscribe();
     }
@@ -531,7 +678,9 @@ class RoomSeat {
     const next = roundClockAt(now, this.deps.config).nextRoundStartsAt;
     this.cancelNextRound = this.deps.scheduler.after(next - now, () => {
       this.onNewRound();
-      this.scheduleNextRound();
+      if (!this.closed) {
+        this.scheduleNextRound(); // 次の回の始めに、部屋を離れた(おやすみ)なら、もう待たない
+      }
     });
   }
 

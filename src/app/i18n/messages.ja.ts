@@ -32,6 +32,12 @@ export const ja = {
   'wait.note': '時間になったら、そのまま参加できます',
   'wait.waiting': '待っています',
 
+  'rest.idle.title': 'おやすみ中',
+  'rest.idle.lead': 'しばらく押されなかったので、お休みしています',
+  'rest.hidden.title': 'おやすみ中',
+  'rest.hidden.lead': '画面が閉じていたので、お休みしています',
+  'rest.back': 'もどる',
+
   'offline.title': 'つながらない…',
   'offline.lead': '電波のいいところで、ためしてね',
   'offline.reconnecting': 'つなぎ直しています',

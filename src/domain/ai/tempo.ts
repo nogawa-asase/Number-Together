@@ -1,3 +1,4 @@
+import type { GameConfig } from '../config/types';
 import { DomainError } from '../errors';
 import type { AiParams } from './aiParams';
 import type { Random } from './random';
@@ -56,4 +57,26 @@ export function withTempo(params: AiParams, tempo: number): AiParams {
       spurtPerSec: lastSpurt.spurtPerSec * tempo,
     },
   };
+}
+
+/**
+ * 頻度を決めたときの、倍増タイムの前の長さ(5分のゲームの、最後の1分を除いた4分)。
+ * AIの頻度は、この長さで、目標に届くように調整した(シミュレーション)
+ */
+export const PACE_BASE_NORMAL_MS = 240_000;
+
+/**
+ * ゲームの長さに合わせた、倍増タイムの前の頻度の倍率。倍増タイムの前が短いほど、速く押す
+ * (3分のゲームなら、倍増タイムの前は2分なので、2倍)。倍増タイムの長さは変わらないので、
+ * 倍増タイム中は掛けない(AiHost が、withTempo で、すべての頻度に掛ける)。
+ *
+ * @param config - 設定値(playMs・bonusDurationMs を使う)
+ * @throws DomainError - 倍増タイムの前の長さが0以下のとき
+ */
+export function paceFor(config: GameConfig): number {
+  const normalMs = config.playMs - config.bonusDurationMs;
+  if (!(normalMs > 0)) {
+    throw new DomainError(`倍増タイムの前の長さが不正です: ${normalMs}`);
+  }
+  return PACE_BASE_NORMAL_MS / normalMs;
 }

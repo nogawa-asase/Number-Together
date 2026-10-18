@@ -32,6 +32,12 @@ export const en: Messages = {
   'wait.note': "You'll join as soon as the next round starts",
   'wait.waiting': 'Waiting',
 
+  'rest.idle.title': 'Taking a break',
+  'rest.idle.lead': "You didn't press for a while, so we paused",
+  'rest.hidden.title': 'Taking a break',
+  'rest.hidden.lead': 'The screen was closed, so we paused',
+  'rest.back': 'Back to the game',
+
   'offline.title': 'No connection…',
   'offline.lead': 'Try somewhere with a better signal',
   'offline.reconnecting': 'Reconnecting',

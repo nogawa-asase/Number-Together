@@ -107,6 +107,7 @@ describe('RoundController: view', () => {
           return () => {};
         },
         uid: () => uid,
+        notePress: () => {},
       }
     );
     const views: (RoundView | null)[] = [];
@@ -246,7 +247,10 @@ describe('RoundController: 回の切り替え', () => {
   it('次の回に移ると、新しい回の view になり、前の回は送らない', async () => {
     const w = sessionWorld();
     const me = await w.player();
-    w.clock.advance(NEXT_START - START);
+    w.clock.advance(PLAY_START - START);
+    await settle();
+    me.round.press('+1'); // 押さなかった回のあとは、おやすみになる
+    w.clock.advance(NEXT_START - PLAY_START);
     await settle();
     expect(me.view()).toMatchObject({
       roundId: String(Number(ROUND) + 1),

@@ -6,7 +6,7 @@ import {
   roundPersonalities,
 } from '../domain/ai/pickPersonalities';
 import type { Random } from '../domain/ai/random';
-import { tempoFor, withTempo } from '../domain/ai/tempo';
+import { paceFor, tempoFor, withTempo } from '../domain/ai/tempo';
 import type { GameConfig } from '../domain/config/types';
 import { pointsForPress } from '../domain/points/pointsForPress';
 import { roundClockAt, roundId } from '../domain/schedule/roundClockAt';
@@ -42,7 +42,8 @@ interface AiSeat {
   readonly id: string;
   readonly personality: AiPersonality;
   readonly delayMs: number; // 反応の遅れ。この時間だけ前の数字を見る
-  readonly params: AiParams; // 勢い(tempoFor)を掛けた、このAIの設定値
+  readonly params: AiParams; // 勢い(tempoFor)を掛けた、このAIの設定値(倍増タイム中)
+  readonly normalParams: AiParams; // さらに、ゲームの長さのペース(paceFor)を掛けた設定値(倍増タイムの前)
   readonly batcher: PressBatcher;
   points: number; // この担当が数えた、この回のポイント
 }
@@ -292,14 +293,16 @@ class AiRound {
           playEndsAt: this.clock.playEndsAt,
         }
       );
+      const params = withTempo(
+        this.deps.aiParams,
+        tempoFor(this.deps.random, this.deps.aiParams)
+      );
       this.ais.set(player.id, {
         id: player.id,
         personality,
         delayMs: reactionDelayMs(this.deps.random, this.deps.aiParams),
-        params: withTempo(
-          this.deps.aiParams,
-          tempoFor(this.deps.random, this.deps.aiParams)
-        ),
+        params,
+        normalParams: withTempo(params, paceFor(this.deps.config)), // ゲームの長さに合わせる
         batcher,
         points: 0, // 引き継いだときも0から(前の担当の値は、ルールで読めない)
       });
@@ -331,7 +334,7 @@ class AiRound {
         view,
         aiParams.tickMs,
         random,
-        ai.params
+        view.bonusActive ? ai.params : ai.normalParams
       );
       if (move === null) {
         continue;

@@ -196,6 +196,13 @@ export class DomGameView {
         return new RoomScreen(round, session.uid()!, config, now, () =>
           session.profile()
         );
+      case 'resting':
+        return new MessageScreen(
+          `rest.${state.reason}.title`,
+          `rest.${state.reason}.lead`,
+          { label: 'rest.back', onClick: () => session.wake() },
+          false
+        );
     }
   }
 }

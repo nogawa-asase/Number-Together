@@ -1,6 +1,8 @@
 import { signInAnonymously } from 'firebase/auth';
 import {
   get,
+  goOffline,
+  goOnline,
   increment,
   type OnDisconnect,
   onDisconnect,
@@ -187,6 +189,14 @@ export class FirebaseGameStore implements GameStore {
     return onValue(this.ref(paths.connected()), (snapshot) => {
       listener(snapshot.val() === true ? 'online' : 'offline');
     });
+  }
+
+  goOffline(): void {
+    goOffline(this.fb.db);
+  }
+
+  goOnline(): void {
+    goOnline(this.fb.db);
   }
 
   // ---- 部屋 ----

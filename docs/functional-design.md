@@ -139,6 +139,7 @@ interface GameConfig {
   pulsePowerSteps: [number, number, number]; // 合図の強さ(power)の段階。直近 pulseIntervalMs に押した回数が、これ以上なら 1・2・3。[1, 3, 6](仮)
   initialConnectTimeoutMs: number; // 起動時に、この時間つながらなければ、混雑中の画面を出す。5_000
   offlineScreenDelayMs: number;    // 通信が切れてから、再接続の画面を出すまで。3_000
+  hiddenRestMs: number;            // 画面が見えなくなってから、接続を切る(おやすみ)まで。60_000
   reconnectGraceMs: number;    // 通信が切れてから、続きから参加できる時間。60_000
   retryMs: number;             // 混雑中・通信切れで、自動で試す間隔。10_000
 
@@ -489,6 +490,8 @@ function reactionDelayMs(random: Random, params: AiParams): number;
 function tempoFor(random: Random, params: AiParams): number;
 /** 押す頻度(1秒あたりの回数)だけを tempo 倍した設定値 */
 function withTempo(params: AiParams, tempo: number): AiParams;
+/** ゲームの長さに合わせた、倍増タイムの前の頻度の倍率。240000 / (playMs − bonusDurationMs)(3分のゲームで2) */
+function paceFor(config: GameConfig): number;
 /** AIを足すときの性格。5種類から重ならないように選び、足りなければ一巡してから重ねる */
 function pickPersonalities(count: number, random: Random): AiPersonality[];
 /** その回のAIの性格。部屋と回から種を作って pickPersonalities で選ぶ(どの端末でも同じ。数を減らしても先頭はそろう) */
@@ -516,6 +519,8 @@ interface GameStore {
 
   // 接続
   onConnection(listener: (state: 'online' | 'offline') => void): () => void;
+  goOffline(): void;  // 自分から切る(おやすみ)。サーバーでは、切断の予約(presence の削除)が動く
+  goOnline(): void;   // つなぎ直す
 
   // 部屋
   readRoomCounts(): Promise<number[]>;
@@ -622,6 +627,7 @@ class AiHost {
 - 接続の状態(オンライン・オフライン・混雑中)の管理と、再接続
 - 部屋の `presence` と `aiHost` を購読し、AI担当がいなくなったら、自分がそのとき最も古い参加者なら、`claimAiHost` を試す
 - 回が変わったら、同じ部屋で、そのまま次の回の参加者になる
+- 寝落ちの対策(おやすみ): ゲーム中に一度も押さなかった回のあと、または画面が見えないまま `hiddenRestMs` たったら、部屋を出て、接続を切る
 
 **インターフェース**:
 
@@ -634,7 +640,8 @@ type SessionState =
   | { kind: 'entering' }                                      // 部屋を決めている
   | { kind: 'waiting'; reason: 'full' | 'lastMinute' | 'afterOffline'; until: number } // 待機(until に、もう一度試す)
   | { kind: 'inRoom'; roomId: number; roundId: string; joinedDuring: 'gathering' | 'playing' }
-  | { kind: 'reconnecting'; roomId: number; attempts: number }; // 部屋にいるあいだに切れた
+  | { kind: 'reconnecting'; roomId: number; attempts: number } // 部屋にいるあいだに切れた
+  | { kind: 'resting'; reason: 'idle' | 'hidden' };            // おやすみ(idle: 押さなかった、hidden: 画面が見えなかった)
 
 class SessionController {
   constructor(deps: {
@@ -649,6 +656,9 @@ class SessionController {
   updateProfile(name: string, character: CharacterSpec): Promise<NameVerdict>; // 自分の画面から変更(入室はし直さない。ほかの人の画面の参加者の名前とキャラは次の回から。自分の画面では、すぐ反映する)
   refreshStats(): Promise<Stats | null>;                                 // 自分の画面で、実績を読み直す
   retryNow(): void;                                                      // 「いますぐ、ためす」
+  notePress(): void;                                                     // 押された(RoundController.press から。押さなかった回を見分ける)
+  setVisible(visible: boolean): void;                                    // 画面が見えるか(document の visibilitychange から)
+  wake(): void;                                                          // おやすみから戻る(「もどる」)
   onState(listener: (state: SessionState) => void): () => void;          // 登録したときにも1回知らせる
   state(): SessionState;
   uid(): string | null;
@@ -662,6 +672,11 @@ class SessionController {
 - 部屋にいるあいだ: 次の回の集合の始めに、次の回の参加者になる(同じ回に2回は足さない)。`AiHost` を動かす。担当がいなければ、`presence` の `joinedAt` が最も古い人(同じなら uid の順)が `claimAiHost` を試す
 - 部屋にいるあいだに切れたら、部屋の購読と `AiHost` を止める。つながったとき、続きから参加できなければ、集合中ならすぐ、それ以外は次の回の集合で、入室し直す(`waiting: afterOffline`)
 - サーバー時刻の差が変わったとき(時刻が飛んだとき)の、タイマーの組み直しは、まだしない(`RoundController` と一緒に決める)
+- おやすみ: 寝落ちした人が、毎回の参加者に数えられ(目標が200ずつ上がり、AIが1人減る)、同時接続と通信量を使い続けるのを防ぐ
+  - `idle`: 次の回の始めに、前の回の参加者だったのに一度も押していなければ、次の回の参加者にならず、部屋を出て(`leaveRoom`)、`goOffline` する。画面に戻っても、自動では戻らない(「もどる」を押す)
+  - `hidden`: 画面が見えないまま `hiddenRestMs`(60秒)たったら、同じようにする(待機中・再接続中も)。それより前に見えたら、何もしない。見えるようになったら、自動で戻る
+  - 戻る(`wake`): `goOnline` し、つながったら、おやすみの前と同じ回に途中参加できるなら、同じ部屋の続きから参加する(参加者を二重に足さない)。それ以外は、ふつうに入室する(集合中なら入室、終了1分前を過ぎていれば待機)
+  - 起動中・混雑中・初回の登録の前は、おやすみにしない
 
 ### TrafficMeter(通信量の計測。テスト用)
 
@@ -752,6 +767,7 @@ class DomGameView {
 | `needsProfile` | 名前とキャラクター選び(01) |
 | `waiting` | 待機(`full` は 14、`lastMinute`・`afterOffline` は 15 の形) |
 | `inRoom` | 集合中・プレイ中・結果発表(`RoundView` の段階で選ぶ) |
+| `resting` | おやすみ(見出し「おやすみ中」・理由・「もどる」。見本にないので足した。待っている点の動きは出さない) |
 
 - 画面は、固定のテンプレートから作り、文言・名前・数字は、あとから文字として入れる(他の人の名前を `innerHTML` に渡さない)
 - 言語が変わったら、いまの画面を作り直す(名前とキャラクター選びの入力は残す)
@@ -947,6 +963,7 @@ AIは、一定の間隔(例: 250ms)ごとに、`decide` を呼ぶ。AIが見る�
 - AIの合図も、人間と同じ形で、1秒に1回までにまとめて送る
 - 「つよい」「ふつう」のような強さの段階は、持たない。そのかわり、AIごとに「勢い」(押す頻度の倍率。`tempoSpread` = 0.8 で、0.2〜1.8倍)を、加わったときに乱数で決める。同じ性格でも、押す速さに個体差が出る。勢いがないと、同じ顔ぶれの回は、毎回ほぼ同じ数字で終わり、AIだけの回の成功率が、0%か100%に張り付く(シミュレーションで確かめた)
 - 頻度の値は、AIだけの回のシミュレーション(`npm run test:sim`)で調整した。本番と同じ選び方の顔ぶれで、成功率は5人で約65%、10人で約70%、20人で約83%(各40回)。人間のプレイテストのあとに、見直す
+- 頻度は、5分のゲーム(倍増タイムの前が4分)で調整した。ゲームの長さを変えても同じ遊び心地になるよう、**倍増タイムの前だけ**、すべての頻度に `paceFor`(240000 ÷ 倍増タイムの前の長さ。3分のゲームで2倍)を掛ける。倍増タイム(最後の1分)は長さが同じなので、掛けない。3分のゲームでのシミュレーションの成功率は、混ぜる顔ぶれで 83%・93%・98%(5人・10人・20人)、目標比の平均は 1.05〜1.09 で、5分のときと同じくらい(掛けないと、慎重派が多い回は 15〜35% に下がった)
 
 ### 8. 押した操作と画面の反映
 
@@ -1042,6 +1059,7 @@ onConnection:
 
 - 接続が切れたとき、`presence` は、自動で消える(接続が切れたら実行される削除を、あらかじめ登録しておく)。これにより、AI担当や部屋の人数が、自動で整う
 - 接続が切れている間は、+1・−1のボタンの操作は、受け付けない
+- おやすみ(自分から切ったとき)は、再接続の画面を出さず、自動でもつなぎ直さない(上の「SessionController」)
 
 ## ユースケース図
 

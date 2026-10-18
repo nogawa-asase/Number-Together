@@ -40,6 +40,7 @@ export const DEFAULT_CONFIG: GameConfig = {
   retryMs: 10_000,
   initialConnectTimeoutMs: 5_000,
   offlineScreenDelayMs: 3_000,
+  hiddenRestMs: 60_000, // 画面が見えなくなって1分で、接続を切る(寝落ちの対策)
 
   // 表示(PRD機能5・機能4・機能6)
   pastWindowMs: 120_000, // 右から1/3が「いま」になるように、未来の2倍

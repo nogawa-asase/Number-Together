@@ -34,6 +34,10 @@ export interface GameStore {
 
   // 接続
   onConnection(listener: (state: ConnectionState) => void): Unsubscribe;
+  /** 自分から接続を切る(おやすみ)。切れたことは onConnection で知らせる。サーバーでは、切断の予約が動く */
+  goOffline(): void;
+  /** goOffline のあと、つなぎ直す */
+  goOnline(): void;
 
   // 部屋
   /** 部屋ごとの人間の人数。[i] は部屋 i + 1 */

@@ -39,6 +39,7 @@ describe('DEFAULT_CONFIG', () => {
       retryMs: 10_000,
       initialConnectTimeoutMs: 5_000,
       offlineScreenDelayMs: 3_000,
+      hiddenRestMs: 60_000,
       pastWindowMs: 120_000,
       futureWindowMs: 60_000,
       resultTopN: 7,

@@ -178,9 +178,11 @@ describe('SessionController: 入室と待機', () => {
 
   it('ゲーム中に満員なら待機し、次の回の集合で入る', async () => {
     const w = sessionWorld(START, SMALL);
-    await w.registered('a');
-    await w.registered('b');
+    const a = await w.registered('a');
+    const b = await w.registered('b');
     w.clock.advance(PLAY_START - START);
+    a.session.notePress(); // 押した人は、次の回も部屋に残る
+    b.session.notePress();
 
     const late = await w.registered('c');
     expect(late.session.state()).toEqual({
@@ -234,7 +236,9 @@ describe('SessionController: 入室と待機', () => {
   it('回が変わったら、同じ部屋で、次の回の参加者になる', async () => {
     const w = sessionWorld();
     const me = await w.registered();
-    w.clock.advance(NEXT_START - START);
+    w.clock.advance(PLAY_START - START);
+    me.session.notePress();
+    w.clock.advance(NEXT_START - PLAY_START);
     await settle();
     expect(me.session.state()).toEqual({
       kind: 'inRoom',

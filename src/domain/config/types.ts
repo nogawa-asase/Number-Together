@@ -46,6 +46,7 @@ export interface GameConfig {
   readonly retryMs: number; // 混雑中・通信切れで、自動で試す間隔
   readonly initialConnectTimeoutMs: number; // 起動時に、この時間つながらなければ、混雑中
   readonly offlineScreenDelayMs: number; // 通信が切れてから、再接続の画面を出すまで
+  readonly hiddenRestMs: number; // 画面が見えなくなってから、接続を切る(おやすみ)まで
 
   // 表示
   readonly pastWindowMs: number; // グラフの過去の長さ
